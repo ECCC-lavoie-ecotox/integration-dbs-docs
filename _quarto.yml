@@ -5,28 +5,45 @@ execute:
   freeze: auto
 
 website:
-  title: "Base de données sur les contaminants"
   sidebar:
-    style: "docked"
+    logo: https://avatars.githubusercontent.com/u/160540893?s=400&u=15cde635e8bcab09b992ccdfaee10c1fc49a0a2f&v=4
     search: true
     contents:
       - section: "Introduction"
         contents:
           - index.qmd
           - deploy.qmd
-      - section: "Explorer les données"
+      - section: "Consolider les données"
         contents:
           - projects.qmd
+          - sites.qmd
+          - analytes.qmd
           - measurements.qmd
       - section: "Structurer la base de données"
         contents:
           - database.qmd
 format:
   html:
-    theme: cosmo
+    lang: fr 
+    code-overflow: wrap
+    page-layout: full
+    highlight-style: monokai
+    theme: 
+      light: pulse
+      dark: darkly
+    code-tools:
+      source: true
+      toggle: false
+      caption: none
     css: styles.css
     toc: true
-    fontsize: 13px
+    other-links:
+      - text: NASA Open Data
+        href: https://data.nasa.gov/
+    code-links:
+      - text: Data Import Code
+        icon: file-code
+        href: data-import.py
 
 
 

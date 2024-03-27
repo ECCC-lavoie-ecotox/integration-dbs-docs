@@ -1,12 +1,12 @@
 ---
-title: "Recensement des projets et rapports d'analyse"
+title: "Recensement des projets"
 author: "Steve Vissault"
 date: "2024-03-19"
 ---
 
 ## Établir une liste exhaustive des rapports de laboratoire
 
-Pourquoi? Chaque rapport contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel l'analyse a été demandé.
+Pourquoi? Chaque rapport contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel l'analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d'obtenir la liste des projets.
 
 Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: `CHEM-PCDD-00-07` ou encore `MB-05-10`. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:
 

@@ -1,5 +1,5 @@
 ---
-title: "Descriptions des contaminants"
+title: "Description des contaminants"
 author: "Steve Vissault"
 date: "2024-01-05"
 ---
@@ -86,7 +86,7 @@ contaminants <- purrr::map(
     contaminants_mapping, \(f){
         # Copy the excel file locally in the temp folder
         tmp_file <- tempfile()
-        invisible(file.copy(f$path, tmp_file, overwrite = TRUE))
+        file.copy(f$path, tmp_file, overwrite = TRUE)
         # Loop over sheets
         purrr::map2(f$sheets, names(f$sheets), \(s, n){
             readxl::read_excel(tmp_file, sheet = n) |>
@@ -300,12 +300,4 @@ for (s in sites){
 
     cat("\n")
 }
-```
-
-## Objectif 3. Distribution
-
-```{R}
-library(ggplot2)
-ggplot(dplyr::filter(contaminants_uncensored, variable == "Dieldrin"), aes(value)) +
-  geom_histogram() + facet_wrap(~Location)
 ```
