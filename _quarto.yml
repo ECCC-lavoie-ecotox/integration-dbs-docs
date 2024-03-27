@@ -1,13 +1,20 @@
 project:
   type: website
 
+execute:
+  freeze: auto
+
 website:
   title: "Docs"
-  navbar:
-    left:
-      - href: index.qmd
-        text: Home
-      - about.qmd
+  sidebar:
+    style: "docked"
+    search: true
+    contents:
+      - section: "Basics"
+        contents:
+          - index.qmd
+          - projects.qmd
+          - measurements.qmd
 
 format:
   html:
