@@ -21,4 +21,4 @@ install.packages("quarto")
 quarto::quarto_preview()
 ```
 
-Cette approche permet de travailler en parallele sur les fichiers de documentation. À chaque fois qu'un fichier est modifié. Le site internet est reconstruit pour inclure les dernières modifications.
+Cette approche permet de travailler en parallele sur les fichiers de documentation. À chaque fois qu'un fichier est modifié, le site internet est reconstruit pour inclure les dernières modifications.
