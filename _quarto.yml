@@ -1,9 +1,6 @@
 project:
   type: website
 
-execute:
-  freeze: auto
-
 website:
   sidebar:
     logo: https://avatars.githubusercontent.com/u/160540893?s=400&u=15cde635e8bcab09b992ccdfaee10c1fc49a0a2f&v=4
