@@ -2,22 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/index.html</loc>
-    <lastmod>2024-03-27T16:27:01.784Z</lastmod>
+    <lastmod>2024-03-27T21:13:47.725Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/sites.html</loc>
+    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/deploy.html</loc>
-    <lastmod>2024-03-27T16:27:01.520Z</lastmod>
+    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/projects.html</loc>
-    <lastmod>2024-03-27T16:27:01.784Z</lastmod>
+    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/database.html</loc>
-    <lastmod>2024-03-27T16:27:01.520Z</lastmod>
+    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/measurements.html</loc>
-    <lastmod>2024-03-27T16:27:01.784Z</lastmod>
+    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/analytes.html</loc>
+    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
   </url>
 </urlset>
