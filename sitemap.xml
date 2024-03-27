@@ -1,31 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/index.html</loc>
-    <lastmod>2024-03-27T21:13:47.725Z</lastmod>
-  </url>
-  <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/sites.html</loc>
-    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/deploy.html</loc>
-    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/projects.html</loc>
-    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/database.html</loc>
-    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
+    <lastmod>2024-03-27T18:48:43.028Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/measurements.html</loc>
-    <lastmod>2024-03-27T21:13:47.729Z</lastmod>
+    <lastmod>2024-03-27T19:25:13.510Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/deploy.html</loc>
+    <lastmod>2024-03-27T16:10:39.230Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/analytes.html</loc>
-    <lastmod>2024-03-27T21:13:47.465Z</lastmod>
+    <lastmod>2024-03-27T21:10:14.109Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/database.html</loc>
+    <lastmod>2024-03-27T16:11:51.187Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/index.html</loc>
+    <lastmod>2024-03-27T18:37:52.764Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/projects.html</loc>
+    <lastmod>2024-03-27T18:50:11.554Z</lastmod>
   </url>
 </urlset>
