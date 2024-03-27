@@ -1,5 +1,5 @@
 ---
-title: "Établir une liste des projets en se basant sur les rapports de laboratoire"
+title: "Recensement des projets et rapports d'analyse"
 author: "Steve Vissault"
 date: "2024-03-19"
 ---
