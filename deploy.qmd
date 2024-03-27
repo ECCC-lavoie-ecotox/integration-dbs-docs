@@ -1,0 +1,24 @@
+---
+title: "Construire ce site internet"
+---
+
+Pour construire cette documentation en locale, voici les étapes.
+
+## Pré-requis
+
+Installer les deux librairies R à l'aide des commandes suivantes:
+
+``` r
+# install.packages("devtools")
+devtools::install_github("ECCC-lavoie-ecotox/toxbox")
+install.packages("quarto")
+```
+
+## Construire ce site internet
+
+```r
+# Serve the website in your browser
+quarto::quarto_preview()
+```
+
+Cette approche permet de travailler en parallele sur les fichiers de documentation. À chaque fois qu'un fichier est modifié. Le site internet est reconstruit pour inclure les dernières modifications.

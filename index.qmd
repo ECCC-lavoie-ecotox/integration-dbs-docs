@@ -1,7 +1,10 @@
 ---
-title: "Docs"
+title: "Pourquoi?"
 ---
 
-This is a Quarto website.
+# À quoi sert cette documentation?
 
-To learn more about Quarto websites visit <https://quarto.org/docs/websites>.
+Le laboratoire de Raphael Lavoie désire effectuer un travail d'intégration des données issues de mesure de contaminants sur des matrices biologiques. 
+
+Ce travail d'intégration requière plusieurs étapes de validation et de consolidation des données. Ce document recense l'ensembles des étapes et inclut le code et certaines figures exploratoires pour bien comprendre les données. 
+

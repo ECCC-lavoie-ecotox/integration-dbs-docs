@@ -5,22 +5,28 @@ execute:
   freeze: auto
 
 website:
-  title: "Docs"
+  title: "Base de données sur les contaminants"
   sidebar:
     style: "docked"
     search: true
     contents:
-      - section: "Basics"
+      - section: "Introduction"
         contents:
           - index.qmd
+          - deploy.qmd
+      - section: "Explorer les données"
+        contents:
           - projects.qmd
           - measurements.qmd
-
+      - section: "Structurer la base de données"
+        contents:
+          - database.qmd
 format:
   html:
     theme: cosmo
     css: styles.css
     toc: true
+    fontsize: 13px
 
 
 
