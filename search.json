@@ -37,7 +37,7 @@
     "href": "deploy.html#construire-ce-site-internet",
     "title": "Construire ce site internet",
     "section": "Construire ce site internet",
-    "text": "Construire ce site internet\n# Serve the website in your browser\nquarto::quarto_preview()\nCette approche permet de travailler en parallele sur les fichiers de documentation. À chaque fois qu’un fichier est modifié. Le site internet est reconstruit pour inclure les dernières modifications.",
+    "text": "Construire ce site internet\n# Serve the website in your browser\nquarto::quarto_preview()\nCette approche permet de travailler en parallele sur les fichiers de documentation. À chaque fois qu’un fichier est modifié, le site internet est reconstruit pour inclure les dernières modifications.",
     "crumbs": [
       "Introduction",
       "Construire ce site internet"
