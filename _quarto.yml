@@ -2,8 +2,12 @@ project:
   type: website
 
 website:
+  title: Documentation
+  navbar:
+    title: "<span class='fw-lighter text-uppercase'>Documentation</span><br>
+    <span class='fw-lighter fs-6'>Intégration des mesures de contaminants sur des oiseaux marins</span>"
+    logo: logo.png
   sidebar:
-    logo: https://avatars.githubusercontent.com/u/160540893?s=400&u=15cde635e8bcab09b992ccdfaee10c1fc49a0a2f&v=4
     search: true
     contents:
       - section: "Introduction"
@@ -12,13 +16,17 @@ website:
           - deploy.qmd
       - section: "Consolider les données"
         contents:
-          - projects.qmd
-          - sites.qmd
-          - analytes.qmd
-          - measurements.qmd
-      - section: "Structurer la base de données"
+          - tbl_projects.qmd
+          - tbl_sites.qmd
+          - tbl_analytes.qmd
+          - tbl_measurements.qmd
+      - section: "Base de données"
         contents:
-          - database.qmd
+          - db_schema.qmd
+          - db_feed.qmd
+          - db_query.qmd
+  repo-url: https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs
+
 format:
   html:
     lang: fr 
@@ -26,21 +34,14 @@ format:
     page-layout: full
     highlight-style: monokai
     theme: 
-      light: pulse
-      dark: darkly
+      light: flatly
+      dark: cyborg
     code-tools:
       source: true
       toggle: false
       caption: none
     css: styles.css
     toc: true
-    other-links:
-      - text: NASA Open Data
-        href: https://data.nasa.gov/
-    code-links:
-      - text: Data Import Code
-        icon: file-code
-        href: data-import.py
 
 
 

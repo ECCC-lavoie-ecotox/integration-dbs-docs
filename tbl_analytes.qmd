@@ -1,0 +1,11 @@
+---
+title: "Recensement des analytes"
+author: "Steve Vissault"
+date: "2024-03-28"
+---
+
+Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section de documentation vise à documenter la démarche pour tendre vers une réconciliation des termes utilisés.
+
+```{R}
+
+```

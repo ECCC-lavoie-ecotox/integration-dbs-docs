@@ -1,5 +1,7 @@
 ---
-title: "Construire ce site internet"
+title: "Contribuer à cette documentation"
+author: "Steve Vissault"
+date: "2024-03-28"
 ---
 
 Pour construire cette documentation en locale, voici les étapes.
@@ -13,6 +15,10 @@ Installer les deux librairies R à l'aide des commandes suivantes:
 devtools::install_github("ECCC-lavoie-ecotox/toxbox")
 install.packages("quarto")
 ```
+
+## Téleverser le code source sur votre poste de travail
+
+TODO
 
 ## Construire ce site internet
 

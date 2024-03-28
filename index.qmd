@@ -1,5 +1,7 @@
 ---
 title: "À quoi sert cette documentation?"
+author: "Steve Vissault"
+date: "2024-03-28"
 ---
 
 Le laboratoire de Raphael Lavoie effectue un travail d'intégration des données issues de mesure de contaminants sur des matrices biologiques pour une région d'étude couvrant l'Estuaire et le Golf du Saint-Laurent. 

@@ -4,9 +4,9 @@ author: "Steve Vissault"
 date: "2024-03-19"
 ---
 
-## Établir une liste exhaustive des rapports de laboratoire
+## Établir une liste des projets
 
-Pourquoi? Chaque rapport contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel l'analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d'obtenir la liste des projets.
+Chaque rapport de laboratoire contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel cette analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d'obtenir la liste des projets.
 
 Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: `CHEM-PCDD-00-07` ou encore `MB-05-10`. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:
 
@@ -14,7 +14,7 @@ Un rapport de laboratoire peut être detectable dans une liste de fichier par la
 regex_report_id <- "([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-\\d{2}-\\d{2}"
 ```
 
-Cette expression régulière sera utilisée plusieurs fois dans ce document. 
+La variable `regex_report_id` sera utilisée plusieurs fois dans ce document. 
 
 On liste les rapports de laboratoire présents dans le dossier `03-Labo/Results Reports`.
 
@@ -81,7 +81,7 @@ docs <- reports |> dplyr::filter(ext %in% c('doc', 'docx'))
 docs |> knitr::kable()
 ```
 
-Afin de faciliter l'extraction des métadonnées, on convertit les fichiers .doc et .docx en pdf
+Afin de faciliter l'extraction des métadonnées par programmation, on convertit les fichiers .doc et .docx en pdf.
 
 ## Convertion des documents Word en pdf
 
@@ -89,11 +89,12 @@ Cette étape a été compété manuellement.
 
 ## Extraire les métadonnées du rapport
 
-Nous souhaitons générer une liste de tous les projets basée sur les `r length(reports)` rapports de laboratoire stockés dans le dossier `03-Labo/Comptes rendus` de résultats. La première page de chaque rapport de laboratoire contient toutes les informations pertinentes pour produire cette liste.
+Nous souhaitons générer une liste de tous les projets basée sur les `r nrow(reports)` rapports de laboratoire stockés dans le dossier `03-Labo/Comptes rendus` de résultats. La première page de chaque rapport de laboratoire contient toutes les informations pertinentes pour produire cette liste.
 
 Pour chaque rapport, nous vérifions s'il s'agit d'une image ou non. Si le rapport est une image, nous devons utiliser une reconnaissance optique de caractères (OCR) afin d'extraire le texte de la première page et d'obtenir toutes les métadonnées pertinentes. Si c'est un pdf ou un fichier word, nous importons la première page du document.
 
 ```{R, eval = FALSE}
+# On détect si le document est une image
 reports <- reports |> dplyr::mutate(
     filename = basename(path),
     is_image = purrr::map2_lgl(path, ext, \(p, e) {
@@ -106,6 +107,7 @@ reports <- reports |> dplyr::mutate(
     })
 )
 
+# On extrait le texte par OCR si c'est une image
 frontpages <- purrr::map2_vec(reports$path, reports$is_image, \(p, i) {
         ifelse(isTRUE(i), 
             pdftools::pdf_ocr_text(pdf = p, pages = 1),
@@ -113,6 +115,8 @@ frontpages <- purrr::map2_vec(reports$path, reports$is_image, \(p, i) {
         )
     }) |> tolower()
 ```
+
+Une fois le texte de la première page isolé, on applique une série d'opération d'extractions de texte à partir de la position de mots clés. On isole ainsi le titre du projet, l'ID du projet, la date etc.
 
 ```{R, eval = FALSE}
 project_id <- purrr::map_vec(frontpages, \(f){
