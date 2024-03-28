@@ -6,8 +6,9 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
+<meta name="author" content="Steve Vissault">
 
-<title>Recensement des analytes</title>
+<title>Documentation - Recensement des analytes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -76,11 +77,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" class="quarto-color-scheme" id="quarto-bootstrap" data-mode="light">
 <link href="site_libs/bootstrap/bootstrap-dark.min.css" rel="prefetch" class="quarto-color-scheme quarto-color-alternate" id="quarto-bootstrap" data-mode="dark">
 <script id="quarto-search-options" type="application/json">{
-  "location": "sidebar",
+  "location": "navbar",
   "copy-button": false,
   "collapse-after": 3,
-  "panel-placement": "start",
-  "type": "textbox",
+  "panel-placement": "end",
+  "type": "overlay",
   "limit": 50,
   "keyboard-shortcut": [
     "f",
@@ -107,10 +108,23 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link rel="stylesheet" href="styles.css">
 </head>
 
-<body class="nav-sidebar floating">
+<body class="nav-sidebar floating nav-fixed">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg " data-bs-theme="dark">
+      <div class="navbar-container container-fluid">
+      <div class="navbar-brand-container mx-auto">
+    <a class="navbar-brand" href="./index.html">
+    <span class="navbar-title">Intégration des mesures de contaminants sur des oiseaux marins <br>Test</span>
+    </a>
+  </div>
+        <div class="quarto-navbar-tools">
+  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
+</div>
+          <div id="quarto-search" class="" title="Recherche"></div>
+      </div> <!-- /container-fluid -->
+    </nav>
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Basculer la barre latérale" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
@@ -126,16 +140,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   </nav>
 </header>
 <!-- content -->
-<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full">
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-full page-navbar">
 <!-- sidebar -->
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
       <a href="./index.html" class="sidebar-logo-link">
       <img src="https://avatars.githubusercontent.com/u/160540893?s=400&amp;u=15cde635e8bcab09b992ccdfaee10c1fc49a0a2f&amp;v=4" alt="" class="sidebar-logo py-0 d-lg-inline d-none">
       </a>
-      <div class="sidebar-tools-main">
-  <a href="" class="quarto-color-scheme-toggle quarto-navigation-tool  px-1" onclick="window.quartoToggleColorScheme(); return false;" title="Basculer le mode sombre"><i class="bi"></i></a>
-</div>
       </div>
         <div class="mt-2 flex-shrink-0 align-items-center">
         <div class="sidebar-search">
@@ -224,11 +235,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
         
-    <div class="quarto-other-links"><h2>Autres liens</h2><ul><li><a href="https://data.nasa.gov/"><i class="bi bi-link-45deg"></i>NASA Open Data</a></li></ul></div><div class="quarto-code-links"><h2>Liens de code</h2><ul><li><a href="data-import.py"><i class="bi bi-file-code"></i>Data Import Code</a></li></ul></div></div>
+    </div>
 <!-- main -->
-<main class="content column-body" id="quarto-document-content">
+<main class="content column-page-right" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./projects.html">Consolider les données</a></li><li class="breadcrumb-item"><a href="./analytes.html">Recensement des analytes</a></li></ol></nav>
 <div class="quarto-title">
@@ -237,9 +248,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="quarto-title-meta column-body">
+<div class="quarto-title-meta column-page-right">
 
+    <div>
+    <div class="quarto-title-meta-heading">Auteur·rice</div>
+    <div class="quarto-title-meta-contents">
+             <p>Steve Vissault </p>
+          </div>
+  </div>
     
+    <div>
+    <div class="quarto-title-meta-heading">Date de publication</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">28 mars 2024</p>
+    </div>
+  </div>
   
     
   </div>
@@ -249,60 +272,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<p>Tous les rapports de laboratoire contiennent un onglet <em>AnalyteInfo</em>. On va parcourir l’ensemble de ces rapports et r On va repartir</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>analytes_mapping <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">herons =</span> <span class="fu">list</span>(</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/GrandHeron/Base de donnees GBHE oeufs.xlsx"</span>,</span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1.2.4.5-Tetrachlorobenzene"</span>, <span class="st">"TCPM"</span>),</span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB18/17"</span>, <span class="st">"Aroclor1260"</span>),</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"BDE-7"</span>, <span class="st">"anti-DP"</span>),</span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">non-ortho PCBs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"PCB-81"</span>, <span class="st">"PCB-169"</span>),</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">PCDDs &amp; PCDFs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2378-TCDD"</span>, <span class="st">"OCDF"</span>),</span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>            <span class="at">Toxaphene =</span> <span class="fu">c</span>(<span class="st">"Total toxaphene"</span>, <span class="st">"B9-1025"</span>),</span>
-<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>            <span class="at">FAME =</span> <span class="fu">c</span>(<span class="st">"Caproic Acid"</span>, <span class="st">"Docosahexaenoic Acid (DHA)"</span>),</span>
-<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg-dw"</span>, <span class="st">"THg-ww"</span>),</span>
-<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d13C"</span>, <span class="st">"d34S"</span>)</span>
-<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">eiders =</span> <span class="fu">list</span>(</span>
-<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/EiderDuvet/Base de donnees COEI.xlsx"</span>,</span>
-<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1,2,4,5-Tetrachlorobenzene"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB17/18"</span>, <span class="st">"PCB209"</span>),</span>
-<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"b-TBECH/BDE15"</span>, <span class="st">"BB101"</span>),</span>
-<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg_dw"</span>, <span class="st">"THg_ww"</span>)</span>
-<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">gulls =</span> <span class="fu">list</span>(</span>
-<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/GoelandArgenté/Base de donnees HERG.xlsx"</span>,</span>
-<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb1-30"><a href="#cb1-30" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb1-31"><a href="#cb1-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1,2,4,5-Tetrachlorobenzene"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb1-32"><a href="#cb1-32" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB17/18"</span>, <span class="st">"PCB209"</span>),</span>
-<span id="cb1-33"><a href="#cb1-33" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"b-TBECH/BDE15"</span>, <span class="st">"BB101"</span>),</span>
-<span id="cb1-34"><a href="#cb1-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg"</span>, <span class="st">"THg"</span>),</span>
-<span id="cb1-35"><a href="#cb1-35" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d13C"</span>, <span class="st">"d34S"</span>)</span>
-<span id="cb1-36"><a href="#cb1-36" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb1-37"><a href="#cb1-37" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb1-38"><a href="#cb1-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">gannets =</span> <span class="fu">list</span>(</span>
-<span id="cb1-39"><a href="#cb1-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/FouBassan/Stats_NOGA_Temporal2022/Integration_ST LAWRENCE_Gannets Trends 1969-2019_OC-PCB-FR Metals D-F FAME CNS.xlsx"</span>,</span>
-<span id="cb1-40"><a href="#cb1-40" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb1-41"><a href="#cb1-41" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1245TCB"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb1-42"><a href="#cb1-42" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB18/17"</span>, <span class="st">"Aroclor1260"</span>),</span>
-<span id="cb1-43"><a href="#cb1-43" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"BDE-15_B-TBECH"</span>, <span class="st">"anti-DP"</span>),</span>
-<span id="cb1-44"><a href="#cb1-44" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Non-ortho PCBs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"PCB 81"</span>, <span class="st">"PCB 169"</span>),</span>
-<span id="cb1-45"><a href="#cb1-45" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">PCDDs &amp; PCDFs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2378-TCDD"</span>, <span class="st">"OCDF"</span>),</span>
-<span id="cb1-46"><a href="#cb1-46" aria-hidden="true" tabindex="-1"></a>            <span class="at">Metal =</span> <span class="fu">c</span>(<span class="st">"THg"</span>, <span class="st">"Al"</span>),</span>
-<span id="cb1-47"><a href="#cb1-47" aria-hidden="true" tabindex="-1"></a>            <span class="at">FAME =</span> <span class="fu">c</span>(<span class="st">"caproic acid"</span>, <span class="st">"docosahexaenoic acid (DHA)"</span>),</span>
-<span id="cb1-48"><a href="#cb1-48" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d15N"</span>, <span class="st">"CN"</span>)</span>
-<span id="cb1-49"><a href="#cb1-49" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb1-50"><a href="#cb1-50" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb1-51"><a href="#cb1-51" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section de documentation vise à documenter la démarche pour tendre vers une réconciliation des termes utilisés.</p>
 
 
 <!-- -->
@@ -891,66 +861,16 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Code source</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb2" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Recensement des analytes"</span></span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Tous les rapports de laboratoire contiennent un onglet _AnalyteInfo_. On va parcourir l'ensemble de ces rapports et r</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>On va repartir </span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>analytes_mapping <span class="ot">&lt;-</span> <span class="fu">list</span>(</span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">herons =</span> <span class="fu">list</span>(</span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/GrandHeron/Base de donnees GBHE oeufs.xlsx"</span>,</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1.2.4.5-Tetrachlorobenzene"</span>, <span class="st">"TCPM"</span>),</span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB18/17"</span>, <span class="st">"Aroclor1260"</span>),</span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"BDE-7"</span>, <span class="st">"anti-DP"</span>),</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">non-ortho PCBs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"PCB-81"</span>, <span class="st">"PCB-169"</span>),</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">PCDDs &amp; PCDFs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2378-TCDD"</span>, <span class="st">"OCDF"</span>),</span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>            <span class="at">Toxaphene =</span> <span class="fu">c</span>(<span class="st">"Total toxaphene"</span>, <span class="st">"B9-1025"</span>),</span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>            <span class="at">FAME =</span> <span class="fu">c</span>(<span class="st">"Caproic Acid"</span>, <span class="st">"Docosahexaenoic Acid (DHA)"</span>),</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg-dw"</span>, <span class="st">"THg-ww"</span>),</span>
-<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d13C"</span>, <span class="st">"d34S"</span>)</span>
-<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">eiders =</span> <span class="fu">list</span>(</span>
-<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/EiderDuvet/Base de donnees COEI.xlsx"</span>,</span>
-<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1,2,4,5-Tetrachlorobenzene"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB17/18"</span>, <span class="st">"PCB209"</span>),</span>
-<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"b-TBECH/BDE15"</span>, <span class="st">"BB101"</span>),</span>
-<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg_dw"</span>, <span class="st">"THg_ww"</span>)</span>
-<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>    <span class="at">gulls =</span> <span class="fu">list</span>(</span>
-<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/GoelandArgenté/Base de donnees HERG.xlsx"</span>,</span>
-<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>            <span class="at">PFC =</span> <span class="fu">c</span>(<span class="st">"PFBA"</span>, <span class="st">"PFDS"</span>),</span>
-<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1,2,4,5-Tetrachlorobenzene"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB17/18"</span>, <span class="st">"PCB209"</span>),</span>
-<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"b-TBECH/BDE15"</span>, <span class="st">"BB101"</span>),</span>
-<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>            <span class="at">THg =</span> <span class="fu">c</span>(<span class="st">"THg"</span>, <span class="st">"THg"</span>),</span>
-<span id="cb2-45"><a href="#cb2-45" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d13C"</span>, <span class="st">"d34S"</span>)</span>
-<span id="cb2-46"><a href="#cb2-46" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb2-47"><a href="#cb2-47" aria-hidden="true" tabindex="-1"></a>    ),</span>
-<span id="cb2-48"><a href="#cb2-48" aria-hidden="true" tabindex="-1"></a>    <span class="at">gannets =</span> <span class="fu">list</span>(</span>
-<span id="cb2-49"><a href="#cb2-49" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> <span class="st">"Z:/01-Projets et suivis/PASL/FouBassan/Stats_NOGA_Temporal2022/Integration_ST LAWRENCE_Gannets Trends 1969-2019_OC-PCB-FR Metals D-F FAME CNS.xlsx"</span>,</span>
-<span id="cb2-50"><a href="#cb2-50" aria-hidden="true" tabindex="-1"></a>        <span class="at">sheets =</span> <span class="fu">list</span>(</span>
-<span id="cb2-51"><a href="#cb2-51" aria-hidden="true" tabindex="-1"></a>            <span class="at">OC =</span> <span class="fu">c</span>(<span class="st">"1245TCB"</span>, <span class="st">"Mirex"</span>),</span>
-<span id="cb2-52"><a href="#cb2-52" aria-hidden="true" tabindex="-1"></a>            <span class="at">PCB =</span> <span class="fu">c</span>(<span class="st">"PCB18/17"</span>, <span class="st">"Aroclor1260"</span>),</span>
-<span id="cb2-53"><a href="#cb2-53" aria-hidden="true" tabindex="-1"></a>            <span class="at">BFR =</span> <span class="fu">c</span>(<span class="st">"BDE-15_B-TBECH"</span>, <span class="st">"anti-DP"</span>),</span>
-<span id="cb2-54"><a href="#cb2-54" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">Non-ortho PCBs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"PCB 81"</span>, <span class="st">"PCB 169"</span>),</span>
-<span id="cb2-55"><a href="#cb2-55" aria-hidden="true" tabindex="-1"></a>            <span class="st">`</span><span class="at">PCDDs &amp; PCDFs</span><span class="st">`</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="st">"2378-TCDD"</span>, <span class="st">"OCDF"</span>),</span>
-<span id="cb2-56"><a href="#cb2-56" aria-hidden="true" tabindex="-1"></a>            <span class="at">Metal =</span> <span class="fu">c</span>(<span class="st">"THg"</span>, <span class="st">"Al"</span>),</span>
-<span id="cb2-57"><a href="#cb2-57" aria-hidden="true" tabindex="-1"></a>            <span class="at">FAME =</span> <span class="fu">c</span>(<span class="st">"caproic acid"</span>, <span class="st">"docosahexaenoic acid (DHA)"</span>),</span>
-<span id="cb2-58"><a href="#cb2-58" aria-hidden="true" tabindex="-1"></a>            <span class="at">SI =</span> <span class="fu">c</span>(<span class="st">"d15N"</span>, <span class="st">"CN"</span>)</span>
-<span id="cb2-59"><a href="#cb2-59" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb2-60"><a href="#cb2-60" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb2-61"><a href="#cb2-61" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-62"><a href="#cb2-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb1" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Recensement des analytes"</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Steve Vissault"</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-03-28"</span></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section de documentation vise à documenter la démarche pour tendre vers une réconciliation des termes utilisés.</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
