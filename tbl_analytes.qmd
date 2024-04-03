@@ -1,11 +1,64 @@
 ---
-title: "Recensement des analytes"
+title: "Consolidation de la nomenclature des analytes"
 author: "Steve Vissault"
 date: "2024-03-28"
 ---
 
-Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section de documentation vise à documenter la démarche pour tendre vers une réconciliation des termes utilisés.
+Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.
+
+On charge les données intégrées depuis le package `toxbox`. Les données ne sont pas entreposées dans le package, la function `toxbox::dbs_integration()` permet de lire les fichiers Excels entreposées sur le disque réseau `Z:` et les fusionne dans un seul `data.frame`. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.
 
 ```{R}
-
+devtools::install_github("ECCC-lavoie-ecotox/toxbox")
 ```
+
+```{R}
+measurements <- toxbox::dbs_integration()
+```
+
+## Analytes avec un numéro CAS fournis par le laboratoire
+
+La nomenclature des composées chimiques / analytes peut diverger d'un laboratoire à un autre. Chaque pays dispose également de sa propre nomenclature (ex. États-Unis, Allemagne, Royaume-Unis). Afin de reconcilier la nomenclature, nous souhaitons utiliser un identifiant unique international tel que l'[International Chemical Identifier](https://fr.wikipedia.org/wiki/International_Chemical_Identifier) (InChl). 
+
+Dans un premier temps, on charge les données sur les analytes (incluant le CAS) fournies par les laboratoires. Le fichier `analytes_consolidation_27032024` est la fusion des onglets _Analyte Information_ des différentes base de données. 
+On fusionne les données sur les analytes avec les mesures.
+
+```{R}
+analytes <- readxl::read_excel("Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx") |>
+    dplyr::select(Analyte, CASNumber) |>
+    dplyr::filter(!is.na(CASNumber)) |>
+    dplyr::mutate(
+        key = janitor::make_clean_names(Analyte, allow_dupes = TRUE, case = "none") |> tolower()
+    ) |>
+    dplyr::distinct()
+
+measurements <- measurements |> 
+    dplyr::mutate(
+        key = stringr::str_replace(variable, "PCB-|PCB ", "PCB") |>
+            janitor::make_clean_names(allow_dupes = TRUE, case = "none") |> tolower()
+    )
+
+measurements <-  measurements |>
+    dplyr::left_join(analytes, by = "key")
+```
+
+On utilise le package webchem pour convertir les identifiants CAS vers InChl. 
+
+```{R, eval = FALSE}
+measurements |> 
+    dplyr::select(CASNumber) |>
+    dplyr::distinct() |>
+    dplyr::pull()
+```
+
+
+## Interrogation de la base de données PubChem
+
+```{R}
+library(webchem)
+analytes_nomenclature <- dplyr::select(measurements, variable) |> dplyr::distinct() |> dplyr::pull()
+analytes_pubchem_ids <- webchem::get_cid(sample(analytes_nomenclature, size = 20))
+PubChemR::get_json(5281116)
+```
+
+

@@ -4,15 +4,7 @@ author: "Steve Vissault"
 date: "2024-01-05"
 ---
 
-## Objectifs
-
-1. Otenir une liste exhaustive des contaminants mesurés chez quatre espèces impliquées dans le PASL.
-   a. Regrouper ces contaminants en famille 
-2. Déterminer les tailles d'échantillons pour les combinaisons: Site, espèce, années, contaminant
-   a. Établir le nombre de d'échantillons pour chaque combinaison
-   b. Établir le nombre de données censurées pour chaque combinaison
-
-## Objectif 1. Otenir une liste exhaustive des contaminants 
+## Otenir une liste exhaustive des contaminants 
 
 On cherche à obtenir une liste exhaustive des contaminants mesurés chez quatre espèces impliquées dans le PASL.
 
@@ -76,7 +68,7 @@ contaminants_mapping <- list(
 
 ```
 
-### Fusion des mesures de contaminants
+### Fusion des mesures sur les contaminants
 
 On effectue une double map (comme une double loop). Cette opération va extraire les valeurs de contaminants en traversant les classeurs (1 par espèce), et les feuillets (1 par famille de contaminant). 
 

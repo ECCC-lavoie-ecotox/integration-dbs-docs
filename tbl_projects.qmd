@@ -85,7 +85,7 @@ Afin de faciliter l'extraction des métadonnées par programmation, on convertit
 
 ## Convertion des documents Word en pdf
 
-Cette étape a été compété manuellement.
+Cette étape a été complété manuellement.
 
 ## Extraire les métadonnées du rapport
 

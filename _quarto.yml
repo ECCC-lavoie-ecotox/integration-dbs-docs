@@ -5,7 +5,7 @@ website:
   title: Documentation
   navbar:
     title: "<span class='fw-lighter text-uppercase'>Documentation</span><br>
-    <span class='fw-lighter fs-6'>Intégration des mesures de contaminants sur des oiseaux marins</span>"
+    <span class='fw-lighter fs-6'>Base de données de mesures de contaminants sur des oiseaux marins</span>"
     logo: logo.png
   sidebar:
     search: true
@@ -35,7 +35,7 @@ format:
     highlight-style: monokai
     theme: 
       light: flatly
-      dark: cyborg
+      dark: solar
     code-tools:
       source: true
       toggle: false
