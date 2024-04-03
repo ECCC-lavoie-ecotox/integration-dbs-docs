@@ -245,11 +245,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </nav>
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
-    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar zindex-bottom">
-        
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Sur cette page</h2>
+   
+  <ul>
+  <li><a href="#analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" id="toc-analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" class="nav-link active" data-scroll-target="#analytes-avec-un-numéro-cas-fournis-par-le-laboratoire">Analytes avec un numéro CAS fournis par le laboratoire</a></li>
+  <li><a href="#interrogation-de-la-base-de-données-pubchem" id="toc-interrogation-de-la-base-de-données-pubchem" class="nav-link" data-scroll-target="#interrogation-de-la-base-de-données-pubchem">Interrogation de la base de données PubChem</a></li>
+  </ul>
+</nav>
     </div>
 <!-- main -->
-<main class="content column-page-right" id="quarto-document-content">
+<main class="content column-body" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./tbl_projects.html">Consolider les données</a></li><li class="breadcrumb-item"><a href="./tbl_analytes.html">Consolidation de la nomenclature des analytes</a></li></ol></nav>
 <div class="quarto-title">
@@ -258,7 +265,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 
-<div class="quarto-title-meta column-page-right">
+<div class="quarto-title-meta column-body">
 
     <div>
     <div class="quarto-title-meta-heading">Auteur·rice</div>
@@ -283,7 +290,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.</p>
-<p>On charge les données intégrées depuis le package <code>toxbox</code>. Les données ne sont pas entreposées dans le package, la function <code>toxbox::dbs_integration()</code> permet de lire les fichiers Excels entreposées sur le disque réseau <code>Z:</code> et les fusionne dans un seul <code>data.frame</code>. Il faut pour cela que le VPN soit ouvert, si vous n’êtes pas sur site.</p>
+<p>On charge les données intégrées depuis le package <code>toxbox</code>. Les données ne sont pas entreposées dans le package, la function <code>toxbox::dbs_integration()</code> permet de lire les fichiers Excels entreposées sur le disque réseau <code>Z:</code> et les fusionne dans un seul <code>data.frame</code>. Il faut pour cela que le VPN soit ouvert, si vous n’êtes pas directement sur le réseau d’environnement canada.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
@@ -292,649 +299,785 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<section id="analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" class="level2">
+<h2 class="anchored" data-anchor-id="analytes-avec-un-numéro-cas-fournis-par-le-laboratoire">Analytes avec un numéro CAS fournis par le laboratoire</h2>
+<p>La nomenclature des composées chimiques / analytes peut diverger d’un laboratoire à un autre. Chaque pays dispose également de sa propre nomenclature (ex. États-Unis, Allemagne, Royaume-Unis). Afin de reconcilier la nomenclature, nous souhaitons utiliser un identifiant unique international tel que l’<a href="https://fr.wikipedia.org/wiki/International_Chemical_Identifier">International Chemical Identifier</a> (InChl).</p>
+<p>Dans un premier temps, on charge les données sur les analytes (incluant le CAS) fournies par les laboratoires. Le fichier <code>analytes_consolidation_27032024</code> est la fusion des onglets <em>Analyte Information</em> des différentes base de données. On fusionne les données sur les analytes avec les mesures.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>analytes_cleaned <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(analytes, Analyte, CASNumber) <span class="sc">|&gt;</span></span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">Analyte =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(Analyte, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>()  </span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>measurements_cleaned <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">original_name =</span> variable) <span class="sc">|&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        <span class="at">variable =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(variable, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    ) </span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>measurements_with_cas <span class="ot">&lt;-</span>  analytes_cleaned <span class="sc">|&gt;</span></span>
-<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a> dplyr<span class="sc">::</span><span class="fu">right_join</span>(</span>
-<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>    measurements_cleaned,</span>
-<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Analyte"</span> <span class="ot">=</span> <span class="st">"variable"</span>)</span>
-<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb4-17"><a href="#cb4-17" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb4-18"><a href="#cb4-18" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">filter</span>(measurements_with_cas, <span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span> </span>
-<span id="cb4-19"><a href="#cb4-19" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>(Analyte, original_name) <span class="sc">|&gt;</span></span>
-<span id="cb4-20"><a href="#cb4-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(Analyte, CASNumber) <span class="sc">|&gt;</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="at">key =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(Analyte, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>()</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="at">key =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(variable, <span class="st">"PCB-|PCB "</span>, <span class="st">"PCB"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(<span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span>  measurements <span class="sc">|&gt;</span></span>
+<span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(analytes, <span class="at">by =</span> <span class="st">"key"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>On utilise le package webchem pour convertir les identifiants CAS vers InChl.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(CASNumber) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">pull</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="interrogation-de-la-base-de-données-pubchem" class="level2">
+<h2 class="anchored" data-anchor-id="interrogation-de-la-base-de-données-pubchem">Interrogation de la base de données PubChem</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(webchem)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: package 'webchem' was built under R version 4.3.3</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>analytes_nomenclature <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, variable) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">pull</span>()</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>analytes_pubchem_ids <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_cid</span>(<span class="fu">sample</span>(analytes_nomenclature, <span class="at">size =</span> <span class="dv">20</span>))</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>PubChemR<span class="sc">::</span><span class="fu">get_json</span>(<span class="dv">5281116</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>                                       Analyte
-1                                b_tbech_bde15
-2                                 bde154_bb153
-3                                     pcb17_18
-4                                     pcb28_31
-5                                         d13c
-6                                         d15n
-7                                         d34s
-8                                       thg_dw
-9                                       thg_dw
-10                                         ala
-11                                         val
-12                                         ile
-13                                         asp
-14                                         pro
-15                                         glu
-16                                         phe
-17                                        tcpm
-18                           aroclor_1254_1260
-19                                 aroclor1260
-20                                   pcb_31_28
-21                                      pcb_52
-22                                      pcb_60
-23                                      pcb_64
-24                                      pcb_87
-25                                      pcb_95
-26                                      pcb_97
-27                                      pcb_99
-28                                     pcb_101
-29                                     pcb_105
-30                                     pcb_110
-31                                     pcb_118
-32                                     pcb_128
-33                                     pcb_129
-34                                     pcb_137
-35                                     pcb_138
-36                                     pcb_141
-37                                     pcb_146
-38                                     pcb_151
-39                                     pcb_153
-40                                     pcb_158
-41                                 pcb_170_190
-42                                     pcb_171
-43                                      pcb172
-44                                      pcb174
-45                                     pcb_187
-46                                     pcb_183
-47                                     pcb_185
-48                                     pcb_194
-49                                     pcb_195
-50                                     pcb_203
-51                                     pcb_200
-52                                     pcb_201
-53                                     pcb_206
-54                                      pcb_44
-55                                   pcb_47_48
-56                                      pcb_49
-57                                      pcb_70
-58                                      pcb_42
-59                                      pcb_74
-60                                     pcb_149
-61                                      pcb1_1
-62                                      pcb_66
-63                                    pcb18_17
-64                                   pcb_16_32
-65                                      pcb_33
-66                                      pcb_22
-67                                   pcb_56_60
-68                                      pcb_85
-69                                      pcb_92
-70                                     pcb_130
-71                                     pcb_156
-72                                     pcb_157
-73                                     pcb_176
-74                                     pcb_177
-75                                     pcb_178
-76                                     pcb_179
-77                                 pcb_196_203
-78                                     pcb_202
-79                                     pcb_207
-80                                     pcb_208
-81                                     pcb_114
-82                                     pcb_167
-83                                     pcb_189
-84                                     pcb_199
-85                                     pcb_205
-86                                     pcb_209
-87                              bde_15_b_tbech
-88                                      bde_17
-89                                      bde_28
-90                                      bde_47
-91                                      bde_49
-92                                      bde_66
-93                                      bde_85
-94                                      bde_99
-95                                     bde_100
-96                                     bde_138
-97                                     bde_153
-98                              bde_154_bb_153
-99                                     bde_183
-100                                    bde_190
-101                                    bde_209
-102                                     bb_101
-103                                      bde_7
-104                                      bde_8
-105                                     bde_15
-106                                     bde_te
-107                                    bde_te1
-108                                     bde_pe
-109                                    bde_119
-110                                    bde_pe1
-111                                    bde_155
-112                                    bde_140
-113                                    bde_hx1
-114                                    bde_hx2
-115                                     bde_hx
-116                                    bde_hp1
-117                                    bde_hp2
-118                                    bde_hp3
-119                                     bde_35
-120                                     bde_77
-121                                    bde_116
-122                                    bde_126
-123                                     pcb_81
-124                                     pcb_77
-125                                    pcb_126
-126                                    pcb_169
-127                                 x2378_tcdd
-128                               x12378_pecdd
-129                              x123678_hxcdd
-130                             x1234678_hpcdd
-131                                       ocdd
-132                                 x2378_tcdf
-133                               x23478_pecdf
-134                              x123478_hxcdd
-135                              x123789_hxcdd
-136                             x12346789_ocdd
-137                               x12478_pecdf
-138                               x12378_pecdf
-139                              x123478_hxcdf
-140                              x123678_hxcdf
-141                              x234678_hxcdf
-142                              x123789_hxcdf
-143                             x1234678_hpcdf
-144                             x1234789_hpcdf
-145                             x12346789_ocdf
-146                                       ocdf
-147                            total_toxaphene
-148                                       hexa
-149                                      hepta
-150                                       octa
-151                                       nona
-152                                       deca
-153                                    b6_923a
-154                                    b7_1001
-155                                    b8_1413
-156                                    b8_1412
-157                                    b7_1450
-158                                     toxa31
-159                                     b7_515
-160                                     b8_789
-161                                   b7_1059a
-162                                     b8_531
-163                                b81414_1945
-164                                     b8_806
-165                                    b8_2229
-166                                     b8_810
-167                                    b9_1679
-168                                     b9_718
-169                                    b8_1471
-170                                b9_743_2006
-171                                    b9_1046
-172                                     b9_715
-173                                    b9_1025
-174                               caproic_acid
-175                              caprylic_acid
-176                                capric_acid
-177                            undecanoic_acid
-178                                lauric_acid
-179                           tridecanoic_acid
-180                              myristic_acid
-181                           myristoleic_acid
-182                         pentadecanoic_acid
-183                  cis_10_pentadecanoic_acid
-184                              palmitic_acid
-185                           palmitoleic_acid
-186                         heptadecanoic_acid
-187                  cis_10_heptadecanoic_acid
-188                               stearic_acid
-189                               elaidic_acid
-190                                 oleic_acid
-191                          linolelaidic_acid
-192                              linoleic_acid
-193                             arachidic_acid
-194                       g_linolenic_acid_gla
-195                     cis_11_eicosenoic_acid
-196                       a_linolenic_acid_ala
-197                         heneicosanoic_acid
-198  cis_11_14_eicosadienoic_acid_methyl_ester
-199                               behenic_acid
-200       cis_8_11_14_eicosatrienoic_acid_dgla
-201                                erucic_acid
-202       cis_11_14_17_eicosatrienoic_acid_ete
-203                       arachidonic_acid_ara
-204                           tricosanoic_acid
-205               cis_13_16_docosadienoic_acid
-206                            lignoceric_acid
-207 cis_5_8_11_14_17_eicosapentaenoic_acid_epa
-208                              nervonic_acid
-209                  docosapentaenoic_acid_dpa
-210                   docosahexaenoic_acid_dha
-211                                     thg_ww
-212                                     thg_ww
-213                                        thg
-214                                        hcb
-215                                       ahch
-216                                       bhch
-217                                       ghch
-218                                         he
-219                                 tchlordane
-220                                 cchlordane
-221                                 cnonachlor
-222                                      ppdde
-223                                      ppddd
-224                                      ppddt
-225                                   x1245tcb
-226                                   x1234tcb
-227                                       pncb
-228                                        ocs
-229                                 tnonachlor
-230                                  sumlabpcb
-231                                   sum35pcb
-232                                   sum25pcb
-233                             bde_15_b_tbech
-234                             bde_154_bb_153
-235                                     pcb_81
-236                                     pcb_77
-237                                    pcb_126
-238                                    pcb_169
-239                                         se
-240                                      se_ww
-241                                         as
-242                                         mn
-243                                         cu
-244                                         zn
-245                                         rb
-246                                         cd
-247                                         pb
-248                                         li
-249                                         be
-250                                          v
-251                                         fe
-252                                         co
-253                                         ni
-254                                         ga
-255                                         sr
-256                                         mo
-257                                         ag
-258                                         sn
-259                                         sb
-260                                         ba
-261                                         tl
-262                                         bi
-263                                          u
-264                                         al
-265                               caproic_acid
-266                              caprylic_acid
-267                                capric_acid
-268                            undecanoic_acid
-269                                lauric_acid
-270                           tridecanoic_acid
-271                              myristic_acid
-272                           myristoleic_acid
-273                         pentadecanoic_acid
-274                  cis_10_pentadecanoic_acid
-275                              palmitic_acid
-276                           palmitoleic_acid
-277                         heptadecanoic_acid
-278                  cis_10_heptadecanoic_acid
-279                               stearic_acid
-280                               elaidic_acid
-281                                 oleic_acid
-282                          linolelaidic_acid
-283                              linoleic_acid
-284                             arachidic_acid
-285                           g_linolenic_acid
-286                            eicosenoic_acid
-287                       a_linolenic_acid_ala
-288                         heneicosanoic_acid
-289               cis_11_14_eicosadienoic_acid
-290                               behenic_acid
-291                      homo_g_linolenic_acid
-292                                erucic_acid
-293                    eicosatrienoic_acid_eta
-294                       arachidonic_acid_ara
-295                           tricosanoic_acid
-296               cis_13_16_docosadienoic_acid
-297                            lignoceric_acid
-298                  eicosapentaenoic_acid_epa
-299                              nervonic_acid
-300                  docosapentaenoic_acid_dpa
-301                   docosahexaenoic_acid_dha
-302                                         pn
-303                                         pc
-304                                         cn
-305                                         ps
-                                   original_name
-1                                  b-TBECH/BDE15
-2                                   BDE154/BB153
-3                                       PCB17/18
-4                                       PCB28/31
-5                                           d13C
-6                                           d15N
-7                                           d34S
-8                                         THg-dw
-9                                         THg_dw
-10                                           Ala
-11                                           Val
-12                                           Ile
-13                                           Asp
-14                                           Pro
-15                                           Glu
-16                                           Phe
-17                                          TCPM
-18                             Aroclor 1254/1260
-19                                   Aroclor1260
-20                                     PCB 31/28
-21                                        PCB 52
-22                                        PCB 60
-23                                        PCB 64
-24                                        PCB 87
-25                                        PCB 95
-26                                        PCB 97
-27                                        PCB 99
-28                                       PCB 101
-29                                       PCB 105
-30                                       PCB 110
-31                                       PCB 118
-32                                       PCB 128
-33                                       PCB 129
-34                                       PCB 137
-35                                       PCB 138
-36                                       PCB 141
-37                                       PCB 146
-38                                       PCB 151
-39                                       PCB 153
-40                                       PCB 158
-41                                   PCB 170/190
-42                                       PCB 171
-43                                        PCB172
-44                                        PCB174
-45                                       PCB 187
-46                                       PCB 183
-47                                       PCB 185
-48                                       PCB 194
-49                                       PCB 195
-50                                       PCB 203
-51                                       PCB 200
-52                                       PCB 201
-53                                       PCB 206
-54                                        PCB 44
-55                                     PCB 47/48
-56                                        PCB 49
-57                                        PCB 70
-58                                        PCB 42
-59                                        PCB 74
-60                                       PCB 149
-61                                        PCB1:1
-62                                        PCB 66
-63                                      PCB18/17
-64                                     PCB 16/32
-65                                        PCB 33
-66                                        PCB 22
-67                                     PCB 56/60
-68                                        PCB 85
-69                                        PCB 92
-70                                       PCB 130
-71                                       PCB 156
-72                                       PCB 157
-73                                       PCB 176
-74                                       PCB 177
-75                                       PCB 178
-76                                       PCB 179
-77                                   PCB 196/203
-78                                       PCB 202
-79                                       PCB 207
-80                                       PCB 208
-81                                       PCB 114
-82                                       PCB 167
-83                                       PCB 189
-84                                       PCB 199
-85                                       PCB 205
-86                                       PCB 209
-87                              BDE-15 / β-TBECH
-88                                        BDE-17
-89                                        BDE-28
-90                                        BDE-47
-91                                        BDE-49
-92                                        BDE-66
-93                                        BDE-85
-94                                        BDE-99
-95                                       BDE-100
-96                                       BDE-138
-97                                       BDE-153
-98                              BDE-154 / BB-153
-99                                       BDE-183
-100                                      BDE-190
-101                                      BDE-209
-102                                       BB-101
-103                                        BDE-7
-104                                        BDE-8
-105                                       BDE-15
-106                                       BDE-Te
-107                                      BDE-Te1
-108                                       BDE-Pe
-109                                      BDE-119
-110                                      BDE-Pe1
-111                                      BDE-155
-112                                      BDE-140
-113                                      BDE-Hx1
-114                                      BDE-Hx2
-115                                       BDE-Hx
-116                                      BDE-Hp1
-117                                      BDE-Hp2
-118                                      BDE-Hp3
-119                                       BDE-35
-120                                       BDE-77
-121                                      BDE-116
-122                                      BDE-126
-123                                       PCB-81
-124                                       PCB-77
-125                                      PCB-126
-126                                      PCB-169
-127                                    2378-TCDD
-128                                  12378-PeCDD
-129                                 123678-HxCDD
-130                                1234678-HpCDD
-131                                         OCDD
-132                                    2378-TCDF
-133                                  23478-PeCDF
-134                                 123478-HxCDD
-135                                 123789-HxCDD
-136                                12346789-OCDD
-137                                  12478-PeCDF
-138                                  12378-PeCDF
-139                                 123478-HxCDF
-140                                 123678-HxCDF
-141                                 234678-HxCDF
-142                                 123789-HxCDF
-143                                1234678-HpCDF
-144                                1234789-HpCDF
-145                                12346789-OCDF
-146                                         OCDF
-147                              Total toxaphene
-148                                         Hexa
-149                                        Hepta
-150                                         Octa
-151                                         Nona
-152                                         Deca
-153                                      B6-923a
-154                                      B7-1001
-155                                      B8-1413
-156                                      b8-1412
-157                                      B7-1450
-158                                       toxa31
-159                                       B7-515
-160                                       B8-789
-161                                     B7-1059a
-162                                       B8-531
-163                                  B81414/1945
-164                                       B8-806
-165                                      B8-2229
-166                                       B8-810
-167                                      B9-1679
-168                                       B9-718
-169                                      B8-1471
-170                                  B9-743/2006
-171                                      B9-1046
-172                                       B9-715
-173                                      B9-1025
-174                                 Caproic Acid
-175                                Caprylic Acid
-176                                  Capric Acid
-177                              Undecanoic Acid
-178                                  Lauric Acid
-179                             Tridecanoic Acid
-180                                Myristic Acid
-181                             Myristoleic Acid
-182                           Pentadecanoic Acid
-183                    cis-10-Pentadecanoic Acid
-184                                Palmitic Acid
-185                             Palmitoleic Acid
-186                           Heptadecanoic Acid
-187                    cis-10-Heptadecanoic Acid
-188                                 Stearic Acid
-189                                 Elaidic Acid
-190                                   Oleic Acid
-191                            Linolelaidic Acid
-192                                Linoleic Acid
-193                               Arachidic Acid
-194                       g-Linolenic Acid (GLA)
-195                       cis-11-Eicosenoic acid
-196                      a-Linolenic Acid  (ALA)
-197                           Heneicosanoic Acid
-198    cis-11,14-Eicosadienoic Acid Methyl Ester
-199                                 Behenic Acid
-200       cis-8,11,14-Eicosatrienoic Acid (DGLA)
-201                                  Erucic Acid
-202       cis-11,14,17-Eicosatrienoic Acid (ETE)
-203                       Arachidonic Acid (ARA)
-204                             Tricosanoic Acid
-205                 cis-13,16-Docosadienoic Acid
-206                              Lignoceric Acid
-207 cis-5,8,11,14,17-Eicosapentaenoic Acid (EPA)
-208                                Nervonic Acid
-209                  Docosapentaenoic Acid (DPA)
-210                   Docosahexaenoic Acid (DHA)
-211                                       THg-ww
-212                                       THg_ww
-213                                          THg
-214                                          HCB
-215                                         aHCH
-216                                         bHCH
-217                                         gHCH
-218                                           HE
-219                                   tChlordane
-220                                   cChlordane
-221                                   cNonachlor
-222                                        ppDDE
-223                                        ppDDD
-224                                        ppDDT
-225                                      1245TCB
-226                                      1234TCB
-227                                         PnCB
-228                                          OCS
-229                                   tNonachlor
-230                                    SumLabPCB
-231                                     Sum35PCB
-232                                     Sum25PCB
-233                               BDE-15_B-TBECH
-234                               BDE-154_BB-153
-235                                       PCB 81
-236                                       PCB 77
-237                                      PCB 126
-238                                      PCB 169
-239                                           Se
-240                                        Se-ww
-241                                           As
-242                                           Mn
-243                                           Cu
-244                                           Zn
-245                                           Rb
-246                                           Cd
-247                                           Pb
-248                                           Li
-249                                           Be
-250                                            V
-251                                           Fe
-252                                           Co
-253                                           Ni
-254                                           Ga
-255                                           Sr
-256                                           Mo
-257                                           Ag
-258                                           Sn
-259                                           Sb
-260                                           Ba
-261                                           Tl
-262                                           Bi
-263                                            U
-264                                           Al
-265                                 caproic acid
-266                                caprylic acid
-267                                  capric acid
-268                              undecanoic acid
-269                                  lauric acid
-270                             tridecanoic acid
-271                                myristic acid
-272                             myristoleic acid
-273                           pentadecanoic acid
-274                    cis-10-pentadecanoic acid
-275                                palmitic acid
-276                             palmitoleic acid
-277                           heptadecanoic acid
-278                    cis-10-heptadecanoic acid
-279                                 stearic acid
-280                                 elaidic acid
-281                                   oleic acid
-282                            linolelaidic acid
-283                                linoleic acid
-284                               arachidic acid
-285                             γ-linolenic acid
-286                              eicosenoic acid
-287                       α-linolenic acid (ALA)
-288                           heneicosanoic acid
-289                 cis-11,14-eicosadienoic acid
-290                                 behenic acid
-291                        homo-γ-linolenic acid
-292                                  erucic acid
-293                    eicosatrienoic acid (ETA)
-294                       arachidonic acid (ARA)
-295                             tricosanoic acid
-296                 cis-13,16-docosadienoic acid
-297                              lignoceric acid
-298                  eicosapentaenoic acid (EPA)
-299                                nervonic acid
-300                  docosapentaenoic acid (DPA)
-301                   docosahexaenoic acid (DHA)
-302                                           pN
-303                                           pC
-304                                           CN
-305                                           pS</code></pre>
+<pre><code>$PC_Compounds
+$PC_Compounds[[1]]
+$PC_Compounds[[1]]$id
+$PC_Compounds[[1]]$id$id
+    cid 
+5281116 
+
+
+$PC_Compounds[[1]]$atoms
+$PC_Compounds[[1]]$atoms$aid
+ [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+[26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
+[51] 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66
+
+$PC_Compounds[[1]]$atoms$element
+ [1] 8 8 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 6 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+[39] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+
+
+$PC_Compounds[[1]]$bonds
+$PC_Compounds[[1]]$bonds$aid1
+ [1]  1  1  2  3  3  3  3  4  4  4  5  5  5  6  6  6  7  7  7  8  8  8  9  9  9
+[26] 10 10 10 11 11 11 11 12 12 12 13 13 13 14 14 14 15 15 15 16 16 16 17 17 17
+[51] 18 18 18 19 19 20 21 21 21 22 22 22 23 23 23
+
+$PC_Compounds[[1]]$bonds$aid2
+ [1] 24 66 24  4  5 25 26  6 27 28  7 29 30  8 31 32  9 33 34 10 35 36 13 37 38
+[26] 16 39 40 12 14 41 42 15 43 44 19 47 48 18 45 46 17 49 50 21 51 52 20 53 54
+[51] 22 55 56 20 57 58 24 59 60 23 61 62 63 64 65
+
+$PC_Compounds[[1]]$bonds$order
+ [1] 1 1 2 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1
+[39] 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 2 1 1 1 1 1 1 1 1 1 1 1
+
+
+$PC_Compounds[[1]]$stereo
+$PC_Compounds[[1]]$stereo[[1]]
+$PC_Compounds[[1]]$stereo[[1]]$planar
+   left    ltop lbottom   right    rtop rbottom  parity    type 
+     19      13      57      20      17      58       1       1 
+
+
+
+$PC_Compounds[[1]]$coords
+$PC_Compounds[[1]]$coords[[1]]
+$PC_Compounds[[1]]$coords[[1]]$type
+[1]   1   5 255
+
+$PC_Compounds[[1]]$coords[[1]]$aid
+ [1]  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25
+[26] 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50
+[51] 51 52 53 54 55 56 57 58 59 60 61 62 63 64 65 66
+
+$PC_Compounds[[1]]$coords[[1]]$conformers
+$PC_Compounds[[1]]$coords[[1]]$conformers[[1]]
+$PC_Compounds[[1]]$coords[[1]]$conformers[[1]]$x
+ [1]  2.5369  3.4030  9.4651  8.5991 10.3312  7.7331 11.1972  6.8671 12.0632
+[10]  6.0010 16.3933 15.5273 12.9292 16.3933 15.5273  5.1350 14.6613 17.2594
+[19] 13.7953 14.6613  4.2690 17.2594 18.1254  3.4030  9.8637  9.0666  8.2006
+[28]  8.9976  9.9326 10.7297  8.1316  7.3346 11.5957 10.7987  6.4685  7.2656
+[37] 11.6647 12.4617  6.3996  5.6025 16.6054 17.0039 15.3153 14.9167 16.1813
+[46] 15.7828 13.3278 12.5307 15.7394 16.1379  4.7365  5.5335 14.4492 14.0507
+[55] 17.4714 17.8699 13.7953 15.1982  4.6675  3.8705 17.0473 16.6488 18.4354
+[64] 18.6623 17.8154  2.0000
+
+$PC_Compounds[[1]]$coords[[1]]$conformers[[1]]$y
+ [1] -2.2500 -3.7500 -2.2500 -2.7500 -2.7500 -2.2500 -2.2500 -2.7500 -2.7500
+[10] -2.2500  0.7500  0.2500 -2.2500  1.7500 -0.7500 -2.7500 -1.2500  2.2500
+[19] -2.7500 -2.2500 -2.2500  3.2500  3.7500 -2.7500 -1.7750 -1.7750 -3.2250
+[28] -3.2250 -3.2250 -3.2250 -1.7750 -1.7750 -1.7750 -1.7750 -3.2250 -3.2250
+[37] -3.2250 -3.2250 -1.7750 -1.7750  0.1674  0.8577  0.8326  0.1423  2.3326
+[46]  1.6423 -1.7750 -1.7750 -1.3326 -0.6423 -3.2250 -3.2250 -0.6674 -1.3577
+[55]  1.6674  2.3577 -3.3700 -2.5600 -1.7750 -1.7750  3.8326  3.1423  3.2131
+[64]  4.0600  4.2869 -2.5600
+
+
+
+
+
+$PC_Compounds[[1]]$charge
+[1] 0
+
+$PC_Compounds[[1]]$props
+$PC_Compounds[[1]]$props[[1]]
+$PC_Compounds[[1]]$props[[1]]$urn
+$PC_Compounds[[1]]$props[[1]]$urn$label
+[1] "Compound"
+
+$PC_Compounds[[1]]$props[[1]]$urn$name
+[1] "Canonicalized"
+
+$PC_Compounds[[1]]$props[[1]]$urn$datatype
+[1] 5
+
+$PC_Compounds[[1]]$props[[1]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[1]]$value
+ival 
+   1 
+
+
+$PC_Compounds[[1]]$props[[2]]
+$PC_Compounds[[1]]$props[[2]]$urn
+$PC_Compounds[[1]]$props[[2]]$urn$label
+[1] "Compound Complexity"
+
+$PC_Compounds[[1]]$props[[2]]$urn$datatype
+[1] 7
+
+$PC_Compounds[[1]]$props[[2]]$urn$implementation
+[1] "E_COMPLEXITY"
+
+$PC_Compounds[[1]]$props[[2]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[2]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[2]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[2]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[2]]$value
+fval 
+ 284 
+
+
+$PC_Compounds[[1]]$props[[3]]
+$PC_Compounds[[1]]$props[[3]]$urn
+$PC_Compounds[[1]]$props[[3]]$urn$label
+[1] "Count"
+
+$PC_Compounds[[1]]$props[[3]]$urn$name
+[1] "Hydrogen Bond Acceptor"
+
+$PC_Compounds[[1]]$props[[3]]$urn$datatype
+[1] 5
+
+$PC_Compounds[[1]]$props[[3]]$urn$implementation
+[1] "E_NHACCEPTORS"
+
+$PC_Compounds[[1]]$props[[3]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[3]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[3]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[3]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[3]]$value
+ival 
+   2 
+
+
+$PC_Compounds[[1]]$props[[4]]
+$PC_Compounds[[1]]$props[[4]]$urn
+$PC_Compounds[[1]]$props[[4]]$urn$label
+[1] "Count"
+
+$PC_Compounds[[1]]$props[[4]]$urn$name
+[1] "Hydrogen Bond Donor"
+
+$PC_Compounds[[1]]$props[[4]]$urn$datatype
+[1] 5
+
+$PC_Compounds[[1]]$props[[4]]$urn$implementation
+[1] "E_NHDONORS"
+
+$PC_Compounds[[1]]$props[[4]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[4]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[4]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[4]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[4]]$value
+ival 
+   1 
+
+
+$PC_Compounds[[1]]$props[[5]]
+$PC_Compounds[[1]]$props[[5]]$urn
+$PC_Compounds[[1]]$props[[5]]$urn$label
+[1] "Count"
+
+$PC_Compounds[[1]]$props[[5]]$urn$name
+[1] "Rotatable Bond"
+
+$PC_Compounds[[1]]$props[[5]]$urn$datatype
+[1] 5
+
+$PC_Compounds[[1]]$props[[5]]$urn$implementation
+[1] "E_NROTBONDS"
+
+$PC_Compounds[[1]]$props[[5]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[5]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[5]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[5]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[5]]$value
+ival 
+  19 
+
+
+$PC_Compounds[[1]]$props[[6]]
+$PC_Compounds[[1]]$props[[6]]$urn
+$PC_Compounds[[1]]$props[[6]]$urn$label
+[1] "Fingerprint"
+
+$PC_Compounds[[1]]$props[[6]]$urn$name
+[1] "SubStructure Keys"
+
+$PC_Compounds[[1]]$props[[6]]$urn$datatype
+[1] 16
+
+$PC_Compounds[[1]]$props[[6]]$urn$parameters
+[1] "extended 2"
+
+$PC_Compounds[[1]]$props[[6]]$urn$implementation
+[1] "E_SCREEN"
+
+$PC_Compounds[[1]]$props[[6]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[6]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[6]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[6]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[6]]$value
+                                                                                                                                                                                                                                  binary 
+"00000371F0783000000000000000000000000000000000000000000000000000000000000000001A00000800000800808000020800000200880020D2080000000020000008080100000800001200010000400004800008000388C8A08000000000000000000000000000000000000000000000" 
+
+
+$PC_Compounds[[1]]$props[[7]]
+$PC_Compounds[[1]]$props[[7]]$urn
+$PC_Compounds[[1]]$props[[7]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[7]]$urn$name
+[1] "Allowed"
+
+$PC_Compounds[[1]]$props[[7]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[7]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[7]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[7]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[7]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[7]]$value
+                     sval 
+"(Z)-docos-13-enoic acid" 
+
+
+$PC_Compounds[[1]]$props[[8]]
+$PC_Compounds[[1]]$props[[8]]$urn
+$PC_Compounds[[1]]$props[[8]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[8]]$urn$name
+[1] "CAS-like Style"
+
+$PC_Compounds[[1]]$props[[8]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[8]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[8]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[8]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[8]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[8]]$value
+                    sval 
+"(Z)-13-docosenoic acid" 
+
+
+$PC_Compounds[[1]]$props[[9]]
+$PC_Compounds[[1]]$props[[9]]$urn
+$PC_Compounds[[1]]$props[[9]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[9]]$urn$name
+[1] "Markup"
+
+$PC_Compounds[[1]]$props[[9]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[9]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[9]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[9]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[9]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[9]]$value
+                            sval 
+"(&lt;I&gt;Z&lt;/I&gt;)-docos-13-enoic acid" 
+
+
+$PC_Compounds[[1]]$props[[10]]
+$PC_Compounds[[1]]$props[[10]]$urn
+$PC_Compounds[[1]]$props[[10]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[10]]$urn$name
+[1] "Preferred"
+
+$PC_Compounds[[1]]$props[[10]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[10]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[10]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[10]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[10]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[10]]$value
+                     sval 
+"(Z)-docos-13-enoic acid" 
+
+
+$PC_Compounds[[1]]$props[[11]]
+$PC_Compounds[[1]]$props[[11]]$urn
+$PC_Compounds[[1]]$props[[11]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[11]]$urn$name
+[1] "Systematic"
+
+$PC_Compounds[[1]]$props[[11]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[11]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[11]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[11]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[11]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[11]]$value
+                     sval 
+"(Z)-docos-13-enoic acid" 
+
+
+$PC_Compounds[[1]]$props[[12]]
+$PC_Compounds[[1]]$props[[12]]$urn
+$PC_Compounds[[1]]$props[[12]]$urn$label
+[1] "IUPAC Name"
+
+$PC_Compounds[[1]]$props[[12]]$urn$name
+[1] "Traditional"
+
+$PC_Compounds[[1]]$props[[12]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[12]]$urn$version
+[1] "2.7.0"
+
+$PC_Compounds[[1]]$props[[12]]$urn$software
+[1] "Lexichem TK"
+
+$PC_Compounds[[1]]$props[[12]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[12]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[12]]$value
+         sval 
+"erucic acid" 
+
+
+$PC_Compounds[[1]]$props[[13]]
+$PC_Compounds[[1]]$props[[13]]$urn
+$PC_Compounds[[1]]$props[[13]]$urn$label
+[1] "InChI"
+
+$PC_Compounds[[1]]$props[[13]]$urn$name
+[1] "Standard"
+
+$PC_Compounds[[1]]$props[[13]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[13]]$urn$version
+[1] "1.0.6"
+
+$PC_Compounds[[1]]$props[[13]]$urn$software
+[1] "InChI"
+
+$PC_Compounds[[1]]$props[[13]]$urn$source
+[1] "iupac.org"
+
+$PC_Compounds[[1]]$props[[13]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[13]]$value
+                                                                                                                       sval 
+"InChI=1S/C22H42O2/c1-2-3-4-5-6-7-8-9-10-11-12-13-14-15-16-17-18-19-20-21-22(23)24/h9-10H,2-8,11-21H2,1H3,(H,23,24)/b10-9-" 
+
+
+$PC_Compounds[[1]]$props[[14]]
+$PC_Compounds[[1]]$props[[14]]$urn
+$PC_Compounds[[1]]$props[[14]]$urn$label
+[1] "InChIKey"
+
+$PC_Compounds[[1]]$props[[14]]$urn$name
+[1] "Standard"
+
+$PC_Compounds[[1]]$props[[14]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[14]]$urn$version
+[1] "1.0.6"
+
+$PC_Compounds[[1]]$props[[14]]$urn$software
+[1] "InChI"
+
+$PC_Compounds[[1]]$props[[14]]$urn$source
+[1] "iupac.org"
+
+$PC_Compounds[[1]]$props[[14]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[14]]$value
+                         sval 
+"DPUOLQHDNGRHBS-KTKRTIGZSA-N" 
+
+
+$PC_Compounds[[1]]$props[[15]]
+$PC_Compounds[[1]]$props[[15]]$urn
+$PC_Compounds[[1]]$props[[15]]$urn$label
+[1] "Log P"
+
+$PC_Compounds[[1]]$props[[15]]$urn$name
+[1] "XLogP3"
+
+$PC_Compounds[[1]]$props[[15]]$urn$datatype
+[1] 7
+
+$PC_Compounds[[1]]$props[[15]]$urn$version
+[1] "3.0"
+
+$PC_Compounds[[1]]$props[[15]]$urn$source
+[1] "sioc-ccbg.ac.cn"
+
+$PC_Compounds[[1]]$props[[15]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[15]]$value
+fval 
+ 8.7 
+
+
+$PC_Compounds[[1]]$props[[16]]
+$PC_Compounds[[1]]$props[[16]]$urn
+$PC_Compounds[[1]]$props[[16]]$urn$label
+[1] "Mass"
+
+$PC_Compounds[[1]]$props[[16]]$urn$name
+[1] "Exact"
+
+$PC_Compounds[[1]]$props[[16]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[16]]$urn$version
+[1] "2.2"
+
+$PC_Compounds[[1]]$props[[16]]$urn$software
+[1] "PubChem"
+
+$PC_Compounds[[1]]$props[[16]]$urn$source
+[1] "ncbi.nlm.nih.gov"
+
+$PC_Compounds[[1]]$props[[16]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[16]]$value
+           sval 
+"338.318480578" 
+
+
+$PC_Compounds[[1]]$props[[17]]
+$PC_Compounds[[1]]$props[[17]]$urn
+$PC_Compounds[[1]]$props[[17]]$urn$label
+[1] "Molecular Formula"
+
+$PC_Compounds[[1]]$props[[17]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[17]]$urn$version
+[1] "2.2"
+
+$PC_Compounds[[1]]$props[[17]]$urn$software
+[1] "PubChem"
+
+$PC_Compounds[[1]]$props[[17]]$urn$source
+[1] "ncbi.nlm.nih.gov"
+
+$PC_Compounds[[1]]$props[[17]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[17]]$value
+      sval 
+"C22H42O2" 
+
+
+$PC_Compounds[[1]]$props[[18]]
+$PC_Compounds[[1]]$props[[18]]$urn
+$PC_Compounds[[1]]$props[[18]]$urn$label
+[1] "Molecular Weight"
+
+$PC_Compounds[[1]]$props[[18]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[18]]$urn$version
+[1] "2.2"
+
+$PC_Compounds[[1]]$props[[18]]$urn$software
+[1] "PubChem"
+
+$PC_Compounds[[1]]$props[[18]]$urn$source
+[1] "ncbi.nlm.nih.gov"
+
+$PC_Compounds[[1]]$props[[18]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[18]]$value
+   sval 
+"338.6" 
+
+
+$PC_Compounds[[1]]$props[[19]]
+$PC_Compounds[[1]]$props[[19]]$urn
+$PC_Compounds[[1]]$props[[19]]$urn$label
+[1] "SMILES"
+
+$PC_Compounds[[1]]$props[[19]]$urn$name
+[1] "Canonical"
+
+$PC_Compounds[[1]]$props[[19]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[19]]$urn$version
+[1] "2.3.0"
+
+$PC_Compounds[[1]]$props[[19]]$urn$software
+[1] "OEChem"
+
+$PC_Compounds[[1]]$props[[19]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[19]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[19]]$value
+                          sval 
+"CCCCCCCCC=CCCCCCCCCCCCC(=O)O" 
+
+
+$PC_Compounds[[1]]$props[[20]]
+$PC_Compounds[[1]]$props[[20]]$urn
+$PC_Compounds[[1]]$props[[20]]$urn$label
+[1] "SMILES"
+
+$PC_Compounds[[1]]$props[[20]]$urn$name
+[1] "Isomeric"
+
+$PC_Compounds[[1]]$props[[20]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[20]]$urn$version
+[1] "2.3.0"
+
+$PC_Compounds[[1]]$props[[20]]$urn$software
+[1] "OEChem"
+
+$PC_Compounds[[1]]$props[[20]]$urn$source
+[1] "OpenEye Scientific Software"
+
+$PC_Compounds[[1]]$props[[20]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[20]]$value
+                             sval 
+"CCCCCCCC/C=C\\CCCCCCCCCCCC(=O)O" 
+
+
+$PC_Compounds[[1]]$props[[21]]
+$PC_Compounds[[1]]$props[[21]]$urn
+$PC_Compounds[[1]]$props[[21]]$urn$label
+[1] "Topological"
+
+$PC_Compounds[[1]]$props[[21]]$urn$name
+[1] "Polar Surface Area"
+
+$PC_Compounds[[1]]$props[[21]]$urn$datatype
+[1] 7
+
+$PC_Compounds[[1]]$props[[21]]$urn$implementation
+[1] "E_TPSA"
+
+$PC_Compounds[[1]]$props[[21]]$urn$version
+[1] "3.4.8.18"
+
+$PC_Compounds[[1]]$props[[21]]$urn$software
+[1] "Cactvs"
+
+$PC_Compounds[[1]]$props[[21]]$urn$source
+[1] "Xemistry GmbH"
+
+$PC_Compounds[[1]]$props[[21]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[21]]$value
+fval 
+37.3 
+
+
+$PC_Compounds[[1]]$props[[22]]
+$PC_Compounds[[1]]$props[[22]]$urn
+$PC_Compounds[[1]]$props[[22]]$urn$label
+[1] "Weight"
+
+$PC_Compounds[[1]]$props[[22]]$urn$name
+[1] "MonoIsotopic"
+
+$PC_Compounds[[1]]$props[[22]]$urn$datatype
+[1] 1
+
+$PC_Compounds[[1]]$props[[22]]$urn$version
+[1] "2.2"
+
+$PC_Compounds[[1]]$props[[22]]$urn$software
+[1] "PubChem"
+
+$PC_Compounds[[1]]$props[[22]]$urn$source
+[1] "ncbi.nlm.nih.gov"
+
+$PC_Compounds[[1]]$props[[22]]$urn$release
+[1] "2021.10.14"
+
+
+$PC_Compounds[[1]]$props[[22]]$value
+           sval 
+"338.318480578" 
+
+
+
+$PC_Compounds[[1]]$count
+       heavy_atom       atom_chiral   atom_chiral_def atom_chiral_undef 
+               24                 0                 0                 0 
+      bond_chiral   bond_chiral_def bond_chiral_undef      isotope_atom 
+                1                 1                 0                 0 
+    covalent_unit         tautomers 
+                1                -1 </code></pre>
 </div>
 </div>
 
 
 <!-- -->
 
+</section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
@@ -1519,47 +1662,69 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Code source</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb6" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Consolidation de la nomenclature des analytes"</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Steve Vissault"</span></span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-03-28"</span></span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>On charge les données intégrées depuis le package <span class="in">`toxbox`</span>. Les données ne sont pas entreposées dans le package, la function <span class="in">`toxbox::dbs_integration()`</span> permet de lire les fichiers Excels entreposées sur le disque réseau <span class="in">`Z:`</span> et les fusionne dans un seul <span class="in">`data.frame`</span>. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas sur site.</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox"</span>)</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx"</span>)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-26"><a href="#cb6-26" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb6-27"><a href="#cb6-27" aria-hidden="true" tabindex="-1"></a>analytes_cleaned <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(analytes, Analyte, CASNumber) <span class="sc">|&gt;</span></span>
-<span id="cb6-28"><a href="#cb6-28" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb6-29"><a href="#cb6-29" aria-hidden="true" tabindex="-1"></a>        <span class="at">Analyte =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(Analyte, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
-<span id="cb6-30"><a href="#cb6-30" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>()  </span>
-<span id="cb6-31"><a href="#cb6-31" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-32"><a href="#cb6-32" aria-hidden="true" tabindex="-1"></a>measurements_cleaned <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
-<span id="cb6-33"><a href="#cb6-33" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">original_name =</span> variable) <span class="sc">|&gt;</span></span>
-<span id="cb6-34"><a href="#cb6-34" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb6-35"><a href="#cb6-35" aria-hidden="true" tabindex="-1"></a>        <span class="at">variable =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(variable, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
-<span id="cb6-36"><a href="#cb6-36" aria-hidden="true" tabindex="-1"></a>    ) </span>
-<span id="cb6-37"><a href="#cb6-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-38"><a href="#cb6-38" aria-hidden="true" tabindex="-1"></a>measurements_with_cas <span class="ot">&lt;-</span>  analytes_cleaned <span class="sc">|&gt;</span></span>
-<span id="cb6-39"><a href="#cb6-39" aria-hidden="true" tabindex="-1"></a> dplyr<span class="sc">::</span><span class="fu">right_join</span>(</span>
-<span id="cb6-40"><a href="#cb6-40" aria-hidden="true" tabindex="-1"></a>    measurements_cleaned,</span>
-<span id="cb6-41"><a href="#cb6-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"Analyte"</span> <span class="ot">=</span> <span class="st">"variable"</span>)</span>
-<span id="cb6-42"><a href="#cb6-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-43"><a href="#cb6-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-44"><a href="#cb6-44" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">filter</span>(measurements_with_cas, <span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span> </span>
-<span id="cb6-45"><a href="#cb6-45" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>(Analyte, original_name) <span class="sc">|&gt;</span></span>
-<span id="cb6-46"><a href="#cb6-46" aria-hidden="true" tabindex="-1"></a>    <span class="fu">as.data.frame</span>()</span>
-<span id="cb6-47"><a href="#cb6-47" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb10" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Consolidation de la nomenclature des analytes"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Steve Vissault"</span></span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-03-28"</span></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>On charge les données intégrées depuis le package <span class="in">`toxbox`</span>. Les données ne sont pas entreposées dans le package, la function <span class="in">`toxbox::dbs_integration()`</span> permet de lire les fichiers Excels entreposées sur le disque réseau <span class="in">`Z:`</span> et les fusionne dans un seul <span class="in">`data.frame`</span>. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox"</span>)</span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analytes avec un numéro CAS fournis par le laboratoire</span></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>La nomenclature des composées chimiques / analytes peut diverger d'un laboratoire à un autre. Chaque pays dispose également de sa propre nomenclature (ex. États-Unis, Allemagne, Royaume-Unis). Afin de reconcilier la nomenclature, nous souhaitons utiliser un identifiant unique international tel que l'<span class="co">[</span><span class="ot">International Chemical Identifier</span><span class="co">](https://fr.wikipedia.org/wiki/International_Chemical_Identifier)</span> (InChl). </span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>Dans un premier temps, on charge les données sur les analytes (incluant le CAS) fournies par les laboratoires. Le fichier <span class="in">`analytes_consolidation_27032024`</span> est la fusion des onglets _Analyte Information_ des différentes base de données. </span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>On fusionne les données sur les analytes avec les mesures.</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-32"><a href="#cb10-32" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb10-33"><a href="#cb10-33" aria-hidden="true" tabindex="-1"></a>analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-34"><a href="#cb10-34" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(Analyte, CASNumber) <span class="sc">|&gt;</span></span>
+<span id="cb10-35"><a href="#cb10-35" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span></span>
+<span id="cb10-36"><a href="#cb10-36" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb10-37"><a href="#cb10-37" aria-hidden="true" tabindex="-1"></a>        <span class="at">key =</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(Analyte, <span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
+<span id="cb10-38"><a href="#cb10-38" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb10-39"><a href="#cb10-39" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>()</span>
+<span id="cb10-40"><a href="#cb10-40" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-41"><a href="#cb10-41" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
+<span id="cb10-42"><a href="#cb10-42" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb10-43"><a href="#cb10-43" aria-hidden="true" tabindex="-1"></a>        <span class="at">key =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(variable, <span class="st">"PCB-|PCB "</span>, <span class="st">"PCB"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb10-44"><a href="#cb10-44" aria-hidden="true" tabindex="-1"></a>            janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(<span class="at">allow_dupes =</span> <span class="cn">TRUE</span>, <span class="at">case =</span> <span class="st">"none"</span>) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span>
+<span id="cb10-45"><a href="#cb10-45" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb10-46"><a href="#cb10-46" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-47"><a href="#cb10-47" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span>  measurements <span class="sc">|&gt;</span></span>
+<span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(analytes, <span class="at">by =</span> <span class="st">"key"</span>)</span>
+<span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>On utilise le package webchem pour convertir les identifiants CAS vers InChl. </span>
+<span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval = FALSE}</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="in">measurements |&gt; </span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::select(CASNumber) |&gt;</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::distinct() |&gt;</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::pull()</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interrogation de la base de données PubChem</span></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(webchem)</span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>analytes_nomenclature <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, variable) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">pull</span>()</span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>analytes_pubchem_ids <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_cid</span>(<span class="fu">sample</span>(analytes_nomenclature, <span class="at">size =</span> <span class="dv">20</span>))</span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>PubChemR<span class="sc">::</span><span class="fu">get_json</span>(<span class="dv">5281116</span>)</span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
 </code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
