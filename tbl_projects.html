@@ -296,43 +296,43 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Chaque rapport de laboratoire contient sur sa page de garde l’ensemble des métadonnées en lien avec le projet de recherche pour lequel cette analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d’obtenir la liste des projets.</p>
 <p>Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d’identifiant unique: <code>CHEM-PCDD-00-07</code> ou encore <code>MB-05-10</code>. Ces identifiants ont une structure unique que l’on peut detecter grace à l’expression régulière suivante:</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>regex_report_id <span class="ot">&lt;-</span> <span class="st">"([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>regex_report_id <span class="ot">&lt;-</span> <span class="st">"([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span></span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>La variable <code>regex_report_id</code> sera utilisée plusieurs fois dans ce document.</p>
 <p>On liste les rapports de laboratoire présents dans le dossier <code>03-Labo/Results Reports</code>.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>reports_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"C:/Users/VissaultS/Documents/03-Labo/Results Reports"</span>, </span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="co"># On extrait les identifiants des rapports du nom du fichier</span></span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>report_id <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(reports_path, regex_report_id)</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="co"># On obtient la signature du fichier, ca va être pratique pour detecter les fichiers dupliqués même si le nom du fichier est différent.</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>file_hash <span class="ot">&lt;-</span> tools<span class="sc">::</span><span class="fu">md5sum</span>(reports_path)</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="co"># On extrait l'extension du fichier</span></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>file_ext <span class="ot">&lt;-</span> reports_path <span class="sc">|&gt;</span> </span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    <span class="fu">strsplit</span>(<span class="st">"[.]"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    purrr<span class="sc">::</span><span class="fu">map_chr</span>(\(e) <span class="fu">return</span>(e[<span class="dv">2</span>]))</span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="co"># On compose un tableau avec l'ensemble de ces informations</span></span>
-<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> reports_path, </span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>        <span class="at">id =</span> report_id, </span>
-<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>        <span class="at">hash =</span> file_hash, </span>
-<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a>        <span class="at">ext =</span> file_ext</span>
-<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a>reports_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
+<span id="cb2-2"><a href="#cb2-2"></a>    <span class="st">"C:/Users/VissaultS/Documents/03-Labo/Results Reports"</span>, </span>
+<span id="cb2-3"><a href="#cb2-3"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb2-4"><a href="#cb2-4"></a>)</span>
+<span id="cb2-5"><a href="#cb2-5"></a></span>
+<span id="cb2-6"><a href="#cb2-6"></a><span class="co"># On extrait les identifiants des rapports du nom du fichier</span></span>
+<span id="cb2-7"><a href="#cb2-7"></a>report_id <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(reports_path, regex_report_id)</span>
+<span id="cb2-8"><a href="#cb2-8"></a></span>
+<span id="cb2-9"><a href="#cb2-9"></a><span class="co"># On obtient la signature du fichier, ca va être pratique pour detecter les fichiers dupliqués même si le nom du fichier est différent.</span></span>
+<span id="cb2-10"><a href="#cb2-10"></a>file_hash <span class="ot">&lt;-</span> tools<span class="sc">::</span><span class="fu">md5sum</span>(reports_path)</span>
+<span id="cb2-11"><a href="#cb2-11"></a></span>
+<span id="cb2-12"><a href="#cb2-12"></a><span class="co"># On extrait l'extension du fichier</span></span>
+<span id="cb2-13"><a href="#cb2-13"></a>file_ext <span class="ot">&lt;-</span> reports_path <span class="sc">|&gt;</span> </span>
+<span id="cb2-14"><a href="#cb2-14"></a>    <span class="fu">strsplit</span>(<span class="st">"[.]"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb2-15"><a href="#cb2-15"></a>    purrr<span class="sc">::</span><span class="fu">map_chr</span>(\(e) <span class="fu">return</span>(e[<span class="dv">2</span>]))</span>
+<span id="cb2-16"><a href="#cb2-16"></a></span>
+<span id="cb2-17"><a href="#cb2-17"></a><span class="co"># On compose un tableau avec l'ensemble de ces informations</span></span>
+<span id="cb2-18"><a href="#cb2-18"></a>reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb2-19"><a href="#cb2-19"></a>        <span class="at">path =</span> reports_path, </span>
+<span id="cb2-20"><a href="#cb2-20"></a>        <span class="at">id =</span> report_id, </span>
+<span id="cb2-21"><a href="#cb2-21"></a>        <span class="at">hash =</span> file_hash, </span>
+<span id="cb2-22"><a href="#cb2-22"></a>        <span class="at">ext =</span> file_ext</span>
+<span id="cb2-23"><a href="#cb2-23"></a>    ) <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Note: <code>tools::md5sum</code> permet de générer une signature unique propre au fichier. Ainsi deux fichiers identiques dans le contenu mais avec des noms différents pourront être identifié comme des duplicats.</p>
 <p>Voici la liste des fichiers identiques dans le dossier <code>03-Labo/Results Reports</code>.</p>
-<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>reports_dup <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    janitor<span class="sc">::</span><span class="fu">get_dupes</span>(<span class="sc">-</span><span class="fu">c</span>(path)) <span class="sc">|&gt;</span></span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>hash)</span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>reports_dup <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>reports_dup <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
+<span id="cb3-2"><a href="#cb3-2"></a>    tibble<span class="sc">::</span><span class="fu">as_tibble</span>() <span class="sc">|&gt;</span></span>
+<span id="cb3-3"><a href="#cb3-3"></a>    janitor<span class="sc">::</span><span class="fu">get_dupes</span>(<span class="sc">-</span><span class="fu">c</span>(path)) <span class="sc">|&gt;</span></span>
+<span id="cb3-4"><a href="#cb3-4"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(<span class="sc">-</span>hash)</span>
+<span id="cb3-5"><a href="#cb3-5"></a></span>
+<span id="cb3-6"><a href="#cb3-6"></a>reports_dup <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table class="table">
 <colgroup>
 <col style="width: 8%">
@@ -503,22 +503,22 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </table>
 <p>On selectionne le premier rapport en se basant sur le id (ex. BMK-PFC-23-01) pour éliminer les rapports dupliqués pour la suite de l’analyse. On s’assure de selectionner préférablement les pdfs si on dispose d’un docx et d’un document pdf pour le même identifiant de rapport de laboratoire.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    <span class="co"># On retire les rapports qui sont dupliqués</span></span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(hash) <span class="sc">|&gt;</span></span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Si plusieurs extension de fichiers, on selectionne ceux en PDF préférablement, sinon .docx, sinon .doc en dernier recours.</span></span>
-<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_split</span>(id) <span class="sc">|&gt;</span></span>
-<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>    purrr<span class="sc">::</span><span class="fu">map</span>(\(g){</span>
-<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        g <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">factor</span>(ext, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">'pdf'</span>, <span class="st">'docx'</span>, <span class="st">'doc'</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
-<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
+<span id="cb4-2"><a href="#cb4-2"></a>    <span class="co"># On retire les rapports qui sont dupliqués</span></span>
+<span id="cb4-3"><a href="#cb4-3"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(hash) <span class="sc">|&gt;</span></span>
+<span id="cb4-4"><a href="#cb4-4"></a>    dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6"></a>    <span class="co"># Si plusieurs extension de fichiers, on selectionne ceux en PDF préférablement, sinon .docx, sinon .doc en dernier recours.</span></span>
+<span id="cb4-7"><a href="#cb4-7"></a>    dplyr<span class="sc">::</span><span class="fu">group_split</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb4-8"><a href="#cb4-8"></a>    purrr<span class="sc">::</span><span class="fu">map</span>(\(g){</span>
+<span id="cb4-9"><a href="#cb4-9"></a>        g <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">factor</span>(ext, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">'pdf'</span>, <span class="st">'docx'</span>, <span class="st">'doc'</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb4-10"><a href="#cb4-10"></a>        dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb4-11"><a href="#cb4-11"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb4-12"><a href="#cb4-12"></a>    dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Quelques rapports de laboratoire demeurent au format doc et docx.</p>
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>docs <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(ext <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'doc'</span>, <span class="st">'docx'</span>)) </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>docs <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1"></a>docs <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(ext <span class="sc">%in%</span> <span class="fu">c</span>(<span class="st">'doc'</span>, <span class="st">'docx'</span>)) </span>
+<span id="cb5-2"><a href="#cb5-2"></a>docs <span class="sc">|&gt;</span> knitr<span class="sc">::</span><span class="fu">kable</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <table>
 <thead>
 <tr class="header">
@@ -542,59 +542,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>Nous souhaitons générer une liste de tous les projets basée sur les 71 rapports de laboratoire stockés dans le dossier <code>03-Labo/Comptes rendus</code> de résultats. La première page de chaque rapport de laboratoire contient toutes les informations pertinentes pour produire cette liste.</p>
 <p>Pour chaque rapport, nous vérifions s’il s’agit d’une image ou non. Si le rapport est une image, nous devons utiliser une reconnaissance optique de caractères (OCR) afin d’extraire le texte de la première page et d’obtenir toutes les métadonnées pertinentes. Si c’est un pdf ou un fichier word, nous importons la première page du document.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="co"># On détect si le document est une image</span></span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">filename =</span> <span class="fu">basename</span>(path),</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">is_image =</span> purrr<span class="sc">::</span><span class="fu">map2_lgl</span>(path, ext, \(p, e) {</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(e <span class="sc">==</span> <span class="st">"pdf"</span>){</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>            out <span class="ot">&lt;-</span> pdftools<span class="sc">::</span><span class="fu">pdf_text</span>(p)</span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>            <span class="sc">!</span><span class="fu">all</span>(<span class="fu">nchar</span>(out) <span class="sc">&gt;</span> <span class="dv">15</span>)</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>        } <span class="cf">else</span> {</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>            <span class="cn">FALSE</span></span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    })</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a><span class="co"># On extrait le texte par OCR si c'est une image</span></span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>frontpages <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_vec</span>(reports<span class="sc">$</span>path, reports<span class="sc">$</span>is_image, \(p, i) {</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a>        <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(i), </span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a>            pdftools<span class="sc">::</span><span class="fu">pdf_ocr_text</span>(<span class="at">pdf =</span> p, <span class="at">pages =</span> <span class="dv">1</span>),</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>            pdftools<span class="sc">::</span><span class="fu">pdf_text</span>(<span class="at">pdf =</span> p)[[<span class="dv">1</span>]]</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a><span class="co"># On détect si le document est une image</span></span>
+<span id="cb6-2"><a href="#cb6-2"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb6-3"><a href="#cb6-3"></a>    <span class="at">filename =</span> <span class="fu">basename</span>(path),</span>
+<span id="cb6-4"><a href="#cb6-4"></a>    <span class="at">is_image =</span> purrr<span class="sc">::</span><span class="fu">map2_lgl</span>(path, ext, \(p, e) {</span>
+<span id="cb6-5"><a href="#cb6-5"></a>        <span class="cf">if</span>(e <span class="sc">==</span> <span class="st">"pdf"</span>){</span>
+<span id="cb6-6"><a href="#cb6-6"></a>            out <span class="ot">&lt;-</span> pdftools<span class="sc">::</span><span class="fu">pdf_text</span>(p)</span>
+<span id="cb6-7"><a href="#cb6-7"></a>            <span class="sc">!</span><span class="fu">all</span>(<span class="fu">nchar</span>(out) <span class="sc">&gt;</span> <span class="dv">15</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a>        } <span class="cf">else</span> {</span>
+<span id="cb6-9"><a href="#cb6-9"></a>            <span class="cn">FALSE</span></span>
+<span id="cb6-10"><a href="#cb6-10"></a>        }</span>
+<span id="cb6-11"><a href="#cb6-11"></a>    })</span>
+<span id="cb6-12"><a href="#cb6-12"></a>)</span>
+<span id="cb6-13"><a href="#cb6-13"></a></span>
+<span id="cb6-14"><a href="#cb6-14"></a><span class="co"># On extrait le texte par OCR si c'est une image</span></span>
+<span id="cb6-15"><a href="#cb6-15"></a>frontpages <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_vec</span>(reports<span class="sc">$</span>path, reports<span class="sc">$</span>is_image, \(p, i) {</span>
+<span id="cb6-16"><a href="#cb6-16"></a>        <span class="fu">ifelse</span>(<span class="fu">isTRUE</span>(i), </span>
+<span id="cb6-17"><a href="#cb6-17"></a>            pdftools<span class="sc">::</span><span class="fu">pdf_ocr_text</span>(<span class="at">pdf =</span> p, <span class="at">pages =</span> <span class="dv">1</span>),</span>
+<span id="cb6-18"><a href="#cb6-18"></a>            pdftools<span class="sc">::</span><span class="fu">pdf_text</span>(<span class="at">pdf =</span> p)[[<span class="dv">1</span>]]</span>
+<span id="cb6-19"><a href="#cb6-19"></a>        )</span>
+<span id="cb6-20"><a href="#cb6-20"></a>    }) <span class="sc">|&gt;</span> <span class="fu">tolower</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Une fois le texte de la première page isolé, on applique une série d’opération d’extractions de texte à partir de la position de mots clés. On isole ainsi le titre du projet, l’ID du projet, la date etc.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>project_id <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_vec</span>(frontpages, \(f){</span>
-<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(project: |project |projects|projet :)).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
-<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>}) <span class="sc">|&gt;</span> </span>
-<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">toupper</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">word</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"[.,]"</span>, <span class="st">""</span>) <span class="sc">|&gt;</span></span>
-<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_trim</span>() <span class="sc">|&gt;</span></span>
-<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">na_if</span>(<span class="st">""</span>)</span>
-<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>project_leader <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_vec</span>(frontpages, \(f){</span>
-<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>        stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(project leader: |project leader |project manager: |manager: |study leader: |nom du requérant :)).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
-<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span> </span>
-<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="fu">c</span>(<span class="st">"[_|:]"</span> <span class="ot">=</span> <span class="st">""</span>, <span class="st">"[:digit:]"</span> <span class="ot">=</span> <span class="st">""</span>, <span class="st">"[.]$"</span> <span class="ot">=</span> <span class="st">""</span>)) <span class="sc">|&gt;</span> </span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_to_title</span>() <span class="sc">|&gt;</span></span>
-<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    stringr<span class="sc">::</span><span class="fu">str_trim</span>()</span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>project_dates <span class="ot">&lt;-</span> frontpages <span class="sc">|&gt;</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    purrr<span class="sc">::</span><span class="fu">map_vec</span>(\(f){</span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>        dates <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"</span><span class="sc">\\</span><span class="st">d{4}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span>)</span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span>(<span class="fu">is.na</span>(dates)) {</span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>            dates <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(date: )).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>        }</span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(dates)</span>
-<span id="cb7-24"><a href="#cb7-24" aria-hidden="true" tabindex="-1"></a>    }) </span>
-<span id="cb7-25"><a href="#cb7-25" aria-hidden="true" tabindex="-1"></a>        </span>
-<span id="cb7-26"><a href="#cb7-26" aria-hidden="true" tabindex="-1"></a>reportsProject <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb7-27"><a href="#cb7-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_id =</span> reports<span class="sc">$</span>id, </span>
-<span id="cb7-28"><a href="#cb7-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_access_path =</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(reports<span class="sc">$</span>path, <span class="st">"C:/Users/VissaultS/Documents"</span>, <span class="st">"Z:"</span>), </span>
-<span id="cb7-29"><a href="#cb7-29" aria-hidden="true" tabindex="-1"></a>    project_id, project_leader, project_dates, <span class="at">project_title =</span> <span class="cn">NA</span></span>
-<span id="cb7-30"><a href="#cb7-30" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1"></a>project_id <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_vec</span>(frontpages, \(f){</span>
+<span id="cb7-2"><a href="#cb7-2"></a>    stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(project: |project |projects|projet :)).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3"></a>}) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4"></a>    <span class="fu">toupper</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb7-5"><a href="#cb7-5"></a>    stringr<span class="sc">::</span><span class="fu">word</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb7-6"><a href="#cb7-6"></a>    stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="st">"[.,]"</span>, <span class="st">""</span>) <span class="sc">|&gt;</span></span>
+<span id="cb7-7"><a href="#cb7-7"></a>    stringr<span class="sc">::</span><span class="fu">str_trim</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8"></a>    dplyr<span class="sc">::</span><span class="fu">na_if</span>(<span class="st">""</span>)</span>
+<span id="cb7-9"><a href="#cb7-9"></a></span>
+<span id="cb7-10"><a href="#cb7-10"></a>project_leader <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map_vec</span>(frontpages, \(f){</span>
+<span id="cb7-11"><a href="#cb7-11"></a>        stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(project leader: |project leader |project manager: |manager: |study leader: |nom du requérant :)).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
+<span id="cb7-12"><a href="#cb7-12"></a>    }) <span class="sc">|&gt;</span> </span>
+<span id="cb7-13"><a href="#cb7-13"></a>    stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(<span class="fu">c</span>(<span class="st">"[_|:]"</span> <span class="ot">=</span> <span class="st">""</span>, <span class="st">"[:digit:]"</span> <span class="ot">=</span> <span class="st">""</span>, <span class="st">"[.]$"</span> <span class="ot">=</span> <span class="st">""</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-14"><a href="#cb7-14"></a>    stringr<span class="sc">::</span><span class="fu">str_to_title</span>() <span class="sc">|&gt;</span></span>
+<span id="cb7-15"><a href="#cb7-15"></a>    stringr<span class="sc">::</span><span class="fu">str_trim</span>()</span>
+<span id="cb7-16"><a href="#cb7-16"></a></span>
+<span id="cb7-17"><a href="#cb7-17"></a>project_dates <span class="ot">&lt;-</span> frontpages <span class="sc">|&gt;</span></span>
+<span id="cb7-18"><a href="#cb7-18"></a>    purrr<span class="sc">::</span><span class="fu">map_vec</span>(\(f){</span>
+<span id="cb7-19"><a href="#cb7-19"></a>        dates <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"</span><span class="sc">\\</span><span class="st">d{4}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span>)</span>
+<span id="cb7-20"><a href="#cb7-20"></a>        <span class="cf">if</span>(<span class="fu">is.na</span>(dates)) {</span>
+<span id="cb7-21"><a href="#cb7-21"></a>            dates <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(f, <span class="st">"(?&lt;=(date: )).*(?=</span><span class="sc">\n</span><span class="st">)"</span>)</span>
+<span id="cb7-22"><a href="#cb7-22"></a>        }</span>
+<span id="cb7-23"><a href="#cb7-23"></a>        <span class="fu">return</span>(dates)</span>
+<span id="cb7-24"><a href="#cb7-24"></a>    }) </span>
+<span id="cb7-25"><a href="#cb7-25"></a>        </span>
+<span id="cb7-26"><a href="#cb7-26"></a>reportsProject <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb7-27"><a href="#cb7-27"></a>    <span class="at">report_id =</span> reports<span class="sc">$</span>id, </span>
+<span id="cb7-28"><a href="#cb7-28"></a>    <span class="at">report_access_path =</span> stringr<span class="sc">::</span><span class="fu">str_replace_all</span>(reports<span class="sc">$</span>path, <span class="st">"C:/Users/VissaultS/Documents"</span>, <span class="st">"Z:"</span>), </span>
+<span id="cb7-29"><a href="#cb7-29"></a>    project_id, project_leader, project_dates, <span class="at">project_title =</span> <span class="cn">NA</span></span>
+<span id="cb7-30"><a href="#cb7-30"></a>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Le data.frame <code>reportsProject</code> est à la base du fichier “Z:\07-Données BD_projects_list_extract_25032024.xlsx”.</p>
 </section>
@@ -602,18 +602,18 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="valider-lexistence-de-rapports-de-laboratoire-dans-le-dossier-01-projet-et-suivis">Valider l’existence de rapports de laboratoire dans le dossier <code>01-Projet et suivis</code></h2>
 <p>On valide si certains de ces rapports ne se retrouvent pas dans le dossier <code>03-Labo/Comptes rendus</code>. Ces rapports pourraient potentiellement nous interressés.</p>
 <div class="cell" data-result="asis">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="st">"C:/Users/VissaultS/Documents/01-Projets et suivis"</span>, </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>potential_reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">file =</span> files[<span class="fu">which</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(files, regex_report_id))])</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>potential_reports <span class="ot">&lt;-</span> potential_reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">id =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(file, regex_report_id) <span class="sc">|&gt;</span> <span class="fu">toupper</span>(),</span>
-<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">in_lab_report_folder =</span> <span class="sc">!</span>(id <span class="sc">%in%</span> reports<span class="sc">$</span>id)</span>
-<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(in_lab_report_folder) <span class="sc">|&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">file =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(file, <span class="st">"C:/Users/VissaultS/Documents/"</span>, <span class="st">"Z:"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode numberSource r number-lines code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>files <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
+<span id="cb8-2"><a href="#cb8-2"></a>    <span class="st">"C:/Users/VissaultS/Documents/01-Projets et suivis"</span>, </span>
+<span id="cb8-3"><a href="#cb8-3"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb8-4"><a href="#cb8-4"></a>)</span>
+<span id="cb8-5"><a href="#cb8-5"></a></span>
+<span id="cb8-6"><a href="#cb8-6"></a>potential_reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">file =</span> files[<span class="fu">which</span>(stringr<span class="sc">::</span><span class="fu">str_detect</span>(files, regex_report_id))])</span>
+<span id="cb8-7"><a href="#cb8-7"></a></span>
+<span id="cb8-8"><a href="#cb8-8"></a>potential_reports <span class="ot">&lt;-</span> potential_reports <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb8-9"><a href="#cb8-9"></a>    <span class="at">id =</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(file, regex_report_id) <span class="sc">|&gt;</span> <span class="fu">toupper</span>(),</span>
+<span id="cb8-10"><a href="#cb8-10"></a>    <span class="at">in_lab_report_folder =</span> <span class="sc">!</span>(id <span class="sc">%in%</span> reports<span class="sc">$</span>id)</span>
+<span id="cb8-11"><a href="#cb8-11"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(in_lab_report_folder) <span class="sc">|&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">file =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(file, <span class="st">"C:/Users/VissaultS/Documents/"</span>, <span class="st">"Z:"</span>))</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
@@ -1204,179 +1204,179 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
   }
 });
 </script><div class="modal fade" id="quarto-embedded-source-code-modal" tabindex="-1" aria-labelledby="quarto-embedded-source-code-modal-label" aria-hidden="true"><div class="modal-dialog modal-dialog-scrollable"><div class="modal-content"><div class="modal-header"><h5 class="modal-title" id="quarto-embedded-source-code-modal-label">Code source</h5><button class="btn-close" data-bs-dismiss="modal"></button></div><div class="modal-body"><div class="">
-<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode markdown code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a><span class="an">title:</span><span class="co"> "Recensement des projets"</span></span>
-<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a><span class="an">author:</span><span class="co"> "Steve Vissault"</span></span>
-<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a><span class="an">date:</span><span class="co"> "2024-03-19"</span></span>
-<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a><span class="co">---</span></span>
-<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a><span class="fu">## Établir une liste des projets</span></span>
-<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a>Chaque rapport de laboratoire contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel cette analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d'obtenir la liste des projets.</span>
-<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: <span class="in">`CHEM-PCDD-00-07`</span> ou encore <span class="in">`MB-05-10`</span>. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:</span>
-<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>regex_report_id <span class="ot">&lt;-</span> <span class="st">"([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span></span>
-<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>La variable <span class="in">`regex_report_id`</span> sera utilisée plusieurs fois dans ce document. </span>
-<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>On liste les rapports de laboratoire présents dans le dossier <span class="in">`03-Labo/Results Reports`</span>.</span>
-<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>reports_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
-<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"C:/Users/VissaultS/Documents/03-Labo/Results Reports"</span>, </span>
-<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
-<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a><span class="co"># On extrait les identifiants des rapports du nom du fichier</span></span>
-<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>report_id <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(reports_path, regex_report_id)</span>
-<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-34"><a href="#cb9-34" aria-hidden="true" tabindex="-1"></a><span class="co"># On obtient la signature du fichier, ca va être pratique pour detecter les fichiers dupliqués même si le nom du fichier est différent.</span></span>
-<span id="cb9-35"><a href="#cb9-35" aria-hidden="true" tabindex="-1"></a>file_hash <span class="ot">&lt;-</span> tools<span class="sc">::</span><span class="fu">md5sum</span>(reports_path)</span>
-<span id="cb9-36"><a href="#cb9-36" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-37"><a href="#cb9-37" aria-hidden="true" tabindex="-1"></a><span class="co"># On extrait l'extension du fichier</span></span>
-<span id="cb9-38"><a href="#cb9-38" aria-hidden="true" tabindex="-1"></a>file_ext <span class="ot">&lt;-</span> reports_path <span class="sc">|&gt;</span> </span>
-<span id="cb9-39"><a href="#cb9-39" aria-hidden="true" tabindex="-1"></a>    <span class="fu">strsplit</span>(<span class="st">"[.]"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb9-40"><a href="#cb9-40" aria-hidden="true" tabindex="-1"></a>    purrr<span class="sc">::</span><span class="fu">map_chr</span>(\(e) <span class="fu">return</span>(e[<span class="dv">2</span>]))</span>
-<span id="cb9-41"><a href="#cb9-41" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-42"><a href="#cb9-42" aria-hidden="true" tabindex="-1"></a><span class="co"># On compose un tableau avec l'ensemble de ces informations</span></span>
-<span id="cb9-43"><a href="#cb9-43" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb9-44"><a href="#cb9-44" aria-hidden="true" tabindex="-1"></a>        <span class="at">path =</span> reports_path, </span>
-<span id="cb9-45"><a href="#cb9-45" aria-hidden="true" tabindex="-1"></a>        <span class="at">id =</span> report_id, </span>
-<span id="cb9-46"><a href="#cb9-46" aria-hidden="true" tabindex="-1"></a>        <span class="at">hash =</span> file_hash, </span>
-<span id="cb9-47"><a href="#cb9-47" aria-hidden="true" tabindex="-1"></a>        <span class="at">ext =</span> file_ext</span>
-<span id="cb9-48"><a href="#cb9-48" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span>
-<span id="cb9-49"><a href="#cb9-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-50"><a href="#cb9-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-51"><a href="#cb9-51" aria-hidden="true" tabindex="-1"></a>Note: <span class="in">`tools::md5sum`</span> permet de générer une signature unique propre au fichier. Ainsi deux fichiers identiques dans le contenu mais avec des noms différents pourront être identifié comme des duplicats.</span>
-<span id="cb9-52"><a href="#cb9-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-53"><a href="#cb9-53" aria-hidden="true" tabindex="-1"></a>Voici la liste des fichiers identiques dans le dossier <span class="in">`03-Labo/Results Reports`</span>.</span>
-<span id="cb9-54"><a href="#cb9-54" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-55"><a href="#cb9-55" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, results='asis'}</span></span>
-<span id="cb9-56"><a href="#cb9-56" aria-hidden="true" tabindex="-1"></a><span class="in">reports_dup &lt;- reports |&gt; </span></span>
-<span id="cb9-57"><a href="#cb9-57" aria-hidden="true" tabindex="-1"></a><span class="in">    tibble::as_tibble() |&gt;</span></span>
-<span id="cb9-58"><a href="#cb9-58" aria-hidden="true" tabindex="-1"></a><span class="in">    janitor::get_dupes(-c(path)) |&gt;</span></span>
-<span id="cb9-59"><a href="#cb9-59" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::select(-hash)</span></span>
-<span id="cb9-60"><a href="#cb9-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-61"><a href="#cb9-61" aria-hidden="true" tabindex="-1"></a><span class="in">reports_dup |&gt; knitr::kable()</span></span>
-<span id="cb9-62"><a href="#cb9-62" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>On selectionne le premier rapport en se basant sur le id (ex. BMK-PFC-23-01) pour éliminer les rapports dupliqués pour la suite de l'analyse. On s'assure de selectionner préférablement les pdfs si on dispose d'un docx et d'un document pdf pour le même identifiant de rapport de laboratoire.</span>
-<span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
-<span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># On retire les rapports qui sont dupliqués</span></span>
-<span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(hash) <span class="sc">|&gt;</span></span>
-<span id="cb9-72"><a href="#cb9-72" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
-<span id="cb9-73"><a href="#cb9-73" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb9-74"><a href="#cb9-74" aria-hidden="true" tabindex="-1"></a>    <span class="co"># Si plusieurs extension de fichiers, on selectionne ceux en PDF préférablement, sinon .docx, sinon .doc en dernier recours.</span></span>
-<span id="cb9-75"><a href="#cb9-75" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_split</span>(id) <span class="sc">|&gt;</span></span>
-<span id="cb9-76"><a href="#cb9-76" aria-hidden="true" tabindex="-1"></a>    purrr<span class="sc">::</span><span class="fu">map</span>(\(g){</span>
-<span id="cb9-77"><a href="#cb9-77" aria-hidden="true" tabindex="-1"></a>        g <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">factor</span>(ext, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">'pdf'</span>, <span class="st">'docx'</span>, <span class="st">'doc'</span>))) <span class="sc">|&gt;</span></span>
-<span id="cb9-78"><a href="#cb9-78" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
-<span id="cb9-79"><a href="#cb9-79" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span></span>
-<span id="cb9-80"><a href="#cb9-80" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
-<span id="cb9-81"><a href="#cb9-81" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-82"><a href="#cb9-82" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-83"><a href="#cb9-83" aria-hidden="true" tabindex="-1"></a>Quelques rapports de laboratoire demeurent au format doc et docx.</span>
-<span id="cb9-84"><a href="#cb9-84" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-85"><a href="#cb9-85" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, results='asis'}</span></span>
-<span id="cb9-86"><a href="#cb9-86" aria-hidden="true" tabindex="-1"></a><span class="in">docs &lt;- reports |&gt; dplyr::filter(ext %in% c('doc', 'docx')) </span></span>
-<span id="cb9-87"><a href="#cb9-87" aria-hidden="true" tabindex="-1"></a><span class="in">docs |&gt; knitr::kable()</span></span>
-<span id="cb9-88"><a href="#cb9-88" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-89"><a href="#cb9-89" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-90"><a href="#cb9-90" aria-hidden="true" tabindex="-1"></a>Afin de faciliter l'extraction des métadonnées par programmation, on convertit les fichiers .doc et .docx en pdf.</span>
-<span id="cb9-91"><a href="#cb9-91" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-92"><a href="#cb9-92" aria-hidden="true" tabindex="-1"></a><span class="fu">## Convertion des documents Word en pdf</span></span>
-<span id="cb9-93"><a href="#cb9-93" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-94"><a href="#cb9-94" aria-hidden="true" tabindex="-1"></a>Cette étape a été complété manuellement.</span>
-<span id="cb9-95"><a href="#cb9-95" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-96"><a href="#cb9-96" aria-hidden="true" tabindex="-1"></a><span class="fu">## Extraire les métadonnées du rapport</span></span>
-<span id="cb9-97"><a href="#cb9-97" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-98"><a href="#cb9-98" aria-hidden="true" tabindex="-1"></a>Nous souhaitons générer une liste de tous les projets basée sur les <span class="in">`r nrow(reports)`</span> rapports de laboratoire stockés dans le dossier <span class="in">`03-Labo/Comptes rendus`</span> de résultats. La première page de chaque rapport de laboratoire contient toutes les informations pertinentes pour produire cette liste.</span>
-<span id="cb9-99"><a href="#cb9-99" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-100"><a href="#cb9-100" aria-hidden="true" tabindex="-1"></a>Pour chaque rapport, nous vérifions s'il s'agit d'une image ou non. Si le rapport est une image, nous devons utiliser une reconnaissance optique de caractères (OCR) afin d'extraire le texte de la première page et d'obtenir toutes les métadonnées pertinentes. Si c'est un pdf ou un fichier word, nous importons la première page du document.</span>
-<span id="cb9-101"><a href="#cb9-101" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-102"><a href="#cb9-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval = FALSE}</span></span>
-<span id="cb9-103"><a href="#cb9-103" aria-hidden="true" tabindex="-1"></a><span class="in"># On détect si le document est une image</span></span>
-<span id="cb9-104"><a href="#cb9-104" aria-hidden="true" tabindex="-1"></a><span class="in">reports &lt;- reports |&gt; dplyr::mutate(</span></span>
-<span id="cb9-105"><a href="#cb9-105" aria-hidden="true" tabindex="-1"></a><span class="in">    filename = basename(path),</span></span>
-<span id="cb9-106"><a href="#cb9-106" aria-hidden="true" tabindex="-1"></a><span class="in">    is_image = purrr::map2_lgl(path, ext, \(p, e) {</span></span>
-<span id="cb9-107"><a href="#cb9-107" aria-hidden="true" tabindex="-1"></a><span class="in">        if(e == "pdf"){</span></span>
-<span id="cb9-108"><a href="#cb9-108" aria-hidden="true" tabindex="-1"></a><span class="in">            out &lt;- pdftools::pdf_text(p)</span></span>
-<span id="cb9-109"><a href="#cb9-109" aria-hidden="true" tabindex="-1"></a><span class="in">            !all(nchar(out) &gt; 15)</span></span>
-<span id="cb9-110"><a href="#cb9-110" aria-hidden="true" tabindex="-1"></a><span class="in">        } else {</span></span>
-<span id="cb9-111"><a href="#cb9-111" aria-hidden="true" tabindex="-1"></a><span class="in">            FALSE</span></span>
-<span id="cb9-112"><a href="#cb9-112" aria-hidden="true" tabindex="-1"></a><span class="in">        }</span></span>
-<span id="cb9-113"><a href="#cb9-113" aria-hidden="true" tabindex="-1"></a><span class="in">    })</span></span>
-<span id="cb9-114"><a href="#cb9-114" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb9-115"><a href="#cb9-115" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-116"><a href="#cb9-116" aria-hidden="true" tabindex="-1"></a><span class="in"># On extrait le texte par OCR si c'est une image</span></span>
-<span id="cb9-117"><a href="#cb9-117" aria-hidden="true" tabindex="-1"></a><span class="in">frontpages &lt;- purrr::map2_vec(reports$path, reports$is_image, \(p, i) {</span></span>
-<span id="cb9-118"><a href="#cb9-118" aria-hidden="true" tabindex="-1"></a><span class="in">        ifelse(isTRUE(i), </span></span>
-<span id="cb9-119"><a href="#cb9-119" aria-hidden="true" tabindex="-1"></a><span class="in">            pdftools::pdf_ocr_text(pdf = p, pages = 1),</span></span>
-<span id="cb9-120"><a href="#cb9-120" aria-hidden="true" tabindex="-1"></a><span class="in">            pdftools::pdf_text(pdf = p)[[1]]</span></span>
-<span id="cb9-121"><a href="#cb9-121" aria-hidden="true" tabindex="-1"></a><span class="in">        )</span></span>
-<span id="cb9-122"><a href="#cb9-122" aria-hidden="true" tabindex="-1"></a><span class="in">    }) |&gt; tolower()</span></span>
-<span id="cb9-123"><a href="#cb9-123" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-124"><a href="#cb9-124" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-125"><a href="#cb9-125" aria-hidden="true" tabindex="-1"></a>Une fois le texte de la première page isolé, on applique une série d'opération d'extractions de texte à partir de la position de mots clés. On isole ainsi le titre du projet, l'ID du projet, la date etc.</span>
-<span id="cb9-126"><a href="#cb9-126" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-127"><a href="#cb9-127" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval = FALSE}</span></span>
-<span id="cb9-128"><a href="#cb9-128" aria-hidden="true" tabindex="-1"></a><span class="in">project_id &lt;- purrr::map_vec(frontpages, \(f){</span></span>
-<span id="cb9-129"><a href="#cb9-129" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_extract(f, "(?&lt;=(project: |project |projects|projet :)).*(?=\n)")</span></span>
-<span id="cb9-130"><a href="#cb9-130" aria-hidden="true" tabindex="-1"></a><span class="in">}) |&gt; </span></span>
-<span id="cb9-131"><a href="#cb9-131" aria-hidden="true" tabindex="-1"></a><span class="in">    toupper() |&gt; </span></span>
-<span id="cb9-132"><a href="#cb9-132" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::word(1) |&gt; </span></span>
-<span id="cb9-133"><a href="#cb9-133" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_replace_all("[.,]", "") |&gt;</span></span>
-<span id="cb9-134"><a href="#cb9-134" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_trim() |&gt;</span></span>
-<span id="cb9-135"><a href="#cb9-135" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::na_if("")</span></span>
-<span id="cb9-136"><a href="#cb9-136" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-137"><a href="#cb9-137" aria-hidden="true" tabindex="-1"></a><span class="in">project_leader &lt;- purrr::map_vec(frontpages, \(f){</span></span>
-<span id="cb9-138"><a href="#cb9-138" aria-hidden="true" tabindex="-1"></a><span class="in">        stringr::str_extract(f, "(?&lt;=(project leader: |project leader |project manager: |manager: |study leader: |nom du requérant :)).*(?=\n)")</span></span>
-<span id="cb9-139"><a href="#cb9-139" aria-hidden="true" tabindex="-1"></a><span class="in">    }) |&gt; </span></span>
-<span id="cb9-140"><a href="#cb9-140" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_replace_all(c("[_|:]" = "", "[:digit:]" = "", "[.]$" = "")) |&gt; </span></span>
-<span id="cb9-141"><a href="#cb9-141" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_to_title() |&gt;</span></span>
-<span id="cb9-142"><a href="#cb9-142" aria-hidden="true" tabindex="-1"></a><span class="in">    stringr::str_trim()</span></span>
-<span id="cb9-143"><a href="#cb9-143" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-144"><a href="#cb9-144" aria-hidden="true" tabindex="-1"></a><span class="in">project_dates &lt;- frontpages |&gt;</span></span>
-<span id="cb9-145"><a href="#cb9-145" aria-hidden="true" tabindex="-1"></a><span class="in">    purrr::map_vec(\(f){</span></span>
-<span id="cb9-146"><a href="#cb9-146" aria-hidden="true" tabindex="-1"></a><span class="in">        dates &lt;- stringr::str_extract(f, "\\d{4}-\\d{2}-\\d{2}")</span></span>
-<span id="cb9-147"><a href="#cb9-147" aria-hidden="true" tabindex="-1"></a><span class="in">        if(is.na(dates)) {</span></span>
-<span id="cb9-148"><a href="#cb9-148" aria-hidden="true" tabindex="-1"></a><span class="in">            dates &lt;- stringr::str_extract(f, "(?&lt;=(date: )).*(?=\n)")</span></span>
-<span id="cb9-149"><a href="#cb9-149" aria-hidden="true" tabindex="-1"></a><span class="in">        }</span></span>
-<span id="cb9-150"><a href="#cb9-150" aria-hidden="true" tabindex="-1"></a><span class="in">        return(dates)</span></span>
-<span id="cb9-151"><a href="#cb9-151" aria-hidden="true" tabindex="-1"></a><span class="in">    }) </span></span>
-<span id="cb9-152"><a href="#cb9-152" aria-hidden="true" tabindex="-1"></a><span class="in">        </span></span>
-<span id="cb9-153"><a href="#cb9-153" aria-hidden="true" tabindex="-1"></a><span class="in">reportsProject &lt;- data.frame(</span></span>
-<span id="cb9-154"><a href="#cb9-154" aria-hidden="true" tabindex="-1"></a><span class="in">    report_id = reports$id, </span></span>
-<span id="cb9-155"><a href="#cb9-155" aria-hidden="true" tabindex="-1"></a><span class="in">    report_access_path = stringr::str_replace_all(reports$path, "C:/Users/VissaultS/Documents", "Z:"), </span></span>
-<span id="cb9-156"><a href="#cb9-156" aria-hidden="true" tabindex="-1"></a><span class="in">    project_id, project_leader, project_dates, project_title = NA</span></span>
-<span id="cb9-157"><a href="#cb9-157" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb9-158"><a href="#cb9-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb9-159"><a href="#cb9-159" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-160"><a href="#cb9-160" aria-hidden="true" tabindex="-1"></a>Le data.frame <span class="in">`reportsProject`</span> est à la base du fichier "Z:\07-Données BD\BD_projects\projects_list_extract_25032024.xlsx".</span>
-<span id="cb9-161"><a href="#cb9-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-162"><a href="#cb9-162" aria-hidden="true" tabindex="-1"></a><span class="fu">## Valider l'existence de rapports de laboratoire dans le dossier `01-Projet et suivis`</span></span>
-<span id="cb9-163"><a href="#cb9-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-164"><a href="#cb9-164" aria-hidden="true" tabindex="-1"></a>On valide si certains de ces rapports ne se retrouvent pas dans le dossier <span class="in">`03-Labo/Comptes rendus`</span>. Ces rapports pourraient potentiellement nous interressés.</span>
-<span id="cb9-165"><a href="#cb9-165" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-166"><a href="#cb9-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, result = "asis"}</span></span>
-<span id="cb9-167"><a href="#cb9-167" aria-hidden="true" tabindex="-1"></a><span class="in">files &lt;- list.files(</span></span>
-<span id="cb9-168"><a href="#cb9-168" aria-hidden="true" tabindex="-1"></a><span class="in">    "C:/Users/VissaultS/Documents/01-Projets et suivis", </span></span>
-<span id="cb9-169"><a href="#cb9-169" aria-hidden="true" tabindex="-1"></a><span class="in">    pattern = "*.pdf|*.docx|*.doc", recursive = TRUE, full.names = TRUE</span></span>
-<span id="cb9-170"><a href="#cb9-170" aria-hidden="true" tabindex="-1"></a><span class="in">)</span></span>
-<span id="cb9-171"><a href="#cb9-171" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-172"><a href="#cb9-172" aria-hidden="true" tabindex="-1"></a><span class="in">potential_reports &lt;- data.frame(file = files[which(stringr::str_detect(files, regex_report_id))])</span></span>
-<span id="cb9-173"><a href="#cb9-173" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-174"><a href="#cb9-174" aria-hidden="true" tabindex="-1"></a><span class="in">potential_reports &lt;- potential_reports |&gt; dplyr::mutate(</span></span>
-<span id="cb9-175"><a href="#cb9-175" aria-hidden="true" tabindex="-1"></a><span class="in">    id = stringr::str_extract(file, regex_report_id) |&gt; toupper(),</span></span>
-<span id="cb9-176"><a href="#cb9-176" aria-hidden="true" tabindex="-1"></a><span class="in">    in_lab_report_folder = !(id %in% reports$id)</span></span>
-<span id="cb9-177"><a href="#cb9-177" aria-hidden="true" tabindex="-1"></a><span class="in">) |&gt; dplyr::arrange(in_lab_report_folder) |&gt;</span></span>
-<span id="cb9-178"><a href="#cb9-178" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::mutate(file = stringr::str_replace(file, "C:/Users/VissaultS/Documents/", "Z:"))</span></span>
-<span id="cb9-179"><a href="#cb9-179" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<div class="sourceCode" id="cb9" data-shortcodes="false"><pre class="sourceCode numberSource markdown number-lines code-with-copy"><code class="sourceCode markdown"><span id="cb9-1"><a href="#cb9-1"></a><span class="co">---</span></span>
+<span id="cb9-2"><a href="#cb9-2"></a><span class="an">title:</span><span class="co"> "Recensement des projets"</span></span>
+<span id="cb9-3"><a href="#cb9-3"></a><span class="an">author:</span><span class="co"> "Steve Vissault"</span></span>
+<span id="cb9-4"><a href="#cb9-4"></a><span class="an">date:</span><span class="co"> "2024-03-19"</span></span>
+<span id="cb9-5"><a href="#cb9-5"></a><span class="co">---</span></span>
+<span id="cb9-6"><a href="#cb9-6"></a></span>
+<span id="cb9-7"><a href="#cb9-7"></a><span class="fu">## Établir une liste des projets</span></span>
+<span id="cb9-8"><a href="#cb9-8"></a></span>
+<span id="cb9-9"><a href="#cb9-9"></a>Chaque rapport de laboratoire contient sur sa page de garde l'ensemble des métadonnées en lien avec le projet de recherche pour lequel cette analyse a été demandé. On désire donc extraire la page de garde de chacun des rapports de laboratoires afin d'obtenir la liste des projets.</span>
+<span id="cb9-10"><a href="#cb9-10"></a></span>
+<span id="cb9-11"><a href="#cb9-11"></a>Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: <span class="in">`CHEM-PCDD-00-07`</span> ou encore <span class="in">`MB-05-10`</span>. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:</span>
+<span id="cb9-12"><a href="#cb9-12"></a></span>
+<span id="cb9-15"><a href="#cb9-15"></a><span class="in">```{R}</span></span>
+<span id="cb9-16"><a href="#cb9-16"></a>regex_report_id <span class="ot">&lt;-</span> <span class="st">"([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span></span>
+<span id="cb9-17"><a href="#cb9-17"></a><span class="in">```</span></span>
+<span id="cb9-18"><a href="#cb9-18"></a></span>
+<span id="cb9-19"><a href="#cb9-19"></a>La variable <span class="in">`regex_report_id`</span> sera utilisée plusieurs fois dans ce document. </span>
+<span id="cb9-20"><a href="#cb9-20"></a></span>
+<span id="cb9-21"><a href="#cb9-21"></a>On liste les rapports de laboratoire présents dans le dossier <span class="in">`03-Labo/Results Reports`</span>.</span>
+<span id="cb9-22"><a href="#cb9-22"></a></span>
+<span id="cb9-25"><a href="#cb9-25"></a><span class="in">```{R}</span></span>
+<span id="cb9-26"><a href="#cb9-26"></a>reports_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
+<span id="cb9-27"><a href="#cb9-27"></a>    <span class="st">"C:/Users/VissaultS/Documents/03-Labo/Results Reports"</span>, </span>
+<span id="cb9-28"><a href="#cb9-28"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
+<span id="cb9-29"><a href="#cb9-29"></a>)</span>
+<span id="cb9-30"><a href="#cb9-30"></a></span>
+<span id="cb9-31"><a href="#cb9-31"></a><span class="co"># On extrait les identifiants des rapports du nom du fichier</span></span>
+<span id="cb9-32"><a href="#cb9-32"></a>report_id <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_extract</span>(reports_path, regex_report_id)</span>
+<span id="cb9-33"><a href="#cb9-33"></a></span>
+<span id="cb9-34"><a href="#cb9-34"></a><span class="co"># On obtient la signature du fichier, ca va être pratique pour detecter les fichiers dupliqués même si le nom du fichier est différent.</span></span>
+<span id="cb9-35"><a href="#cb9-35"></a>file_hash <span class="ot">&lt;-</span> tools<span class="sc">::</span><span class="fu">md5sum</span>(reports_path)</span>
+<span id="cb9-36"><a href="#cb9-36"></a></span>
+<span id="cb9-37"><a href="#cb9-37"></a><span class="co"># On extrait l'extension du fichier</span></span>
+<span id="cb9-38"><a href="#cb9-38"></a>file_ext <span class="ot">&lt;-</span> reports_path <span class="sc">|&gt;</span> </span>
+<span id="cb9-39"><a href="#cb9-39"></a>    <span class="fu">strsplit</span>(<span class="st">"[.]"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb9-40"><a href="#cb9-40"></a>    purrr<span class="sc">::</span><span class="fu">map_chr</span>(\(e) <span class="fu">return</span>(e[<span class="dv">2</span>]))</span>
+<span id="cb9-41"><a href="#cb9-41"></a></span>
+<span id="cb9-42"><a href="#cb9-42"></a><span class="co"># On compose un tableau avec l'ensemble de ces informations</span></span>
+<span id="cb9-43"><a href="#cb9-43"></a>reports <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb9-44"><a href="#cb9-44"></a>        <span class="at">path =</span> reports_path, </span>
+<span id="cb9-45"><a href="#cb9-45"></a>        <span class="at">id =</span> report_id, </span>
+<span id="cb9-46"><a href="#cb9-46"></a>        <span class="at">hash =</span> file_hash, </span>
+<span id="cb9-47"><a href="#cb9-47"></a>        <span class="at">ext =</span> file_ext</span>
+<span id="cb9-48"><a href="#cb9-48"></a>    ) <span class="sc">|&gt;</span> tibble<span class="sc">::</span><span class="fu">as_tibble</span>()</span>
+<span id="cb9-49"><a href="#cb9-49"></a><span class="in">```</span></span>
+<span id="cb9-50"><a href="#cb9-50"></a></span>
+<span id="cb9-51"><a href="#cb9-51"></a>Note: <span class="in">`tools::md5sum`</span> permet de générer une signature unique propre au fichier. Ainsi deux fichiers identiques dans le contenu mais avec des noms différents pourront être identifié comme des duplicats.</span>
+<span id="cb9-52"><a href="#cb9-52"></a></span>
+<span id="cb9-53"><a href="#cb9-53"></a>Voici la liste des fichiers identiques dans le dossier <span class="in">`03-Labo/Results Reports`</span>.</span>
+<span id="cb9-54"><a href="#cb9-54"></a></span>
+<span id="cb9-55"><a href="#cb9-55"></a><span class="in">```{R, results='asis'}</span></span>
+<span id="cb9-56"><a href="#cb9-56"></a><span class="in">reports_dup &lt;- reports |&gt; </span></span>
+<span id="cb9-57"><a href="#cb9-57"></a><span class="in">    tibble::as_tibble() |&gt;</span></span>
+<span id="cb9-58"><a href="#cb9-58"></a><span class="in">    janitor::get_dupes(-c(path)) |&gt;</span></span>
+<span id="cb9-59"><a href="#cb9-59"></a><span class="in">    dplyr::select(-hash)</span></span>
+<span id="cb9-60"><a href="#cb9-60"></a></span>
+<span id="cb9-61"><a href="#cb9-61"></a><span class="in">reports_dup |&gt; knitr::kable()</span></span>
+<span id="cb9-62"><a href="#cb9-62"></a><span class="in">```</span></span>
+<span id="cb9-63"><a href="#cb9-63"></a></span>
+<span id="cb9-64"><a href="#cb9-64"></a>On selectionne le premier rapport en se basant sur le id (ex. BMK-PFC-23-01) pour éliminer les rapports dupliqués pour la suite de l'analyse. On s'assure de selectionner préférablement les pdfs si on dispose d'un docx et d'un document pdf pour le même identifiant de rapport de laboratoire.</span>
+<span id="cb9-65"><a href="#cb9-65"></a></span>
+<span id="cb9-68"><a href="#cb9-68"></a><span class="in">```{R}</span></span>
+<span id="cb9-69"><a href="#cb9-69"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
+<span id="cb9-70"><a href="#cb9-70"></a>    <span class="co"># On retire les rapports qui sont dupliqués</span></span>
+<span id="cb9-71"><a href="#cb9-71"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(hash) <span class="sc">|&gt;</span></span>
+<span id="cb9-72"><a href="#cb9-72"></a>    dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>) <span class="sc">|&gt;</span></span>
+<span id="cb9-73"><a href="#cb9-73"></a>    dplyr<span class="sc">::</span><span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb9-74"><a href="#cb9-74"></a>    <span class="co"># Si plusieurs extension de fichiers, on selectionne ceux en PDF préférablement, sinon .docx, sinon .doc en dernier recours.</span></span>
+<span id="cb9-75"><a href="#cb9-75"></a>    dplyr<span class="sc">::</span><span class="fu">group_split</span>(id) <span class="sc">|&gt;</span></span>
+<span id="cb9-76"><a href="#cb9-76"></a>    purrr<span class="sc">::</span><span class="fu">map</span>(\(g){</span>
+<span id="cb9-77"><a href="#cb9-77"></a>        g <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">arrange</span>(<span class="fu">factor</span>(ext, <span class="at">levels =</span> <span class="fu">c</span>(<span class="st">'pdf'</span>, <span class="st">'docx'</span>, <span class="st">'doc'</span>))) <span class="sc">|&gt;</span></span>
+<span id="cb9-78"><a href="#cb9-78"></a>        dplyr<span class="sc">::</span><span class="fu">slice</span>(<span class="dv">1</span>)</span>
+<span id="cb9-79"><a href="#cb9-79"></a>    }) <span class="sc">|&gt;</span></span>
+<span id="cb9-80"><a href="#cb9-80"></a>    dplyr<span class="sc">::</span><span class="fu">bind_rows</span>()</span>
+<span id="cb9-81"><a href="#cb9-81"></a><span class="in">```</span></span>
+<span id="cb9-82"><a href="#cb9-82"></a></span>
+<span id="cb9-83"><a href="#cb9-83"></a>Quelques rapports de laboratoire demeurent au format doc et docx.</span>
+<span id="cb9-84"><a href="#cb9-84"></a></span>
+<span id="cb9-85"><a href="#cb9-85"></a><span class="in">```{R, results='asis'}</span></span>
+<span id="cb9-86"><a href="#cb9-86"></a><span class="in">docs &lt;- reports |&gt; dplyr::filter(ext %in% c('doc', 'docx')) </span></span>
+<span id="cb9-87"><a href="#cb9-87"></a><span class="in">docs |&gt; knitr::kable()</span></span>
+<span id="cb9-88"><a href="#cb9-88"></a><span class="in">```</span></span>
+<span id="cb9-89"><a href="#cb9-89"></a></span>
+<span id="cb9-90"><a href="#cb9-90"></a>Afin de faciliter l'extraction des métadonnées par programmation, on convertit les fichiers .doc et .docx en pdf.</span>
+<span id="cb9-91"><a href="#cb9-91"></a></span>
+<span id="cb9-92"><a href="#cb9-92"></a><span class="fu">## Convertion des documents Word en pdf</span></span>
+<span id="cb9-93"><a href="#cb9-93"></a></span>
+<span id="cb9-94"><a href="#cb9-94"></a>Cette étape a été complété manuellement.</span>
+<span id="cb9-95"><a href="#cb9-95"></a></span>
+<span id="cb9-96"><a href="#cb9-96"></a><span class="fu">## Extraire les métadonnées du rapport</span></span>
+<span id="cb9-97"><a href="#cb9-97"></a></span>
+<span id="cb9-98"><a href="#cb9-98"></a>Nous souhaitons générer une liste de tous les projets basée sur les <span class="in">`r nrow(reports)`</span> rapports de laboratoire stockés dans le dossier <span class="in">`03-Labo/Comptes rendus`</span> de résultats. La première page de chaque rapport de laboratoire contient toutes les informations pertinentes pour produire cette liste.</span>
+<span id="cb9-99"><a href="#cb9-99"></a></span>
+<span id="cb9-100"><a href="#cb9-100"></a>Pour chaque rapport, nous vérifions s'il s'agit d'une image ou non. Si le rapport est une image, nous devons utiliser une reconnaissance optique de caractères (OCR) afin d'extraire le texte de la première page et d'obtenir toutes les métadonnées pertinentes. Si c'est un pdf ou un fichier word, nous importons la première page du document.</span>
+<span id="cb9-101"><a href="#cb9-101"></a></span>
+<span id="cb9-102"><a href="#cb9-102"></a><span class="in">```{R, eval = FALSE}</span></span>
+<span id="cb9-103"><a href="#cb9-103"></a><span class="in"># On détect si le document est une image</span></span>
+<span id="cb9-104"><a href="#cb9-104"></a><span class="in">reports &lt;- reports |&gt; dplyr::mutate(</span></span>
+<span id="cb9-105"><a href="#cb9-105"></a><span class="in">    filename = basename(path),</span></span>
+<span id="cb9-106"><a href="#cb9-106"></a><span class="in">    is_image = purrr::map2_lgl(path, ext, \(p, e) {</span></span>
+<span id="cb9-107"><a href="#cb9-107"></a><span class="in">        if(e == "pdf"){</span></span>
+<span id="cb9-108"><a href="#cb9-108"></a><span class="in">            out &lt;- pdftools::pdf_text(p)</span></span>
+<span id="cb9-109"><a href="#cb9-109"></a><span class="in">            !all(nchar(out) &gt; 15)</span></span>
+<span id="cb9-110"><a href="#cb9-110"></a><span class="in">        } else {</span></span>
+<span id="cb9-111"><a href="#cb9-111"></a><span class="in">            FALSE</span></span>
+<span id="cb9-112"><a href="#cb9-112"></a><span class="in">        }</span></span>
+<span id="cb9-113"><a href="#cb9-113"></a><span class="in">    })</span></span>
+<span id="cb9-114"><a href="#cb9-114"></a><span class="in">)</span></span>
+<span id="cb9-115"><a href="#cb9-115"></a></span>
+<span id="cb9-116"><a href="#cb9-116"></a><span class="in"># On extrait le texte par OCR si c'est une image</span></span>
+<span id="cb9-117"><a href="#cb9-117"></a><span class="in">frontpages &lt;- purrr::map2_vec(reports$path, reports$is_image, \(p, i) {</span></span>
+<span id="cb9-118"><a href="#cb9-118"></a><span class="in">        ifelse(isTRUE(i), </span></span>
+<span id="cb9-119"><a href="#cb9-119"></a><span class="in">            pdftools::pdf_ocr_text(pdf = p, pages = 1),</span></span>
+<span id="cb9-120"><a href="#cb9-120"></a><span class="in">            pdftools::pdf_text(pdf = p)[[1]]</span></span>
+<span id="cb9-121"><a href="#cb9-121"></a><span class="in">        )</span></span>
+<span id="cb9-122"><a href="#cb9-122"></a><span class="in">    }) |&gt; tolower()</span></span>
+<span id="cb9-123"><a href="#cb9-123"></a><span class="in">```</span></span>
+<span id="cb9-124"><a href="#cb9-124"></a></span>
+<span id="cb9-125"><a href="#cb9-125"></a>Une fois le texte de la première page isolé, on applique une série d'opération d'extractions de texte à partir de la position de mots clés. On isole ainsi le titre du projet, l'ID du projet, la date etc.</span>
+<span id="cb9-126"><a href="#cb9-126"></a></span>
+<span id="cb9-127"><a href="#cb9-127"></a><span class="in">```{R, eval = FALSE}</span></span>
+<span id="cb9-128"><a href="#cb9-128"></a><span class="in">project_id &lt;- purrr::map_vec(frontpages, \(f){</span></span>
+<span id="cb9-129"><a href="#cb9-129"></a><span class="in">    stringr::str_extract(f, "(?&lt;=(project: |project |projects|projet :)).*(?=\n)")</span></span>
+<span id="cb9-130"><a href="#cb9-130"></a><span class="in">}) |&gt; </span></span>
+<span id="cb9-131"><a href="#cb9-131"></a><span class="in">    toupper() |&gt; </span></span>
+<span id="cb9-132"><a href="#cb9-132"></a><span class="in">    stringr::word(1) |&gt; </span></span>
+<span id="cb9-133"><a href="#cb9-133"></a><span class="in">    stringr::str_replace_all("[.,]", "") |&gt;</span></span>
+<span id="cb9-134"><a href="#cb9-134"></a><span class="in">    stringr::str_trim() |&gt;</span></span>
+<span id="cb9-135"><a href="#cb9-135"></a><span class="in">    dplyr::na_if("")</span></span>
+<span id="cb9-136"><a href="#cb9-136"></a></span>
+<span id="cb9-137"><a href="#cb9-137"></a><span class="in">project_leader &lt;- purrr::map_vec(frontpages, \(f){</span></span>
+<span id="cb9-138"><a href="#cb9-138"></a><span class="in">        stringr::str_extract(f, "(?&lt;=(project leader: |project leader |project manager: |manager: |study leader: |nom du requérant :)).*(?=\n)")</span></span>
+<span id="cb9-139"><a href="#cb9-139"></a><span class="in">    }) |&gt; </span></span>
+<span id="cb9-140"><a href="#cb9-140"></a><span class="in">    stringr::str_replace_all(c("[_|:]" = "", "[:digit:]" = "", "[.]$" = "")) |&gt; </span></span>
+<span id="cb9-141"><a href="#cb9-141"></a><span class="in">    stringr::str_to_title() |&gt;</span></span>
+<span id="cb9-142"><a href="#cb9-142"></a><span class="in">    stringr::str_trim()</span></span>
+<span id="cb9-143"><a href="#cb9-143"></a></span>
+<span id="cb9-144"><a href="#cb9-144"></a><span class="in">project_dates &lt;- frontpages |&gt;</span></span>
+<span id="cb9-145"><a href="#cb9-145"></a><span class="in">    purrr::map_vec(\(f){</span></span>
+<span id="cb9-146"><a href="#cb9-146"></a><span class="in">        dates &lt;- stringr::str_extract(f, "\\d{4}-\\d{2}-\\d{2}")</span></span>
+<span id="cb9-147"><a href="#cb9-147"></a><span class="in">        if(is.na(dates)) {</span></span>
+<span id="cb9-148"><a href="#cb9-148"></a><span class="in">            dates &lt;- stringr::str_extract(f, "(?&lt;=(date: )).*(?=\n)")</span></span>
+<span id="cb9-149"><a href="#cb9-149"></a><span class="in">        }</span></span>
+<span id="cb9-150"><a href="#cb9-150"></a><span class="in">        return(dates)</span></span>
+<span id="cb9-151"><a href="#cb9-151"></a><span class="in">    }) </span></span>
+<span id="cb9-152"><a href="#cb9-152"></a><span class="in">        </span></span>
+<span id="cb9-153"><a href="#cb9-153"></a><span class="in">reportsProject &lt;- data.frame(</span></span>
+<span id="cb9-154"><a href="#cb9-154"></a><span class="in">    report_id = reports$id, </span></span>
+<span id="cb9-155"><a href="#cb9-155"></a><span class="in">    report_access_path = stringr::str_replace_all(reports$path, "C:/Users/VissaultS/Documents", "Z:"), </span></span>
+<span id="cb9-156"><a href="#cb9-156"></a><span class="in">    project_id, project_leader, project_dates, project_title = NA</span></span>
+<span id="cb9-157"><a href="#cb9-157"></a><span class="in">)</span></span>
+<span id="cb9-158"><a href="#cb9-158"></a><span class="in">```</span></span>
+<span id="cb9-159"><a href="#cb9-159"></a></span>
+<span id="cb9-160"><a href="#cb9-160"></a>Le data.frame <span class="in">`reportsProject`</span> est à la base du fichier "Z:\07-Données BD\BD_projects\projects_list_extract_25032024.xlsx".</span>
+<span id="cb9-161"><a href="#cb9-161"></a></span>
+<span id="cb9-162"><a href="#cb9-162"></a><span class="fu">## Valider l'existence de rapports de laboratoire dans le dossier `01-Projet et suivis`</span></span>
+<span id="cb9-163"><a href="#cb9-163"></a></span>
+<span id="cb9-164"><a href="#cb9-164"></a>On valide si certains de ces rapports ne se retrouvent pas dans le dossier <span class="in">`03-Labo/Comptes rendus`</span>. Ces rapports pourraient potentiellement nous interressés.</span>
+<span id="cb9-165"><a href="#cb9-165"></a></span>
+<span id="cb9-166"><a href="#cb9-166"></a><span class="in">```{R, result = "asis"}</span></span>
+<span id="cb9-167"><a href="#cb9-167"></a><span class="in">files &lt;- list.files(</span></span>
+<span id="cb9-168"><a href="#cb9-168"></a><span class="in">    "C:/Users/VissaultS/Documents/01-Projets et suivis", </span></span>
+<span id="cb9-169"><a href="#cb9-169"></a><span class="in">    pattern = "*.pdf|*.docx|*.doc", recursive = TRUE, full.names = TRUE</span></span>
+<span id="cb9-170"><a href="#cb9-170"></a><span class="in">)</span></span>
+<span id="cb9-171"><a href="#cb9-171"></a></span>
+<span id="cb9-172"><a href="#cb9-172"></a><span class="in">potential_reports &lt;- data.frame(file = files[which(stringr::str_detect(files, regex_report_id))])</span></span>
+<span id="cb9-173"><a href="#cb9-173"></a></span>
+<span id="cb9-174"><a href="#cb9-174"></a><span class="in">potential_reports &lt;- potential_reports |&gt; dplyr::mutate(</span></span>
+<span id="cb9-175"><a href="#cb9-175"></a><span class="in">    id = stringr::str_extract(file, regex_report_id) |&gt; toupper(),</span></span>
+<span id="cb9-176"><a href="#cb9-176"></a><span class="in">    in_lab_report_folder = !(id %in% reports$id)</span></span>
+<span id="cb9-177"><a href="#cb9-177"></a><span class="in">) |&gt; dplyr::arrange(in_lab_report_folder) |&gt;</span></span>
+<span id="cb9-178"><a href="#cb9-178"></a><span class="in">    dplyr::mutate(file = stringr::str_replace(file, "C:/Users/VissaultS/Documents/", "Z:"))</span></span>
+<span id="cb9-179"><a href="#cb9-179"></a><span class="in">```</span></span>
 </code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
