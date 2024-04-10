@@ -103,6 +103,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     "search-label": "Recherche"
   }
 }</script>
+<script src="site_libs/core-js-2.5.3/shim.min.js"></script>
+<script src="site_libs/react-18.2.0/react.min.js"></script>
+<script src="site_libs/react-18.2.0/react-dom.min.js"></script>
+<script src="site_libs/reactwidget-1.0.0/react-tools.js"></script>
+<script src="site_libs/htmlwidgets-1.6.4/htmlwidgets.js"></script>
+<link href="site_libs/reactable-0.4.4/reactable.css" rel="stylesheet">
+<script src="site_libs/reactable-binding-0.4.4/reactable.js"></script>
 
 
 <link rel="stylesheet" href="styles.css">
@@ -251,7 +258,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
    
   <ul>
   <li><a href="#analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" id="toc-analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" class="nav-link active" data-scroll-target="#analytes-avec-un-numéro-cas-fournis-par-le-laboratoire">Analytes avec un numéro CAS fournis par le laboratoire</a></li>
-  <li><a href="#interrogation-de-la-base-de-données-pubchem" id="toc-interrogation-de-la-base-de-données-pubchem" class="nav-link" data-scroll-target="#interrogation-de-la-base-de-données-pubchem">Interrogation de la base de données PubChem</a></li>
+  <li><a href="#obtention-du-numéro-de-cas-par-le-service-cts" id="toc-obtention-du-numéro-de-cas-par-le-service-cts" class="nav-link" data-scroll-target="#obtention-du-numéro-de-cas-par-le-service-cts">Obtention du numéro de CAS par le service CTS</a></li>
+  <li><a href="#obtention-du-numéro-de-cas-par-le-service-chemspider" id="toc-obtention-du-numéro-de-cas-par-le-service-chemspider" class="nav-link" data-scroll-target="#obtention-du-numéro-de-cas-par-le-service-chemspider">Obtention du numéro de CAS par le service ChemSpider</a></li>
+  <li><a href="#enrichissement-des-données-ajout-de-lidentifiant-pubchem" id="toc-enrichissement-des-données-ajout-de-lidentifiant-pubchem" class="nav-link" data-scroll-target="#enrichissement-des-données-ajout-de-lidentifiant-pubchem">Enrichissement des données: Ajout de l’identifiant PubChem</a></li>
+  <li><a href="#obtention-du-numéro-de-cas-par-le-service-chemspider-1" id="toc-obtention-du-numéro-de-cas-par-le-service-chemspider-1" class="nav-link" data-scroll-target="#obtention-du-numéro-de-cas-par-le-service-chemspider-1">Obtention du numéro de CAS par le service ChemSpider</a></li>
   </ul>
 </nav>
     </div>
@@ -323,21 +333,59 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span>  measurements <span class="sc">|&gt;</span></span>
 <span id="cb4-16"><a href="#cb4-16" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(analytes, <span class="at">by =</span> <span class="st">"key"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>On utilise le package webchem pour convertir les identifiants CAS vers InChl.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="sc">|&gt;</span> </span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(CASNumber) <span class="sc">|&gt;</span></span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span></span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">pull</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
+<p>On isole le nom des contaminants pour lesquels nous n’avons pas de CAS associés. Voici la liste de ces contaminants:</p>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>contaminants_orphelins <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(key, variable, CASNumber) <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>()</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>reactable<span class="sc">::</span><span class="fu">reactable</span>(contaminants_orphelins, <span class="at">searchable =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="reactable html-widget html-fill-item" id="htmlwidget-51bacbc388a2f0e80ceb" style="width:auto;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-51bacbc388a2f0e80ceb">{"x":{"tag":{"name":"Reactable","attribs":{"data":{"key":["tcpm","aroclor_1254_1260","aroclor1260","pcb31_28","pcb60","pcb64","pcb97","pcb129","pcb137","pcb141","pcb146","pcb170_190","pcb172","pcb174","pcb185","pcb203","pcb200","pcb201","pcb47_48","pcb42","pcb1_1","pcb66","pcb18_17","pcb16_32","pcb22","pcb56_60","pcb85","pcb92","pcb130","pcb157","pcb176","pcb178","pcb179","pcb196_203","pcb202","pcb207","pcb114","pcb167","pcb189","bde_15_b_tbech","bde_17","bde_28","bde_47","bde_49","bde_66","bde_85","bde_99","bde_100","bde_138","bde_153","bde_154_bb_153","bde_183","bde_190","bde_209","bb_101","bde_7","bde_8","bde_15","bde_te","bde_te1","bde_pe","bde_119","bde_pe1","bde_155","bde_140","bde_hx1","bde_hx2","bde_hx","bde_hp1","bde_hp2","bde_hp3","bde_35","bde_77","bde_116","bde_126","pcb81","pcb77","pcb126","pcb169","x2378_tcdd","x12378_pecdd","x123678_hxcdd","x1234678_hpcdd","ocdd","x2378_tcdf","x23478_pecdf","x123478_hxcdd","x123789_hxcdd","x12346789_ocdd","x12478_pecdf","x12378_pecdf","x123478_hxcdf","x123678_hxcdf","x234678_hxcdf","x123789_hxcdf","x1234678_hpcdf","x1234789_hpcdf","x12346789_ocdf","ocdf","total_toxaphene","hexa","hepta","octa","nona","deca","b6_923a","b7_1001","b8_1413","b8_1412","b7_1450","toxa31","b7_515","b8_789","b7_1059a","b8_531","b81414_1945","b8_806","b8_2229","b8_810","b9_1679","b9_718","b8_1471","b9_743_2006","b9_1046","b9_715","b9_1025","caproic_acid","caprylic_acid","capric_acid","undecanoic_acid","lauric_acid","tridecanoic_acid","myristic_acid","myristoleic_acid","pentadecanoic_acid","cis_10_pentadecanoic_acid","palmitic_acid","palmitoleic_acid","heptadecanoic_acid","cis_10_heptadecanoic_acid","stearic_acid","elaidic_acid","oleic_acid","linolelaidic_acid","linoleic_acid","arachidic_acid","g_linolenic_acid_gla","cis_11_eicosenoic_acid","a_linolenic_acid_ala","heneicosanoic_acid","cis_11_14_eicosadienoic_acid_methyl_ester","behenic_acid","cis_8_11_14_eicosatrienoic_acid_dgla","erucic_acid","cis_11_14_17_eicosatrienoic_acid_ete","arachidonic_acid_ara","tricosanoic_acid","cis_13_16_docosadienoic_acid","lignoceric_acid","cis_5_8_11_14_17_eicosapentaenoic_acid_epa","nervonic_acid","docosapentaenoic_acid_dpa","docosahexaenoic_acid_dha","thg_dw","thg_ww","d13c","d15n","d34s","pcb17_18","pcb28_31","b_tbech_bde15","bde154_bb153","thg_dw","thg_ww","thg","hcb","ahch","bhch","ghch","he","tchlordane","cchlordane","cnonachlor","ppdde","ppddd","ppddt","x1245tcb","x1234tcb","pncb","ocs","tnonachlor","sumlabpcb","sum35pcb","sum25pcb","bde_15_b_tbech","bde_154_bb_153","pcb81","pcb77","pcb126","pcb169","se","se_ww","as","mn","cu","zn","rb","cd","pb","li","be","v","fe","co","ni","ga","sr","mo","ag","sn","sb","ba","tl","bi","u","al","caproic_acid","caprylic_acid","capric_acid","undecanoic_acid","lauric_acid","tridecanoic_acid","myristic_acid","myristoleic_acid","pentadecanoic_acid","cis_10_pentadecanoic_acid","palmitic_acid","palmitoleic_acid","heptadecanoic_acid","cis_10_heptadecanoic_acid","stearic_acid","elaidic_acid","oleic_acid","linolelaidic_acid","linoleic_acid","arachidic_acid","g_linolenic_acid","eicosenoic_acid","a_linolenic_acid_ala","heneicosanoic_acid","cis_11_14_eicosadienoic_acid","behenic_acid","homo_g_linolenic_acid","erucic_acid","eicosatrienoic_acid_eta","arachidonic_acid_ara","tricosanoic_acid","cis_13_16_docosadienoic_acid","lignoceric_acid","eicosapentaenoic_acid_epa","nervonic_acid","docosapentaenoic_acid_dpa","docosahexaenoic_acid_dha","pn","pc","cn","ps","ala","val","ile","asp","pro","glu","phe"],"variable":["TCPM","Aroclor 1254/1260","Aroclor1260","PCB 31/28","PCB 60","PCB 64","PCB 97","PCB 129","PCB 137","PCB 141","PCB 146","PCB 170/190","PCB172","PCB174","PCB 185","PCB 203","PCB 200","PCB 201","PCB 47/48","PCB 42","PCB1:1","PCB 66","PCB18/17","PCB 16/32","PCB 22","PCB 56/60","PCB 85","PCB 92","PCB 130","PCB 157","PCB 176","PCB 178","PCB 179","PCB 196/203","PCB 202","PCB 207","PCB 114","PCB 167","PCB 189","BDE-15 / β-TBECH","BDE-17","BDE-28","BDE-47","BDE-49","BDE-66","BDE-85","BDE-99","BDE-100","BDE-138","BDE-153","BDE-154 / BB-153","BDE-183","BDE-190","BDE-209","BB-101","BDE-7","BDE-8","BDE-15","BDE-Te","BDE-Te1","BDE-Pe","BDE-119","BDE-Pe1","BDE-155","BDE-140","BDE-Hx1","BDE-Hx2","BDE-Hx","BDE-Hp1","BDE-Hp2","BDE-Hp3","BDE-35","BDE-77","BDE-116","BDE-126","PCB-81","PCB-77","PCB-126","PCB-169","2378-TCDD","12378-PeCDD","123678-HxCDD","1234678-HpCDD","OCDD","2378-TCDF","23478-PeCDF","123478-HxCDD","123789-HxCDD","12346789-OCDD","12478-PeCDF","12378-PeCDF","123478-HxCDF","123678-HxCDF","234678-HxCDF","123789-HxCDF","1234678-HpCDF","1234789-HpCDF","12346789-OCDF","OCDF","Total toxaphene","Hexa","Hepta","Octa","Nona","Deca","B6-923a","B7-1001","B8-1413","b8-1412","B7-1450","toxa31","B7-515","B8-789","B7-1059a","B8-531","B81414/1945","B8-806","B8-2229","B8-810","B9-1679","B9-718","B8-1471","B9-743/2006","B9-1046","B9-715","B9-1025","Caproic Acid","Caprylic Acid","Capric Acid","Undecanoic Acid","Lauric Acid","Tridecanoic Acid","Myristic Acid","Myristoleic Acid","Pentadecanoic Acid","cis-10-Pentadecanoic Acid","Palmitic Acid","Palmitoleic Acid","Heptadecanoic Acid","cis-10-Heptadecanoic Acid","Stearic Acid","Elaidic Acid","Oleic Acid","Linolelaidic Acid","Linoleic Acid","Arachidic Acid","g-Linolenic Acid (GLA)","cis-11-Eicosenoic acid","a-Linolenic Acid  (ALA)","Heneicosanoic Acid","cis-11,14-Eicosadienoic Acid Methyl Ester","Behenic Acid","cis-8,11,14-Eicosatrienoic Acid (DGLA)","Erucic Acid","cis-11,14,17-Eicosatrienoic Acid (ETE)","Arachidonic Acid (ARA)","Tricosanoic Acid","cis-13,16-Docosadienoic Acid","Lignoceric Acid","cis-5,8,11,14,17-Eicosapentaenoic Acid (EPA)","Nervonic Acid","Docosapentaenoic Acid (DPA)","Docosahexaenoic Acid (DHA)","THg-dw","THg-ww","d13C","d15N","d34S","PCB17/18","PCB28/31","b-TBECH/BDE15","BDE154/BB153","THg_dw","THg_ww","THg","HCB","aHCH","bHCH","gHCH","HE","tChlordane","cChlordane","cNonachlor","ppDDE","ppDDD","ppDDT","1245TCB","1234TCB","PnCB","OCS","tNonachlor","SumLabPCB","Sum35PCB","Sum25PCB","BDE-15_B-TBECH","BDE-154_BB-153","PCB 81","PCB 77","PCB 126","PCB 169","Se","Se-ww","As","Mn","Cu","Zn","Rb","Cd","Pb","Li","Be","V","Fe","Co","Ni","Ga","Sr","Mo","Ag","Sn","Sb","Ba","Tl","Bi","U","Al","caproic acid","caprylic acid","capric acid","undecanoic acid","lauric acid","tridecanoic acid","myristic acid","myristoleic acid","pentadecanoic acid","cis-10-pentadecanoic acid","palmitic acid","palmitoleic acid","heptadecanoic acid","cis-10-heptadecanoic acid","stearic acid","elaidic acid","oleic acid","linolelaidic acid","linoleic acid","arachidic acid","γ-linolenic acid","eicosenoic acid","α-linolenic acid (ALA)","heneicosanoic acid","cis-11,14-eicosadienoic acid","behenic acid","homo-γ-linolenic acid","erucic acid","eicosatrienoic acid (ETA)","arachidonic acid (ARA)","tricosanoic acid","cis-13,16-docosadienoic acid","lignoceric acid","eicosapentaenoic acid (EPA)","nervonic acid","docosapentaenoic acid (DPA)","docosahexaenoic acid (DHA)","pN","pC","CN","pS","Ala","Val","Ile","Asp","Pro","Glu","Phe"],"CASNumber":[null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null,null]},"columns":[{"id":"key","name":"key","type":"character"},{"id":"variable","name":"variable","type":"character"},{"id":"CASNumber","name":"CASNumber","type":"character"}],"searchable":true,"dataKey":"bf57f1a3dc97c87968094c75e27e0758"},"children":[]},"class":"reactR_markup"},"evals":[],"jsHooks":[]}</script>
 </section>
-<section id="interrogation-de-la-base-de-données-pubchem" class="level2">
-<h2 class="anchored" data-anchor-id="interrogation-de-la-base-de-données-pubchem">Interrogation de la base de données PubChem</h2>
+<section id="obtention-du-numéro-de-cas-par-le-service-cts" class="level2">
+<h2 class="anchored" data-anchor-id="obtention-du-numéro-de-cas-par-le-service-cts">Obtention du numéro de CAS par le service CTS</h2>
+<p>La fonction <code>webchem::cts_convert()</code> permet d’interroger plusieurs base de données et d’extraire des identifiants tels que le CAS à partir du nom d’un composé chimique.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(webchem)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output cell-output-stderr">
-<pre><code>Warning: package 'webchem' was built under R version 4.3.3</code></pre>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>cas_from_cts <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(contaminants_orphelins<span class="sc">$</span>variable, <span class="at">from =</span> <span class="st">"Chemical Name"</span>, <span class="at">to =</span> <span class="st">"CAS"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>cas <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_df</span>(<span class="fu">names</span>(cas_from_cts), cas_from_cts, \(n, c){</span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">data.frame</span>(<span class="at">variable =</span> n, <span class="at">CASNumber =</span> c))</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>})</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>reactable<span class="sc">::</span><span class="fu">reactable</span>(cas, <span class="at">searchable =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+<p>En cherchant le numéro CAS avec le nom du composé, on s’apercoit que plusieurs PCB (ex. PCB 60 et 64) tombent sous le même CAS, ce qui est incorrect. On change donc d’approche puisque le service CTS ne semblent pas être un bon service de résolution par le nom.</p>
+</section>
+<section id="obtention-du-numéro-de-cas-par-le-service-chemspider" class="level2">
+<h2 class="anchored" data-anchor-id="obtention-du-numéro-de-cas-par-le-service-chemspider">Obtention du numéro de CAS par le service ChemSpider</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>csid <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_csid</span>(contaminants_orphelins<span class="sc">$</span>variable, <span class="at">from =</span> <span class="st">"name"</span>) </span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>csid <span class="ot">&lt;-</span> csid <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">rename</span>(<span class="at">variable =</span> query) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>        dplyr<span class="sc">::</span><span class="fu">select</span>(contaminants_orphelins, key, variable)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span> </span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(csid)) <span class="sc">|&gt;</span></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">csid =</span> <span class="fu">as.character</span>(csid))</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>cas_from_csid <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(csid<span class="sc">$</span>csid, <span class="at">from =</span> <span class="st">"ChemSpider"</span>, <span class="at">to =</span> <span class="st">"CAS"</span>)</span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>cas2 <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_df</span>(<span class="fu">names</span>(cas_from_csid), cas_from_csid, \(n, c){</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">data.frame</span>(<span class="at">csid =</span> n, <span class="at">CASNumber =</span> c))</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a>    }) <span class="sc">|&gt;</span> </span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(csid, <span class="at">by =</span> <span class="st">"csid"</span>)</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a>reactable<span class="sc">::</span><span class="fu">reactable</span>(cas2, <span class="at">searchable =</span> <span class="cn">TRUE</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Effectuer la résolution de la nomenclature des composées par l’utilisation du service ChemSpider semble plus prometteur. Après une vérification visuelle, on voit que les composées ne présentent plus d’identifiant unique identique.</p>
+</section>
+<section id="enrichissement-des-données-ajout-de-lidentifiant-pubchem" class="level2">
+<h2 class="anchored" data-anchor-id="enrichissement-des-données-ajout-de-lidentifiant-pubchem">Enrichissement des données: Ajout de l’identifiant PubChem</h2>
+<p>Afin de permettre le retrait d’informations supplémentaires sur les composées chimiques, une des base de données d’intérêt est PubChem. À partir de cette base de données, on peut effectuer le retrait de certaines propriétés chimiques du composée telle que la masse moléculaire par exemple.</p>
+</section>
+<section id="obtention-du-numéro-de-cas-par-le-service-chemspider-1" class="level2">
+<h2 class="anchored" data-anchor-id="obtention-du-numéro-de-cas-par-le-service-chemspider-1">Obtention du numéro de CAS par le service ChemSpider</h2>
+<div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>analytes_nomenclature <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, variable) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">pull</span>()</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>analytes_pubchem_ids <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_cid</span>(<span class="fu">sample</span>(analytes_nomenclature, <span class="at">size =</span> <span class="dv">20</span>))</span>
 <span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>PubChemR<span class="sc">::</span><span class="fu">get_json</span>(<span class="dv">5281116</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -1706,25 +1754,67 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb10-48"><a href="#cb10-48" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">left_join</span>(analytes, <span class="at">by =</span> <span class="st">"key"</span>)</span>
 <span id="cb10-49"><a href="#cb10-49" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb10-50"><a href="#cb10-50" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>On utilise le package webchem pour convertir les identifiants CAS vers InChl. </span>
+<span id="cb10-51"><a href="#cb10-51" aria-hidden="true" tabindex="-1"></a>On isole le nom des contaminants pour lesquels nous n'avons pas de CAS associés. Voici la liste de ces contaminants:</span>
 <span id="cb10-52"><a href="#cb10-52" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval = FALSE}</span></span>
-<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="in">measurements |&gt; </span></span>
-<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::select(CASNumber) |&gt;</span></span>
-<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::distinct() |&gt;</span></span>
-<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::pull()</span></span>
-<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a><span class="fu">## Interrogation de la base de données PubChem</span></span>
-<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(webchem)</span>
-<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a>analytes_nomenclature <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, variable) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">pull</span>()</span>
-<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a>analytes_pubchem_ids <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_cid</span>(<span class="fu">sample</span>(analytes_nomenclature, <span class="at">size =</span> <span class="dv">20</span>))</span>
-<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a>PubChemR<span class="sc">::</span><span class="fu">get_json</span>(<span class="dv">5281116</span>)</span>
-<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-53"><a href="#cb10-53" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, results="asis"}</span></span>
+<span id="cb10-54"><a href="#cb10-54" aria-hidden="true" tabindex="-1"></a><span class="in">contaminants_orphelins &lt;- measurements |&gt; </span></span>
+<span id="cb10-55"><a href="#cb10-55" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::filter(is.na(CASNumber)) |&gt;</span></span>
+<span id="cb10-56"><a href="#cb10-56" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::select(key, variable, CASNumber) |&gt;</span></span>
+<span id="cb10-57"><a href="#cb10-57" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::distinct()</span></span>
+<span id="cb10-58"><a href="#cb10-58" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-59"><a href="#cb10-59" aria-hidden="true" tabindex="-1"></a><span class="in">reactable::reactable(contaminants_orphelins, searchable = TRUE)</span></span>
+<span id="cb10-60"><a href="#cb10-60" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-61"><a href="#cb10-61" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-62"><a href="#cb10-62" aria-hidden="true" tabindex="-1"></a><span class="fu">## Obtention du numéro de CAS par le service CTS</span></span>
+<span id="cb10-63"><a href="#cb10-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-64"><a href="#cb10-64" aria-hidden="true" tabindex="-1"></a>La fonction <span class="in">`webchem::cts_convert()`</span> permet d'interroger plusieurs base de données et d'extraire des identifiants tels que le CAS à partir du nom d'un composé chimique.</span>
+<span id="cb10-65"><a href="#cb10-65" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-66"><a href="#cb10-66" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval=FALSE}</span></span>
+<span id="cb10-67"><a href="#cb10-67" aria-hidden="true" tabindex="-1"></a><span class="in">cas_from_cts &lt;- webchem::cts_convert(contaminants_orphelins$variable, from = "Chemical Name", to = "CAS")</span></span>
+<span id="cb10-68"><a href="#cb10-68" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-69"><a href="#cb10-69" aria-hidden="true" tabindex="-1"></a><span class="in">cas &lt;- purrr::map2_df(names(cas_from_cts), cas_from_cts, \(n, c){</span></span>
+<span id="cb10-70"><a href="#cb10-70" aria-hidden="true" tabindex="-1"></a><span class="in">    return(data.frame(variable = n, CASNumber = c))</span></span>
+<span id="cb10-71"><a href="#cb10-71" aria-hidden="true" tabindex="-1"></a><span class="in">})</span></span>
+<span id="cb10-72"><a href="#cb10-72" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-73"><a href="#cb10-73" aria-hidden="true" tabindex="-1"></a><span class="in">reactable::reactable(cas, searchable = TRUE)</span></span>
+<span id="cb10-74"><a href="#cb10-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-75"><a href="#cb10-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-76"><a href="#cb10-76" aria-hidden="true" tabindex="-1"></a>En cherchant le numéro CAS avec le nom du composé, on s'apercoit que plusieurs PCB (ex. PCB 60 et 64) tombent sous le même CAS, ce qui est incorrect. On change donc d'approche puisque le service CTS ne semblent pas être un bon service de résolution par le nom.</span>
+<span id="cb10-77"><a href="#cb10-77" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-78"><a href="#cb10-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Obtention du numéro de CAS par le service ChemSpider</span></span>
+<span id="cb10-79"><a href="#cb10-79" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-80"><a href="#cb10-80" aria-hidden="true" tabindex="-1"></a><span class="in">```{R, eval = FALSE}</span></span>
+<span id="cb10-81"><a href="#cb10-81" aria-hidden="true" tabindex="-1"></a><span class="in">csid &lt;- webchem::get_csid(contaminants_orphelins$variable, from = "name") </span></span>
+<span id="cb10-82"><a href="#cb10-82" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-83"><a href="#cb10-83" aria-hidden="true" tabindex="-1"></a><span class="in">csid &lt;- csid |&gt; dplyr::rename(variable = query) |&gt; </span></span>
+<span id="cb10-84"><a href="#cb10-84" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::left_join(</span></span>
+<span id="cb10-85"><a href="#cb10-85" aria-hidden="true" tabindex="-1"></a><span class="in">        dplyr::select(contaminants_orphelins, key, variable)</span></span>
+<span id="cb10-86"><a href="#cb10-86" aria-hidden="true" tabindex="-1"></a><span class="in">    ) |&gt; </span></span>
+<span id="cb10-87"><a href="#cb10-87" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::filter(!is.na(csid)) |&gt;</span></span>
+<span id="cb10-88"><a href="#cb10-88" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::mutate(csid = as.character(csid))</span></span>
+<span id="cb10-89"><a href="#cb10-89" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-90"><a href="#cb10-90" aria-hidden="true" tabindex="-1"></a><span class="in">cas_from_csid &lt;- webchem::cts_convert(csid$csid, from = "ChemSpider", to = "CAS")</span></span>
+<span id="cb10-91"><a href="#cb10-91" aria-hidden="true" tabindex="-1"></a><span class="in">cas2 &lt;- purrr::map2_df(names(cas_from_csid), cas_from_csid, \(n, c){</span></span>
+<span id="cb10-92"><a href="#cb10-92" aria-hidden="true" tabindex="-1"></a><span class="in">        return(data.frame(csid = n, CASNumber = c))</span></span>
+<span id="cb10-93"><a href="#cb10-93" aria-hidden="true" tabindex="-1"></a><span class="in">    }) |&gt; </span></span>
+<span id="cb10-94"><a href="#cb10-94" aria-hidden="true" tabindex="-1"></a><span class="in">    dplyr::left_join(csid, by = "csid")</span></span>
+<span id="cb10-95"><a href="#cb10-95" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-96"><a href="#cb10-96" aria-hidden="true" tabindex="-1"></a><span class="in">reactable::reactable(cas2, searchable = TRUE)</span></span>
+<span id="cb10-97"><a href="#cb10-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb10-98"><a href="#cb10-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-99"><a href="#cb10-99" aria-hidden="true" tabindex="-1"></a>Effectuer la résolution de la nomenclature des composées par l'utilisation du service ChemSpider semble plus prometteur. Après une vérification visuelle, on voit que les composées ne présentent plus d'identifiant unique identique.</span>
+<span id="cb10-100"><a href="#cb10-100" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-101"><a href="#cb10-101" aria-hidden="true" tabindex="-1"></a><span class="fu">## Enrichissement des données: Ajout de l'identifiant PubChem</span></span>
+<span id="cb10-102"><a href="#cb10-102" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-103"><a href="#cb10-103" aria-hidden="true" tabindex="-1"></a>Afin de permettre le retrait d'informations supplémentaires sur les composées chimiques, une des base de données d'intérêt est PubChem. À partir de cette base de données, on peut effectuer le retrait de certaines propriétés chimiques du composée telle que la masse moléculaire par exemple.</span>
+<span id="cb10-104"><a href="#cb10-104" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-105"><a href="#cb10-105" aria-hidden="true" tabindex="-1"></a><span class="fu">## Obtention du numéro de CAS par le service ChemSpider</span></span>
+<span id="cb10-106"><a href="#cb10-106" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-109"><a href="#cb10-109" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb10-110"><a href="#cb10-110" aria-hidden="true" tabindex="-1"></a>analytes_nomenclature <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, variable) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">pull</span>()</span>
+<span id="cb10-111"><a href="#cb10-111" aria-hidden="true" tabindex="-1"></a>analytes_pubchem_ids <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">get_cid</span>(<span class="fu">sample</span>(analytes_nomenclature, <span class="at">size =</span> <span class="dv">20</span>))</span>
+<span id="cb10-112"><a href="#cb10-112" aria-hidden="true" tabindex="-1"></a>PubChemR<span class="sc">::</span><span class="fu">get_json</span>(<span class="dv">5281116</span>)</span>
+<span id="cb10-113"><a href="#cb10-113" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
