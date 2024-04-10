@@ -2,6 +2,8 @@
 title: "Consolidation de la nomenclature des analytes"
 author: "Steve Vissault"
 date: "2024-03-28"
+execute:
+    cache: true
 ---
 
 Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.
@@ -42,23 +44,109 @@ measurements <-  measurements |>
     dplyr::left_join(analytes, by = "key")
 ```
 
-On utilise le package webchem pour convertir les identifiants CAS vers InChl. 
+On isole le nom des contaminants pour lesquels nous n'avons pas de CAS associés. Voici la liste de ces contaminants:
 
-```{R, eval = FALSE}
-measurements |> 
-    dplyr::select(CASNumber) |>
-    dplyr::distinct() |>
-    dplyr::pull()
+```{R, results="asis"}
+contaminants_orphelins <- measurements |> 
+    dplyr::filter(is.na(CASNumber)) |>
+    dplyr::select(key, variable, CASNumber) |>
+    dplyr::distinct()
+
+reactable::reactable(contaminants_orphelins, searchable = TRUE)
 ```
 
+## Obtention du numéro de CAS par le service CTS
 
-## Interrogation de la base de données PubChem
+La fonction `webchem::cts_convert()` permet d'interroger plusieurs base de données de référence sur des composées chimiques et d'extraire des identifiants tels que le CAS à partir du nom d'un composé chimique. La fonction `webchem::cts_convert()` s'interface sur le service https://cts.fiehnlab.ucdavis.edu/.
 
 ```{R}
-library(webchem)
-analytes_nomenclature <- dplyr::select(measurements, variable) |> dplyr::distinct() |> dplyr::pull()
-analytes_pubchem_ids <- webchem::get_cid(sample(analytes_nomenclature, size = 20))
-PubChemR::get_json(5281116)
+cas_from_cts <- webchem::cts_convert(contaminants_orphelins$variable, from = "Chemical Name", to = "CAS", match = "first")
+
+cas <- purrr::map2_df(names(cas_from_cts), cas_from_cts, \(n, c){
+    return(data.frame(variable = n, CASNumber = c))
+})
+
+reactable::reactable(cas, searchable = TRUE)
 ```
 
+En cherchant le numéro CAS avec le nom du composé, on s'apercoit que plusieurs PCB (ex. PCB 60 et 64) tombent sous le même CAS, ce qui est incorrect. On change donc d'approche puisque le service CTS ne semblent pas être un bon service de résolution par le nom.
+
+## Obtention du numéro de CAS par le service ChemSpider (csid)
+
+Ce service est fournis par la Société Royale de Chimie. C'est un des services qui semble être robuste pour obtenir un identifiant unique à partir du nom du composé. Une fois, l'identifiant ChemSpider obtenue il est possible d'obtenir le numéro CAS en utilisant le service https://cts.fiehnlab.ucdavis.edu/. On utilise ce service pour effectuer la conversion d'identifiants entre nomenclature (ex. csid vers CAS). Attention, ce service requière l'enregistrement d'un compte et le nombre de requête est limités à 1000 appels par mois.
+
+```{R, eval = FALSE}
+csid <- webchem::get_csid(contaminants_orphelins$variable, from = "name") 
+csid <- csid |> dplyr::rename(variable = query) |> 
+    dplyr::left_join(
+        dplyr::select(contaminants_orphelins, key, variable)
+    ) |> 
+    dplyr::filter(!is.na(csid)) |>
+    dplyr::mutate(csid = as.character(csid))
+saveRDS(csid, "data/csid.rds")
+```
+
+
+```{R}
+if(!exists("csid")) csid <- readRDS("data/csid.rds")
+
+cas_from_csid <- webchem::cts_convert(csid$csid, from = "ChemSpider", to = "CAS", match = "first")
+
+cas2 <- purrr::map2_df(names(cas_from_csid), cas_from_csid, \(n, c){
+        return(data.frame(csid = n, CASNumber = c))
+    }) |> dplyr::left_join(csid, by = "csid")
+
+reactable::reactable(cas2, searchable = TRUE)
+```
+
+Effectuer la résolution de la nomenclature des composées par l'utilisation du service ChemSpider semble plus prometteur. Après une vérification visuelle, on voit que les composées ne présentent plus d'identifiant unique identique.
+
+## Ajout de l'identifiant PubChem (pubcid)
+
+Afin de permettre le retrait d'informations supplémentaires sur les composées chimiques, une des base de données d'intérêt est PubChem. À partir de cette base de données, on peut effectuer le retrait de certaines propriétés chimiques du composée telles que la masse moléculaire par exemple.
+
+```{R}
+pubcid <- webchem::cts_convert(cas2$csid, from = "ChemSpider", to = "PubChem CID", match = "first")
+
+cas3 <- purrr::map2_df(names(pubcid), pubcid, \(n, c){
+        return(data.frame(csid = n, pubcid = c))
+    }) |> dplyr::distinct() |> 
+        dplyr::left_join(cas2, by = "csid") |> 
+        dplyr::distinct() |>
+        # On consolide le tableau final
+        dplyr::rename(casid = CASNumber) |>
+        dplyr::mutate(variable = tolower(variable)) |>
+        dplyr::distinct()
+```
+
+## Consolidation de la table de reference des analytes
+
+On a ajouté 3 identifiants pour chaque composée chimique de la base de données. Parmis, ces identifiants nous retrouvons: le [CAS](https://commonchemistry.cas.org/) (casid, identifiant fournis généralement par le laboratoire d'analyse, nomenclature américaine), le [ChemSpider ID](https://www.chemspider.com/) (csid, nomenclature britanique) et enfin le [PubChem ID](https://pubchem.ncbi.nlm.nih.gov/) (pubcid, nomenclature américaine).
+
+
+
+```{R}
+reactable::reactable(cas3, searchable = TRUE, columns = list(
+    casid = reactable::colDef(
+        cell = \(casid){
+            if(!is.na(casid)){
+                url <- paste0("https://commonchemistry.cas.org/detail?cas_rn=", casid)
+                htmltools::tags$a(href = url, target = "_blank", casid)
+            } else { NULL }
+        }
+    ),
+    csid = reactable::colDef(
+        cell = \(csid){
+            url <- paste0("https://www.chemspider.com/Chemical-Structure.", csid, ".html")
+            htmltools::tags$a(href = url, target = "_blank", csid)
+        }
+    ),
+    pubcid = reactable::colDef(
+        cell = \(pubcid){
+            url <- paste0("https://pubchem.ncbi.nlm.nih.gov/compound/", pubcid)
+            htmltools::tags$a(href = url, target = "_blank", pubcid)
+        }
+    )
+))
+```
 

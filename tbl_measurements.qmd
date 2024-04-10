@@ -98,25 +98,25 @@ contaminants |> dplyr::group_by(Location) |> dplyr::summarize(
 
 Certains noms de composées divergent entre les différents classeurs de données (espèces)
 
-```{R}
+```{R, results="asis"}
 dups_contaminants <- contaminants |> 
     dplyr::group_by(conpound_family, variable) |>
     dplyr::arrange(desc(variable)) |>
     dplyr::count()
 
-dups_contaminants
+reactable::reactable(dups_contaminants)
 ```
 
 Atelier 1: Jouer a pareil, pas pareil, pour consolider la nomenclature des contaminants
 
 ### QA sur les noms des sites
  
-```{R}
+```{R, results="asis"}
 dups_sites <- contaminants |> 
     dplyr::group_by(Location) |>
     dplyr::count()
 
-dups_sites
+reactable::reactable(dups_sites)
 ```
 
 Atelier 2: Jouer a pareil, pas pareil, pour consolider la nomenclature des sites
@@ -145,7 +145,8 @@ contaminants_uncensored |>
     dplyr::filter(is.na(value)) |>
     dplyr::group_by(source, conpound_family) |>
     dplyr::count() |>
-    dplyr::arrange(source)
+    dplyr::arrange(source) |>
+    reactable::reactable()
 ```
 
 #### Q3. C'est quoi les valeurs qui ne peuvent pas être transférer en valeur numérique (après retrait du symbole <)?
@@ -155,7 +156,8 @@ TODO: A compléter ici, marche pas
 ```{R, eval = FALSE}
 contaminants |> 
     dplyr::filter(stringr::str_detect(stringr::str_trim(value), "[:alpha:]")) |>
-    as.data.frame()
+    as.data.frame() |>
+    reactable::reactable()
 ```
 
 ## Objectif 2: Déterminer la taille d'échantillons
@@ -172,7 +174,7 @@ data_count <- contaminants |>
 
 ```{R}
 data_count |>
-    DT::datatable()
+    reactable::reactable()
 ```
 
 #### Criteria 1. On retire les sites pour lesquelles, il y a une seule année de collecte (impossibilité de calibrer un modèle de tendance temporelle).
