@@ -124,29 +124,65 @@ cas3 <- purrr::map2_df(names(pubcid), pubcid, \(n, c){
 On a ajouté 3 identifiants pour chaque composée chimique de la base de données. Parmis, ces identifiants nous retrouvons: le [CAS](https://commonchemistry.cas.org/) (casid, identifiant fournis généralement par le laboratoire d'analyse, nomenclature américaine), le [ChemSpider ID](https://www.chemspider.com/) (csid, nomenclature britanique) et enfin le [PubChem ID](https://pubchem.ncbi.nlm.nih.gov/) (pubcid, nomenclature américaine).
 
 
+On a enfin toutes les informations pour construire la table de référence des composées chimiques. On récupère les composées chimiques pour lesquelles le CAS est renseigné par le laboratoire.
 
 ```{R}
-reactable::reactable(cas3, searchable = TRUE, columns = list(
-    casid = reactable::colDef(
-        cell = \(casid){
-            if(!is.na(casid)){
-                url <- paste0("https://commonchemistry.cas.org/detail?cas_rn=", casid)
-                htmltools::tags$a(href = url, target = "_blank", casid)
-            } else { NULL }
-        }
-    ),
-    csid = reactable::colDef(
-        cell = \(csid){
-            url <- paste0("https://www.chemspider.com/Chemical-Structure.", csid, ".html")
-            htmltools::tags$a(href = url, target = "_blank", csid)
-        }
-    ),
-    pubcid = reactable::colDef(
-        cell = \(pubcid){
-            url <- paste0("https://pubchem.ncbi.nlm.nih.gov/compound/", pubcid)
-            htmltools::tags$a(href = url, target = "_blank", pubcid)
-        }
-    )
-))
+contaminants_with_cas <- measurements |> 
+    dplyr::filter(!is.na(CASNumber)) |>
+    dplyr::select(key, variable, CASNumber) |>
+    dplyr::rename(casid = CASNumber) |>
+    dplyr::mutate(variable = tolower(variable)) |>
+    dplyr::distinct()
 ```
+
+On va chercher le PubChem ID et et le spiderChem ID pour les contaminants qui avaient déjà un CAS (fournit par le laboratoire).
+
+```{R}
+csid <- webchem::cts_convert(contaminants_with_cas$casid, from = "CAS", to = "ChemSpider", match = "first")
+csid <- purrr::map2_df(names(csid), csid, \(n, c){
+        return(data.frame(casid = n, csid = c))
+    })
+
+pubcid <- webchem::cts_convert(contaminants_with_cas$casid, from = "CAS", to = "PubChem CID", match = "first")
+pubcid <- purrr::map2_df(names(pubcid), pubcid, \(n, c){
+        return(data.frame(casid = n, pubcid = c))
+    })
+
+contaminants <- contaminants_with_cas |> 
+    dplyr::left_join(csid, by = "casid") |>
+    dplyr::left_join(pubcid, by = "casid") |>
+    dplyr::distinct() |>
+    dplyr::bind_rows(cas3) |>
+    dplyr::mutate(
+        url_casid = ifelse(!is.na(casid), paste0("https://commonchemistry.cas.org/detail?cas_rn=", casid), NA),
+        url_pubcid = ifelse(!is.na(pubcid), paste0("https://pubchem.ncbi.nlm.nih.gov/compound/", pubcid), NA),
+        url_csid = ifelse(!is.na(csid), paste0("https://www.chemspider.com/Chemical-Structure.", csid, ".html"), NA)
+    ) |>
+    dplyr::select(-variable) |>
+    dplyr::distinct()
+```
+
+Validation: Est-ce que tous les contaminants dans la table de référence sont présent dans la table des mesures?
+
+```{R}
+keys <- measurements$key |>
+    unique()
+
+contaminants_without_ids <- data.frame(key = keys[!keys %in% contaminants$key], pubcid = NA, csid = NA, casid = NA)
+
+contaminants <- dplyr::bind_rows(contaminants, contaminants_without_ids) |>
+    dplyr::distinct()
+
+sources <- dplyr::select(measurements, key, source, conpound_family) |> 
+    dplyr::distinct()
+```
+
+On écrit le fichier final pour pouvoir faire de la validation manuel.
+
+```{R}
+writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_ref.xlsx")
+```
+
+
+
 
