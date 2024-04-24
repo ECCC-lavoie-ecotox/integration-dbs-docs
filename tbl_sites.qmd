@@ -2,11 +2,36 @@
 title: "Recensement des sites"
 ---
 
-Repartir du TP-20 pour sortir la liste des sites
-Faire un fuzzy-match sur le nom des localisations pour matcher avec les noms du TP-20 
+On dispose d'une liste de référence des sites avec leurs localisations à cet emplacement `Z:\07-Données BD\intermediate_files\sites_tp20_et_dbs_list_24042024.xlsx`.
+
+Ce fichier est le fruit d'une consolidation manuelle entre les sites documentés dans les onglets "Metadata - entêtes et notes" de plusieurs bases de données du PASL et le fichier TP-20, disposant de liste de choix pré-établie. 
+
+On charge cette table des sites en mémoire.
+
+```{R}
+sites_tp20_dbs <- readxl::read_excel("Z:/07-Données BD/intermediate_files/sites_tp20_et_dbs_list_24042024.xlsx")
+```
+
+On commence par extraire la liste des sites identifiés dans toutes les bases de données.
 
 ```{R}
 sites <- toxbox::dbs_integration() |>
-    dplyr::pull(Location) |>
-    unique()
+    dplyr::select(location = Location, source) |>
+    dplyr::distinct()
+```
+
+On effectue un fuzzy join en se basant sur le nom du site.
+
+```{R}
+sites_with_locations <- fuzzyjoin::stringdist_left_join(
+    sites, 
+    sites_tp20_dbs,
+    method = "lv"
+)
+```
+
+Voici les sites pour lesquels nous n'avons pas de localisation pour le moment. À discuter..
+
+```{R}
+dplyr::filter(test, is.na(location.y)) 
 ```
