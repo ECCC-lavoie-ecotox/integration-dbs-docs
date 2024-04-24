@@ -185,6 +185,8 @@ writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_r
 
 ### Ajout des unités à la table de référence
 
+On utilise les données contenues dans le fichier `Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx` et qui contient les unités pour un certains nombres de composées. Ce tableau est une fusion des informations documentés dans l'onglet "Analytes informations" des bases de données COEI, HERG et GBHE.
+
 ```{R}
 tbl_analytes <- readxl::read_excel("data/tbl_contaminants_ref_manual.xlsx") |>
     tidyr::separate_rows(original_ids, sep = ";")
@@ -202,3 +204,4 @@ tbl_analytes <- tbl_analytes |> dplyr::left_join(analytes_info, by = c("original
 
 writexl::write_xlsx(tbl_analytes, path = "data/tbl_contaminants_ref2.xlsx")
 ```
+
