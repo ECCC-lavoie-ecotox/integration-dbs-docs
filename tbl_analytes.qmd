@@ -3,6 +3,7 @@ title: "Consolidation de la nomenclature des analytes"
 author: "Steve Vissault"
 date: "2024-03-28"
 execute:
+    eval: FALSE
     cache: true
 ---
 
@@ -123,7 +124,6 @@ cas3 <- purrr::map2_df(names(pubcid), pubcid, \(n, c){
 
 On a ajouté 3 identifiants pour chaque composée chimique de la base de données. Parmis, ces identifiants nous retrouvons: le [CAS](https://commonchemistry.cas.org/) (casid, identifiant fournis généralement par le laboratoire d'analyse, nomenclature américaine), le [ChemSpider ID](https://www.chemspider.com/) (csid, nomenclature britanique) et enfin le [PubChem ID](https://pubchem.ncbi.nlm.nih.gov/) (pubcid, nomenclature américaine).
 
-
 On a enfin toutes les informations pour construire la table de référence des composées chimiques. On récupère les composées chimiques pour lesquelles le CAS est renseigné par le laboratoire.
 
 ```{R}
@@ -177,12 +177,28 @@ sources <- dplyr::select(measurements, key, source, conpound_family) |>
     dplyr::distinct()
 ```
 
-On écrit le fichier final pour pouvoir faire de la validation manuel.
+On écrit le fichier pour pouvoir repasser manuellement dessus.
 
 ```{R}
 writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_ref.xlsx")
 ```
 
+### Ajout des unités à la table de référence
 
+```{R}
+tbl_analytes <- readxl::read_excel("data/tbl_contaminants_ref_manual.xlsx") |>
+    tidyr::separate_rows(original_ids, sep = ";")
 
+analytes_units <- readxl::read_excel("Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx") |>
+    dplyr::mutate(
+        key = janitor::make_clean_names(Analyte, allow_dupes = TRUE, case = "none") |> tolower()
+    ) |>
+    dplyr::select(key, Units) |>
+    dplyr::distinct()
 
+tbl_analytes <- tbl_analytes |> dplyr::left_join(analytes_info, by = c("original_ids" = "key")) |> 
+    dplyr::group_by_at(dplyr::vars(-original_ids, -Units)) |>
+    dplyr::summarize(original_ids = paste(original_ids, collapse = ";"), Units = paste(Units, collapse = ";"))
+
+writexl::write_xlsx(tbl_analytes, path = "data/tbl_contaminants_ref2.xlsx")
+```
