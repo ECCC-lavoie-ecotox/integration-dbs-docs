@@ -27,7 +27,7 @@ Dans un premier temps, on charge les données sur les analytes (incluant le CAS)
 On fusionne les données sur les analytes avec les mesures.
 
 ```{R}
-analytes <- readxl::read_excel("Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx") |>
+analytes <- readxl::read_excel("Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx") |>
     dplyr::select(Analyte, CASNumber) |>
     dplyr::filter(!is.na(CASNumber)) |>
     dplyr::mutate(
@@ -185,13 +185,13 @@ writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_r
 
 ### Ajout des unités à la table de référence
 
-On utilise les données contenues dans le fichier `Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx` et qui contient les unités pour un certains nombres de composées. Ce tableau est une fusion des informations documentés dans l'onglet "Analytes informations" des bases de données COEI, HERG et GBHE.
+On utilise les données contenues dans le fichier `Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx` et qui contient les unités pour un certains nombres de composées. Ce tableau est une fusion des informations documentés dans l'onglet "Analytes informations" des bases de données COEI, HERG et GBHE.
 
 ```{R}
 tbl_analytes <- readxl::read_excel("data/tbl_contaminants_ref_manual.xlsx") |>
     tidyr::separate_rows(original_ids, sep = ";")
 
-analytes_units <- readxl::read_excel("Z:/07-Données BD/TBL_analytes/analytes_consolidation_27032024.xlsx") |>
+analytes_units <- readxl::read_excel("Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx") |>
     dplyr::mutate(
         key = janitor::make_clean_names(Analyte, allow_dupes = TRUE, case = "none") |> tolower()
     ) |>

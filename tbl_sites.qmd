@@ -1,3 +1,12 @@
 ---
 title: "Recensement des sites"
 ---
+
+Repartir du TP-20 pour sortir la liste des sites
+Faire un fuzzy-match sur le nom des localisations pour matcher avec les noms du TP-20 
+
+```{R}
+sites <- toxbox::dbs_integration() |>
+    dplyr::pull(Location) |>
+    unique()
+```
