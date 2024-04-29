@@ -1,0 +1,50 @@
+---
+title: "Injections des données"
+author: "Steve Vissault"
+date: "2024-04-29"
+---
+
+## Étape d'injections des données
+
+Afin de respecter l'intégrité référentielle des données, l'injection des données doit se faire dans un certain ordre. Il faut par exemple renseigner en premier l'ensemble des sites avant de pouvoir déclarer les échantillons associés. 
+
+Voici l'ordre d'injection attendu au regard de la structure de la base de données.
+
+1. Sites
+2. Species 
+3. Projects
+4. Field samples
+5. Lab samples 
+6. Analyte
+7. Lab measurement
+
+L'ensemble des données destinés à populer les tables a été consolider lors des étapes précédentes. Nous allons maintenant procéder à leur importation dans la base de données.
+
+## Connection à la base de données 
+
+```{R}
+con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
+```
+
+## Importation des données
+
+###  Table `sites`
+
+```{R}
+sites <- readRDS("data/tbl_sites.rds")
+```
+
+On tranforme les intitulées de colonnes du data.frame pour qu'ils correspondent à ceux de la table de données SQL.
+
+```{R}
+data_sites <- sites |>
+    dplyr::select(
+        id_name_site = final_id,
+        province, 
+        lat,
+        lon,
+        srid
+    )
+
+DBI::dbWriteTable(con, "sites", data_sites, append = TRUE)
+```

@@ -24,6 +24,7 @@ website:
       - section: "Base de données"
         contents:
           - db_schema.qmd
+          - db_injections.qmd
           - db_feed.qmd
           - db_query.qmd
   repo-url: https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs
