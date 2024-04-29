@@ -27,11 +27,24 @@ sites_with_locations <- fuzzyjoin::stringdist_left_join(
     sites, 
     sites_tp20_dbs,
     method = "lv"
-)
+) |> dplyr::distinct()
+
+# writexl::write_xlsx(sites_with_locations, "Z:/07-Données BD/intermediate_files/site_locations_29042024.xlsx")
 ```
 
-Voici les sites pour lesquels nous n'avons pas de localisation pour le moment. À discuter..
+Après une consolidation manuelle effectuer dans le fichier `Z:/07-Données BD/intermediate_files/site_locations_29042024.xlsx`. 
+
+On peut à présent cartographier les sites pour lesquelles nous disposons d'une localisation.
 
 ```{R}
-dplyr::filter(test, is.na(location.y)) 
+sites <- readxl::read_excel("Z:/07-Données BD/intermediate_files/site_locations_29042024.xlsx")
+
+
+library(sf)
+sites_sf <- sites |>
+    dplyr::filter(!is.na(lat) | !is.na(lon)) |> 
+    sf::st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+mapview::mapview(sites_sf)
 ```
+
