@@ -20,6 +20,7 @@ website:
           - tbl_sites.qmd
           - tbl_analytes.qmd
           - tbl_measurements.qmd
+          - n_measurements.qmd
       - section: "Base de données"
         contents:
           - db_schema.qmd
