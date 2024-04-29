@@ -2,31 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/tbl_sites.html</loc>
-    <lastmod>2024-04-29T15:45:11.276Z</lastmod>
+    <lastmod>2024-04-29T17:39:40.754Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/tbl_measurements.html</loc>
-    <lastmod>2024-04-10T14:31:55.439Z</lastmod>
+    <lastmod>2024-04-29T17:46:30.962Z</lastmod>
   </url>
   <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/index.html</loc>
-    <lastmod>2024-03-28T15:58:59.862Z</lastmod>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/n_measurements.html</loc>
+    <lastmod>2024-04-29T17:49:30.804Z</lastmod>
   </url>
   <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/db_schema.html</loc>
-    <lastmod>2024-03-28T16:05:57.205Z</lastmod>
-  </url>
-  <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/db_feed.html</loc>
-    <lastmod>2024-03-28T16:05:50.521Z</lastmod>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/deploy.html</loc>
+    <lastmod>2024-03-28T16:14:34.398Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/db_query.html</loc>
     <lastmod>2024-03-28T16:05:34.379Z</lastmod>
   </url>
   <url>
-    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/deploy.html</loc>
-    <lastmod>2024-03-28T16:14:34.398Z</lastmod>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/db_feed.html</loc>
+    <lastmod>2024-03-28T16:05:50.521Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/db_schema.html</loc>
+    <lastmod>2024-03-28T16:05:57.205Z</lastmod>
+  </url>
+  <url>
+    <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/index.html</loc>
+    <lastmod>2024-03-28T15:58:59.862Z</lastmod>
   </url>
   <url>
     <loc>https://ECCC-lavoie-ecotox.github.io/integration-dbs-docs/tbl_analytes.html</loc>
