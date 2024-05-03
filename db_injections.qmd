@@ -2,7 +2,18 @@
 title: "Injections des données"
 author: "Steve Vissault"
 date: "2024-04-29"
+execute: 
+  eval: false
 ---
+
+## Création de la base de données
+ 
+
+```{R}
+con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
+db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
+purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
+```
 
 ## Étape d'injections des données
 
@@ -20,12 +31,6 @@ Voici l'ordre d'injection attendu au regard de la structure de la base de donné
 
 L'ensemble des données destinés à populer les tables a été consolider lors des étapes précédentes. Nous allons maintenant procéder à leur importation dans la base de données.
 
-## Connection à la base de données 
-
-```{R}
-con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
-```
-
 ## Importation des données
 
 ###  Table `sites`
@@ -39,7 +44,7 @@ On tranforme les intitulées de colonnes du data.frame pour qu'ils correspondent
 ```{R}
 data_sites <- sites |>
     dplyr::select(
-        id_name_site = final_id,
+        id_site = final_id,
         province, 
         lat,
         lon,
@@ -47,4 +52,27 @@ data_sites <- sites |>
     )
 
 DBI::dbWriteTable(con, "sites", data_sites, append = TRUE)
+```
+
+###  Table `species`
+
+```{R}
+data_species <- readRDS("data/tbl_species.rds")
+DBI::dbWriteTable(con, "species", data_species, append = TRUE)
+```
+
+###  Table `field_sample`
+
+```{R}
+
+```
+
+### Table `project`
+
+```{R}
+sites <- readRDS("data/tbl_sites.rds")
+contaminants <- toxbox::dbs_integration() |>
+  dplyr::select(
+    id_site = Location
+  )
 ```
