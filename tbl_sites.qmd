@@ -15,7 +15,7 @@ sites_tp20_dbs <- readxl::read_excel("Z:/07-Données BD/intermediate_files/sites
 On commence par extraire la liste des sites identifiés dans toutes les bases de données.
 
 ```{R}
-sites <- toxbox::dbs_integration() |>
+sites <- toxbox::itgr_measurements() |>
     dplyr::select(location = Location, source) |>
     dplyr::distinct()
 ```
@@ -38,7 +38,6 @@ On peut à présent cartographier les sites pour lesquelles nous disposons d'une
 
 ```{R}
 sites <- readxl::read_excel("Z:/07-Données BD/intermediate_files/site_locations_29042024.xlsx")
-
 
 library(sf)
 sites_sf <- sites |>

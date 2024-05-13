@@ -9,7 +9,7 @@ date: "2024-01-05"
 On cherche à obtenir une liste exhaustive des contaminants mesurés chez quatre espèces impliquées dans le PASL.
 
 ```{R}
-contaminants <- toxbox::dbs_integration()
+contaminants <- toxbox::itgr_measurements()
 ```
 
 ### QA sur les noms de contaminants
