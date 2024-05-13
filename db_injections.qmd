@@ -64,14 +64,48 @@ DBI::dbWriteTable(con, "species", data_species, append = TRUE)
 ###  Table `field_sample`
 
 ```{R}
+map_sites <- readRDS("data/tbl_sites.rds") |>
+    tidyr::separate_rows(original_ids, sep = ";") |>
+    dplyr::select(original_ids, final_id)
 
+options(dplyr.summarise.inform = FALSE)
+
+samples <- itgr_samples_info() |>
+  dplyr::select(-received_date, -id_project, -id_source_report, -source) |>
+  dplyr::mutate(collection_date = as.character(collection_date)) |>
+  # Ajout des identifiants de site consolidé
+  dplyr::left_join(map_sites, by = c("id_site" = "original_ids")) |>
+  dplyr::select(-id_site) |>
+  dplyr::rename(id_site = final_id) |>
+  dplyr::mutate_if(is.character, stringr::str_trim) |>
+  dplyr::mutate_if(is.character, ~ifelse(.x == "N/A", NA, .x)) |>
+  dplyr::mutate_if(is.character, ~ifelse(.x == "NA", NA, .x)) |>
+  dplyr::distinct() |>
+  # Nettoyage des duplicates pour la combinaison id_field_sample, id_lab_sample
+  dplyr::group_by(
+    dplyr::across(c(-age, -tissue, -collection_date))
+  ) |> dplyr::summarise(
+    age = paste0(na.omit(age), collapse = ";"),
+    tissue = paste0(na.omit(tissue), collapse = ";"),
+    collection_date = max(collection_date)
+  ) |> dplyr::ungroup()
+
+# Nettoyage
+# Appliquer un str_trim sur toute les colonnes de texte
+# Replace NA, N/A par NA
+# Si age pas NA, prendre le pas NA
+# If date more precise than 1977-01-01, prendre la date plus précise
+# Remove last letter in id_lab_sample
+
+# Join
+DBI::dbWriteTable(con, "field_sample", samples, append = TRUE)
 ```
 
 ### Table `project`
 
 ```{R}
-sites <- readRDS("data/tbl_sites.rds")
-contaminants <- toxbox::dbs_integration() |>
+
+contaminants <- toxbox::itgr_measurements() |>
   dplyr::select(
     id_site = Location
   )

@@ -72,13 +72,11 @@ CREATE TABLE field_sample -- Create a new table which document collected field s
     id_field_sample TEXT PRIMARY KEY,
     id_site TEXT NOT NULL,
     id_species TEXT NOT NULL,
-    id_report TEXT NOT NULL,
     age TEXT,
     tissue TEXT,
     collection_date TEXT,
     FOREIGN KEY(id_site) REFERENCES sites(id_site),
-    FOREIGN KEY(id_species) REFERENCES species(id_species),
-    FOREIGN KEY(id_report) REFERENCES report(id_report)
+    FOREIGN KEY(id_species) REFERENCES species(id_species)
 );
 
 CREATE TABLE lab_sample -- Create a new table which document all lab sample
@@ -86,12 +84,10 @@ CREATE TABLE lab_sample -- Create a new table which document all lab sample
 (
     id_lab_sample TEXT PRIMARY KEY,
     id_field_sample TEXT NOT NULL,
-    id_project TEXT,
-    id_source_report TEXT,
-    path_source_report TEXT,
+    id_report TEXT,
     note TEXT,
     FOREIGN KEY(id_field_sample) REFERENCES field_sample(id_field_sample),
-    FOREIGN KEY(id_project) REFERENCES project(id_project)
+    FOREIGN KEY(id_report) REFERENCES report(id_report),
 );
 
 CREATE TABLE lab_measurement -- Create a new table which contains lab measurements
