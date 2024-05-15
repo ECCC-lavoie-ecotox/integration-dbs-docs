@@ -71,7 +71,7 @@ map_sites <- readRDS("data/tbl_sites.rds") |>
 options(dplyr.summarise.inform = FALSE)
 
 samples <- itgr_samples_info() |>
-  dplyr::select(-received_date, -id_project, -id_source_report, -source) |>
+  dplyr::select(-received_date, -id_project, -source) |>
   dplyr::mutate(collection_date = as.character(collection_date)) |>
   # Ajout des identifiants de site consolidé
   dplyr::left_join(map_sites, by = c("id_site" = "original_ids")) |>
@@ -79,32 +79,95 @@ samples <- itgr_samples_info() |>
   dplyr::rename(id_site = final_id) |>
   dplyr::mutate_if(is.character, stringr::str_trim) |>
   dplyr::mutate_if(is.character, ~ifelse(.x == "N/A", NA, .x)) |>
-  dplyr::mutate_if(is.character, ~ifelse(.x == "NA", NA, .x)) |>
+  dplyr::mutate_if(is.character, ~ifelse(.x == "NA", NA, .x)) |>  
   dplyr::distinct() |>
-  # Nettoyage des duplicates pour la combinaison id_field_sample, id_lab_sample
+  # Nettoyage des duplicates pour les champs age et tissus
   dplyr::group_by(
-    dplyr::across(c(-age, -tissue, -collection_date))
+    dplyr::across(c(-age, -tissue))
   ) |> dplyr::summarise(
     age = paste0(na.omit(age), collapse = ";"),
-    tissue = paste0(na.omit(tissue), collapse = ";"),
-    collection_date = max(collection_date)
-  ) |> dplyr::ungroup()
+    tissue = paste0(na.omit(tissue), collapse = ";")
+  ) |> dplyr::ungroup() |>
+  dplyr::mutate(
+    age = dplyr::na_if(age, ""),
+    tissue = dplyr::na_if(age, "")
+  ) |> 
+  # Nettoyage des sample IDs avec une dernière lettre
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "\\s\\w+$", "")) |>
+  dplyr::group_by(
+    dplyr::across(c(-id_lab_sample, -id_source_report))
+  ) |> dplyr::summarise(
+    id_lab_sample = paste0(na.omit(id_lab_sample), collapse = ";"),
+    id_source_report = paste0(na.omit(id_source_report), collapse = ";")
+  ) |> dplyr::ungroup() |> 
+  dplyr::distinct() |> 
+  dplyr::group_split(id_field_sample) |>
+  # Création d'un identifiant unique d'échantillonnage en se basant sur la date de collection
+  # L'identifiant de certains échantillons n'est pas unique
+  purrr::map(\(df){
+    if(nrow(df) > 1){
+      df <- df |>
+        dplyr::mutate(id_field_sample = paste0(
+          id_field_sample, "-",
+          stringr::str_replace_all(collection_date, "[-]", "")
+        ))
+    }
+    return(df)
+  }) |> dplyr::bind_rows() |> 
+  dplyr::group_by(id_field_sample) |>
+  dplyr::mutate(id_field_sample = paste0(id_field_sample, "-", dplyr::row_number())) |>
+  dplyr::ungroup()
 
-# Nettoyage
-# Appliquer un str_trim sur toute les colonnes de texte
-# Replace NA, N/A par NA
-# Si age pas NA, prendre le pas NA
-# If date more precise than 1977-01-01, prendre la date plus précise
-# Remove last letter in id_lab_sample
-
-# Join
-DBI::dbWriteTable(con, "field_sample", samples, append = TRUE)
+# Inject field samples
+DBI::dbWriteTable(con, "field_sample", dplyr::select(samples, -id_lab_sample, -id_source_report) |> dplyr::distinct(), append = TRUE)
 ```
 
 ### Table `project`
 
 ```{R}
+project_samples <- itgr_samples_info()[,c("id_project", "id_source_report")]  |> dplyr::distinct()
+projects_reports <- readxl::read_xlsx("z:/07-Données BD/intermediate_files/projects_list_extract_25032024.xlsx")
 
+projects <- dplyr::select(projects_reports, id_project = project_id, 
+  title = project_title, investigator = project_leader) |>
+  dplyr::mutate(organization = "ECCC", data_manager = NA, email_investigator = NA, email_data_manager = NA, description = NA) |> 
+  dplyr::group_by(id_project) |>
+  dplyr::summarise(title = paste0(na.omit(unique(title)), collapse = ";"), investigator = paste0(na.omit(unique(investigator)), collapse = ";")) |>
+  dplyr::mutate(title = dplyr::na_if(title, ""), investigator = dplyr::na_if(investigator, "")) |>
+  dplyr::distinct()
+ 
+DBI::dbWriteTable(con, "project", projects, append = TRUE)
+```
+
+### Table `report`
+
+```{R}
+reports <- projects_reports |> 
+  dplyr::select(id_project = project_id, id_report = report_id, report_date, report_access_path) |> dplyr::distinct()
+
+DBI::dbWriteTable(con, "report", reports, append = TRUE)
+```
+
+### Table `lab_sample`
+
+```{R}
+lab_samples <- samples |> 
+  dplyr::select(id_lab_sample, id_field_sample, id_report = id_source_report) |>
+  dplyr::mutate(note = NA) |>
+  dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
+  tidyr::separate_longer_delim(id_lab_sample, delim = ";") |>
+  tidyr::separate_longer_delim(id_report, delim = ";") |>
+  dplyr::distinct()
+
+janitor::get_dupes(lab_samples, id_lab_samples)
+```
+
+```{R}
+DBI::dbWriteTable(con, "lab_sample", lab_samples, append = TRUE)
+```
+
+
+```{R}
 contaminants <- toxbox::itgr_measurements() |>
   dplyr::select(
     id_site = Location
