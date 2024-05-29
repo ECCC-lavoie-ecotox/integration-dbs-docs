@@ -9,8 +9,8 @@ execute:
 ## Création de la base de données
  
 
-```{R}
-con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "C:/Users/VissaultS/Documents/git/integration-dbs-docs/contaminants-rlavoie-eccc.sqlite")
 db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
 purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
 ```
@@ -35,13 +35,13 @@ L'ensemble des données destinés à populer les tables a été consolider lors 
 
 ###  Table `sites`
 
-```{R}
+```{r}
 sites <- readRDS("data/tbl_sites.rds")
 ```
 
 On tranforme les intitulées de colonnes du data.frame pour qu'ils correspondent à ceux de la table de données SQL.
 
-```{R}
+```{r}
 data_sites <- sites |>
     dplyr::select(
         id_site = final_id,
@@ -56,21 +56,21 @@ DBI::dbWriteTable(con, "sites", data_sites, append = TRUE)
 
 ###  Table `species`
 
-```{R}
+```{r}
 data_species <- readRDS("data/tbl_species.rds")
 DBI::dbWriteTable(con, "species", data_species, append = TRUE)
 ```
 
 ###  Table `field_sample`
 
-```{R}
+```{r}
 map_sites <- readRDS("data/tbl_sites.rds") |>
     tidyr::separate_rows(original_ids, sep = ";") |>
     dplyr::select(original_ids, final_id)
 
 options(dplyr.summarise.inform = FALSE)
 
-samples <- itgr_samples_info() |>
+samples <- toxbox::itgr_samples_info() |>
   dplyr::select(-received_date, -id_project, -source) |>
   dplyr::mutate(collection_date = as.character(collection_date)) |>
   # Ajout des identifiants de site consolidé
@@ -119,14 +119,15 @@ samples <- itgr_samples_info() |>
   dplyr::ungroup()
 
 # Inject field samples
-DBI::dbWriteTable(con, "field_sample", dplyr::select(samples, -id_lab_sample, -id_source_report) |> dplyr::distinct(), append = TRUE)
+DBI::dbWriteTable(con, "field_sample", dplyr::select(samples, -id_lab_sample, -id_source_report) |> 
+  dplyr::distinct(), append = TRUE)
 ```
 
 ### Table `project`
 
-```{R}
-project_samples <- itgr_samples_info()[,c("id_project", "id_source_report")]  |> dplyr::distinct()
-projects_reports <- readxl::read_xlsx("z:/07-Données BD/intermediate_files/projects_list_extract_25032024.xlsx")
+```{r}
+project_samples <- toxbox::itgr_samples_info()[,c("id_project", "id_source_report")] |> dplyr::distinct()
+projects_reports <- readRDS("data/tbl_projects_reports.rds") 
 
 projects <- dplyr::select(projects_reports, id_project = project_id, 
   title = project_title, investigator = project_leader) |>
@@ -141,35 +142,119 @@ DBI::dbWriteTable(con, "project", projects, append = TRUE)
 
 ### Table `report`
 
-```{R}
+```{r}
 reports <- projects_reports |> 
-  dplyr::select(id_project = project_id, id_report = report_id, report_date, report_access_path) |> dplyr::distinct()
+  dplyr::select(id_project = project_id, id_report = report_id, report_date, report_access_path) |>
+  dplyr::distinct() 
+
+undocumented_reports <- samples |> 
+  dplyr::select(id_report = id_source_report) |>
+  tidyr::separate_longer_delim(id_report, delim = ";") |>
+  dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
+  dplyr::filter(!id_report %in% reports$id_report) |>
+  dplyr::filter(!is.na(id_report)) |>
+  dplyr::distinct()
+
+reports <- reports |> dplyr::bind_rows(undocumented_reports)
 
 DBI::dbWriteTable(con, "report", reports, append = TRUE)
 ```
 
 ### Table `lab_sample`
 
-```{R}
+```{r}
 lab_samples <- samples |> 
   dplyr::select(id_lab_sample, id_field_sample, id_report = id_source_report) |>
   dplyr::mutate(note = NA) |>
   dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
   tidyr::separate_longer_delim(id_lab_sample, delim = ";") |>
   tidyr::separate_longer_delim(id_report, delim = ";") |>
-  dplyr::distinct()
-
-janitor::get_dupes(lab_samples, id_lab_samples)
+  dplyr::distinct() |>
+  dplyr::mutate()
 ```
 
-```{R}
+```{r}
 DBI::dbWriteTable(con, "lab_sample", lab_samples, append = TRUE)
 ```
 
+### Table `analytes`
 
-```{R}
-contaminants <- toxbox::itgr_measurements() |>
+```{r}
+analytes <- readRDS("data/tbl_analytes.rds") |>
   dplyr::select(
-    id_site = Location
+    id_analyte = final_id,
+    name,
+    other_name,
+    short_name,
+    unit = Units,
+    family = conpound_family,
+    casid,
+    pubcid,
+    is_dry_weight,
+    isotope_on_amino_acid,
+    on_isolated_lipid,
+    note = notes
   )
+```
+
+```{r}
+DBI::dbWriteTable(con, "analyte", analytes, append = TRUE)
+```
+
+### Table `lab_measurements`
+
+```{r}
+analytes_ref <- readRDS("data/tbl_analytes.rds") |>
+  tidyr::separate_rows(original_ids, sep = ";") |>
+  dplyr::select(original_ids, final_id) |>
+  dplyr::distinct()
+
+measurements <- toxbox::itgr_measurements() |>
+    dplyr::mutate(
+        key = stringr::str_replace(variable, "PCB-|PCB ", "PCB") |>
+            janitor::make_clean_names(allow_dupes = TRUE, case = "none") |> tolower()
+    ) |> dplyr::left_join(analytes_ref, by = c("key" = "original_ids")) |>
+    dplyr::filter(conpound_family != "SImean")
+
+percent_moisture_lipid <- dplyr::filter(measurements, final_id %in% c("plipid", "pmoisture")) |>
+  dplyr::select(-variable, -key) |>
+  tidyr::pivot_wider(names_from = "final_id", values_from = "value")
+
+measurements <- dplyr::filter(measurements, !final_id %in% c("plipid", "pmoisture")) |>
+  dplyr::left_join(percent_moisture_lipid) |>
+  dplyr::filter(!is.na(value) & value != "" & value != "NA" & value != "NDR")
+
+measurements <- measurements |> dplyr::select(
+    id_analyte = final_id,
+    id_lab_sample = SampleID,
+    value,
+    percent_lipid = plipid,
+    percent_moisture = pmoisture
+  ) |> 
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "\\s\\w+$", "")) |>
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "[*]", "")) 
+
+measurements <- measurements |> 
+  dplyr::mutate(is_censored = toxbox::detect_cens(value)) |>
+  dplyr::mutate(value = toxbox::remove_cens(value)) |>
+  dplyr::filter(!is.na(value))
+
+## Add undocumented lab_sample_id in lab_sample tab
+undocumented_lab_sample_id <- measurements |> 
+  dplyr::filter(!id_lab_sample %in% lab_samples$id_lab_sample) |>
+  dplyr::pull(id_lab_sample) |> 
+  unique()
+
+undocumented_lab_sample <- data.frame(
+  id_lab_sample = undocumented_lab_sample_id, 
+  id_field_sample = NA,
+  id_report = NA,
+  note = NA
+)
+
+DBI::dbWriteTable(con, "lab_sample", undocumented_lab_sample, append = TRUE)
+```
+
+```{r}
+DBI::dbWriteTable(con, "lab_measurement", measurements, append = TRUE)
 ```
