@@ -11,11 +11,11 @@ Nous désirons consolider la nomenclature des analytes. On peut observer plusieu
 
 On charge les données intégrées depuis le package `toxbox`. Les données ne sont pas entreposées dans le package, la function `toxbox::itgr_measurements()` permet de lire les fichiers Excels entreposées sur le disque réseau `Z:` et les fusionne dans un seul `data.frame`. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.
 
-```{R}
+```{r}
 devtools::install_github("ECCC-lavoie-ecotox/toxbox")
 ```
 
-```{R}
+```{r}
 measurements <- toxbox::itgr_measurements()
 ```
 
@@ -26,7 +26,7 @@ La nomenclature des composées chimiques / analytes peut diverger d'un laboratoi
 Dans un premier temps, on charge les données sur les analytes (incluant le CAS) fournies par les laboratoires. Le fichier `analytes_consolidation_27032024` est la fusion des onglets _Analyte Information_ des différentes base de données. 
 On fusionne les données sur les analytes avec les mesures.
 
-```{R}
+```{r}
 analytes <- readxl::read_excel("Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx") |>
     dplyr::select(Analyte, CASNumber) |>
     dplyr::filter(!is.na(CASNumber)) |>
@@ -60,7 +60,7 @@ reactable::reactable(contaminants_orphelins, searchable = TRUE)
 
 La fonction `webchem::cts_convert()` permet d'interroger plusieurs base de données de référence sur des composées chimiques et d'extraire des identifiants tels que le CAS à partir du nom d'un composé chimique. La fonction `webchem::cts_convert()` s'interface sur le service https://cts.fiehnlab.ucdavis.edu/.
 
-```{R}
+```{r}
 cas_from_cts <- webchem::cts_convert(contaminants_orphelins$variable, from = "Chemical Name", to = "CAS", match = "first")
 
 cas <- purrr::map2_df(names(cas_from_cts), cas_from_cts, \(n, c){
@@ -88,7 +88,7 @@ saveRDS(csid, "data/csid.rds")
 ```
 
 
-```{R}
+```{r}
 if(!exists("csid")) csid <- readRDS("data/csid.rds")
 
 cas_from_csid <- webchem::cts_convert(csid$csid, from = "ChemSpider", to = "CAS", match = "first")
@@ -106,7 +106,7 @@ Effectuer la résolution de la nomenclature des composées par l'utilisation du 
 
 Afin de permettre le retrait d'informations supplémentaires sur les composées chimiques, une des base de données d'intérêt est PubChem. À partir de cette base de données, on peut effectuer le retrait de certaines propriétés chimiques du composée telles que la masse moléculaire par exemple.
 
-```{R}
+```{r}
 pubcid <- webchem::cts_convert(cas2$csid, from = "ChemSpider", to = "PubChem CID", match = "first")
 
 cas3 <- purrr::map2_df(names(pubcid), pubcid, \(n, c){
@@ -126,7 +126,7 @@ On a ajouté 3 identifiants pour chaque composée chimique de la base de donnée
 
 On a enfin toutes les informations pour construire la table de référence des composées chimiques. On récupère les composées chimiques pour lesquelles le CAS est renseigné par le laboratoire.
 
-```{R}
+```{r}
 contaminants_with_cas <- measurements |> 
     dplyr::filter(!is.na(CASNumber)) |>
     dplyr::select(key, variable, CASNumber) |>
@@ -137,7 +137,7 @@ contaminants_with_cas <- measurements |>
 
 On va chercher le PubChem ID et et le spiderChem ID pour les contaminants qui avaient déjà un CAS (fournit par le laboratoire).
 
-```{R}
+```{r}
 csid <- webchem::cts_convert(contaminants_with_cas$casid, from = "CAS", to = "ChemSpider", match = "first")
 csid <- purrr::map2_df(names(csid), csid, \(n, c){
         return(data.frame(casid = n, csid = c))
@@ -164,7 +164,7 @@ contaminants <- contaminants_with_cas |>
 
 Validation: Est-ce que tous les contaminants dans la table de référence sont présent dans la table des mesures?
 
-```{R}
+```{r}
 keys <- measurements$key |>
     unique()
 
@@ -179,7 +179,7 @@ sources <- dplyr::select(measurements, key, source, conpound_family) |>
 
 On écrit le fichier pour pouvoir repasser manuellement dessus.
 
-```{R}
+```{r}
 writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_ref.xlsx")
 ```
 
@@ -187,7 +187,7 @@ writexl::write_xlsx(list(contaminants, sources), path = "data/tbl_contaminants_r
 
 On utilise les données contenues dans le fichier `Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx` et qui contient les unités pour un certains nombres de composées. Ce tableau est une fusion des informations documentés dans l'onglet "Analytes informations" des bases de données COEI, HERG et GBHE.
 
-```{R}
+```{r}
 tbl_analytes <- readxl::read_excel("data/tbl_contaminants_ref_manual.xlsx") |>
     tidyr::separate_rows(original_ids, sep = ";")
 
@@ -202,6 +202,6 @@ tbl_analytes <- tbl_analytes |> dplyr::left_join(analytes_info, by = c("original
     dplyr::group_by_at(dplyr::vars(-original_ids, -Units)) |>
     dplyr::summarize(original_ids = paste(original_ids, collapse = ";"), Units = paste(Units, collapse = ";"))
 
-writexl::write_xlsx(tbl_analytes, path = "data/tbl_contaminants_ref2.xlsx")
+writexl::write_xlsx(tbl_analytes, path = "data/tbl_contaminants_ref.xlsx")
 ```
 

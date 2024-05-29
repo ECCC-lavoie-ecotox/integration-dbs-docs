@@ -10,7 +10,7 @@ Chaque rapport de laboratoire contient sur sa page de garde l'ensemble des méta
 
 Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: `CHEM-PCDD-00-07` ou encore `MB-05-10`. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:
 
-```{R}
+```{r}
 regex_report_id <- "([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-\\d{2}-\\d{2}"
 ```
 
@@ -18,7 +18,7 @@ La variable `regex_report_id` sera utilisée plusieurs fois dans ce document.
 
 On liste les rapports de laboratoire présents dans le dossier `03-Labo/Results Reports`.
 
-```{R}
+```{r}
 reports_path <- list.files(
     "C:/Users/VissaultS/Documents/03-Labo/Results Reports", 
     pattern = "*.pdf|*.docx|*.doc", recursive = TRUE, full.names = TRUE
@@ -59,7 +59,7 @@ reports_dup |> knitr::kable()
 
 On selectionne le premier rapport en se basant sur le id (ex. BMK-PFC-23-01) pour éliminer les rapports dupliqués pour la suite de l'analyse. On s'assure de selectionner préférablement les pdfs si on dispose d'un docx et d'un document pdf pour le même identifiant de rapport de laboratoire.
 
-```{R}
+```{r}
 reports <- reports |> 
     # On retire les rapports qui sont dupliqués
     dplyr::group_by(hash) |>

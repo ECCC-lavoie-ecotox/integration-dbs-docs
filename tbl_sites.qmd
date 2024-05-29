@@ -8,13 +8,13 @@ Ce fichier est le fruit d'une consolidation manuelle entre les sites documentés
 
 On charge cette table des sites en mémoire.
 
-```{R}
+```{r}
 sites_tp20_dbs <- readxl::read_excel("Z:/07-Données BD/intermediate_files/sites_tp20_et_dbs_list_24042024.xlsx")
 ```
 
 On commence par extraire la liste des sites identifiés dans toutes les bases de données.
 
-```{R}
+```{r}
 sites <- toxbox::itgr_measurements() |>
     dplyr::select(location = Location, source) |>
     dplyr::distinct()
@@ -22,7 +22,7 @@ sites <- toxbox::itgr_measurements() |>
 
 On effectue un fuzzy join en se basant sur le nom du site.
 
-```{R}
+```{r}
 sites_with_locations <- fuzzyjoin::stringdist_left_join(
     sites, 
     sites_tp20_dbs,
@@ -36,7 +36,7 @@ Après une consolidation manuelle effectuer dans le fichier `Z:/07-Données BD/i
 
 On peut à présent cartographier les sites pour lesquelles nous disposons d'une localisation.
 
-```{R}
+```{r}
 sites <- readxl::read_excel("Z:/07-Données BD/intermediate_files/site_locations_29042024.xlsx")
 
 library(sf)

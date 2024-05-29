@@ -16,7 +16,7 @@ data_count <- contaminants |>
     dplyr::summarise(n = dplyr::n(), n_censored = sum(value_censored))
 ```
 
-```{R}
+```{r}
 data_count |>
     reactable::reactable()
 ```
@@ -39,7 +39,7 @@ cat(paste("*", crit1), sep="\n")
 
 On retire ces sites pour l'étude de la taille de l'échantillon
 
-```{R}
+```{r}
 data_count <- data_count |>
     dplyr::filter(!(Location %in% crit1)) |>
     dplyr::ungroup()
