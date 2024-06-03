@@ -1228,7 +1228,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>Un rapport de laboratoire peut être detectable dans une liste de fichier par la structure de son identifiant unique. Voici un exemple d'identifiant unique: <span class="in">`CHEM-PCDD-00-07`</span> ou encore <span class="in">`MB-05-10`</span>. Ces identifiants ont une structure unique que l'on peut detecter grace à l'expression régulière suivante:</span>
 <span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>regex_report_id <span class="ot">&lt;-</span> <span class="st">"([A-Za-z]{2,5}-)?[A-Za-z]{2,5}-</span><span class="sc">\\</span><span class="st">d{2}-</span><span class="sc">\\</span><span class="st">d{2}"</span></span>
 <span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
@@ -1236,7 +1236,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>On liste les rapports de laboratoire présents dans le dossier <span class="in">`03-Labo/Results Reports`</span>.</span>
 <span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>reports_path <span class="ot">&lt;-</span> <span class="fu">list.files</span>(</span>
 <span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="st">"C:/Users/VissaultS/Documents/03-Labo/Results Reports"</span>, </span>
 <span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">"*.pdf|*.docx|*.doc"</span>, <span class="at">recursive =</span> <span class="cn">TRUE</span>, <span class="at">full.names =</span> <span class="cn">TRUE</span></span>
@@ -1277,7 +1277,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb9-63"><a href="#cb9-63" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb9-64"><a href="#cb9-64" aria-hidden="true" tabindex="-1"></a>On selectionne le premier rapport en se basant sur le id (ex. BMK-PFC-23-01) pour éliminer les rapports dupliqués pour la suite de l'analyse. On s'assure de selectionner préférablement les pdfs si on dispose d'un docx et d'un document pdf pour le même identifiant de rapport de laboratoire.</span>
 <span id="cb9-65"><a href="#cb9-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb9-68"><a href="#cb9-68" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb9-69"><a href="#cb9-69" aria-hidden="true" tabindex="-1"></a>reports <span class="ot">&lt;-</span> reports <span class="sc">|&gt;</span> </span>
 <span id="cb9-70"><a href="#cb9-70" aria-hidden="true" tabindex="-1"></a>    <span class="co"># On retire les rapports qui sont dupliqués</span></span>
 <span id="cb9-71"><a href="#cb9-71" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by</span>(hash) <span class="sc">|&gt;</span></span>

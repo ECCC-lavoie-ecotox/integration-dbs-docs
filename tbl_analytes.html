@@ -308,12 +308,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 
 
 <p>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.</p>
-<p>On charge les données intégrées depuis le package <code>toxbox</code>. Les données ne sont pas entreposées dans le package, la function <code>toxbox::dbs_integration()</code> permet de lire les fichiers Excels entreposées sur le disque réseau <code>Z:</code> et les fusionne dans un seul <code>data.frame</code>. Il faut pour cela que le VPN soit ouvert, si vous n’êtes pas directement sur le réseau d’environnement canada.</p>
+<p>On charge les données intégrées depuis le package <code>toxbox</code>. Les données ne sont pas entreposées dans le package, la function <code>toxbox::itgr_measurements()</code> permet de lire les fichiers Excels entreposées sur le disque réseau <code>Z:</code> et les fusionne dans un seul <code>data.frame</code>. Il faut pour cela que le VPN soit ouvert, si vous n’êtes pas directement sur le réseau d’environnement canada.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">itgr_measurements</span>()</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="analytes-avec-un-numéro-cas-fournis-par-le-laboratoire" class="level2">
 <h2 class="anchored" data-anchor-id="analytes-avec-un-numéro-cas-fournis-par-le-laboratoire">Analytes avec un numéro CAS fournis par le laboratoire</h2>
@@ -474,7 +474,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by_at</span>(dplyr<span class="sc">::</span><span class="fu">vars</span>(<span class="sc">-</span>original_ids, <span class="sc">-</span>Units)) <span class="sc">|&gt;</span></span>
 <span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarize</span>(<span class="at">original_ids =</span> <span class="fu">paste</span>(original_ids, <span class="at">collapse =</span> <span class="st">";"</span>), <span class="at">Units =</span> <span class="fu">paste</span>(Units, <span class="at">collapse =</span> <span class="st">";"</span>))</span>
 <span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>writexl<span class="sc">::</span><span class="fu">write_xlsx</span>(tbl_analytes, <span class="at">path =</span> <span class="st">"data/tbl_contaminants_ref2.xlsx"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a>writexl<span class="sc">::</span><span class="fu">write_xlsx</span>(tbl_analytes, <span class="at">path =</span> <span class="st">"data/tbl_contaminants_ref.xlsx"</span>)</span></code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 
 
@@ -1077,14 +1077,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>Nous désirons consolider la nomenclature des analytes. On peut observer plusieurs divergences dans la facon de nommer les analytes, exemple PCB-17 ou PCB 17. Cette section documente la démarche pour tendre vers une réconciliation des termes utilisés.</span>
 <span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>On charge les données intégrées depuis le package <span class="in">`toxbox`</span>. Les données ne sont pas entreposées dans le package, la function <span class="in">`toxbox::dbs_integration()`</span> permet de lire les fichiers Excels entreposées sur le disque réseau <span class="in">`Z:`</span> et les fusionne dans un seul <span class="in">`data.frame`</span>. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.</span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>On charge les données intégrées depuis le package <span class="in">`toxbox`</span>. Les données ne sont pas entreposées dans le package, la function <span class="in">`toxbox::itgr_measurements()`</span> permet de lire les fichiers Excels entreposées sur le disque réseau <span class="in">`Z:`</span> et les fusionne dans un seul <span class="in">`data.frame`</span>. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.</span>
 <span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox"</span>)</span>
 <span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">dbs_integration</span>()</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">itgr_measurements</span>()</span>
 <span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-26"><a href="#cb14-26" aria-hidden="true" tabindex="-1"></a><span class="fu">## Analytes avec un numéro CAS fournis par le laboratoire</span></span>
@@ -1094,7 +1094,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-30"><a href="#cb14-30" aria-hidden="true" tabindex="-1"></a>Dans un premier temps, on charge les données sur les analytes (incluant le CAS) fournies par les laboratoires. Le fichier <span class="in">`analytes_consolidation_27032024`</span> est la fusion des onglets _Analyte Information_ des différentes base de données. </span>
 <span id="cb14-31"><a href="#cb14-31" aria-hidden="true" tabindex="-1"></a>On fusionne les données sur les analytes avec les mesures.</span>
 <span id="cb14-32"><a href="#cb14-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-35"><a href="#cb14-35" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-36"><a href="#cb14-36" aria-hidden="true" tabindex="-1"></a>analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb14-37"><a href="#cb14-37" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(Analyte, CASNumber) <span class="sc">|&gt;</span></span>
 <span id="cb14-38"><a href="#cb14-38" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span></span>
@@ -1128,7 +1128,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-66"><a href="#cb14-66" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-67"><a href="#cb14-67" aria-hidden="true" tabindex="-1"></a>La fonction <span class="in">`webchem::cts_convert()`</span> permet d'interroger plusieurs base de données de référence sur des composées chimiques et d'extraire des identifiants tels que le CAS à partir du nom d'un composé chimique. La fonction <span class="in">`webchem::cts_convert()`</span> s'interface sur le service https://cts.fiehnlab.ucdavis.edu/.</span>
 <span id="cb14-68"><a href="#cb14-68" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-71"><a href="#cb14-71" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-72"><a href="#cb14-72" aria-hidden="true" tabindex="-1"></a>cas_from_cts <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(contaminants_orphelins<span class="sc">$</span>variable, <span class="at">from =</span> <span class="st">"Chemical Name"</span>, <span class="at">to =</span> <span class="st">"CAS"</span>, <span class="at">match =</span> <span class="st">"first"</span>)</span>
 <span id="cb14-73"><a href="#cb14-73" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-74"><a href="#cb14-74" aria-hidden="true" tabindex="-1"></a>cas <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_df</span>(<span class="fu">names</span>(cas_from_cts), cas_from_cts, \(n, c){</span>
@@ -1156,7 +1156,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-96"><a href="#cb14-96" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-97"><a href="#cb14-97" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-98"><a href="#cb14-98" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-101"><a href="#cb14-101" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-102"><a href="#cb14-102" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">exists</span>(<span class="st">"csid"</span>)) csid <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"data/csid.rds"</span>)</span>
 <span id="cb14-103"><a href="#cb14-103" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-104"><a href="#cb14-104" aria-hidden="true" tabindex="-1"></a>cas_from_csid <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(csid<span class="sc">$</span>csid, <span class="at">from =</span> <span class="st">"ChemSpider"</span>, <span class="at">to =</span> <span class="st">"CAS"</span>, <span class="at">match =</span> <span class="st">"first"</span>)</span>
@@ -1174,7 +1174,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-116"><a href="#cb14-116" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-117"><a href="#cb14-117" aria-hidden="true" tabindex="-1"></a>Afin de permettre le retrait d'informations supplémentaires sur les composées chimiques, une des base de données d'intérêt est PubChem. À partir de cette base de données, on peut effectuer le retrait de certaines propriétés chimiques du composée telles que la masse moléculaire par exemple.</span>
 <span id="cb14-118"><a href="#cb14-118" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-121"><a href="#cb14-121" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-122"><a href="#cb14-122" aria-hidden="true" tabindex="-1"></a>pubcid <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(cas2<span class="sc">$</span>csid, <span class="at">from =</span> <span class="st">"ChemSpider"</span>, <span class="at">to =</span> <span class="st">"PubChem CID"</span>, <span class="at">match =</span> <span class="st">"first"</span>)</span>
 <span id="cb14-123"><a href="#cb14-123" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-124"><a href="#cb14-124" aria-hidden="true" tabindex="-1"></a>cas3 <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_df</span>(<span class="fu">names</span>(pubcid), pubcid, \(n, c){</span>
@@ -1194,7 +1194,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-138"><a href="#cb14-138" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-139"><a href="#cb14-139" aria-hidden="true" tabindex="-1"></a>On a enfin toutes les informations pour construire la table de référence des composées chimiques. On récupère les composées chimiques pour lesquelles le CAS est renseigné par le laboratoire.</span>
 <span id="cb14-140"><a href="#cb14-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-143"><a href="#cb14-143" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-144"><a href="#cb14-144" aria-hidden="true" tabindex="-1"></a>contaminants_with_cas <span class="ot">&lt;-</span> measurements <span class="sc">|&gt;</span> </span>
 <span id="cb14-145"><a href="#cb14-145" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(CASNumber)) <span class="sc">|&gt;</span></span>
 <span id="cb14-146"><a href="#cb14-146" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(key, variable, CASNumber) <span class="sc">|&gt;</span></span>
@@ -1205,7 +1205,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-151"><a href="#cb14-151" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-152"><a href="#cb14-152" aria-hidden="true" tabindex="-1"></a>On va chercher le PubChem ID et et le spiderChem ID pour les contaminants qui avaient déjà un CAS (fournit par le laboratoire).</span>
 <span id="cb14-153"><a href="#cb14-153" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-156"><a href="#cb14-156" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-157"><a href="#cb14-157" aria-hidden="true" tabindex="-1"></a>csid <span class="ot">&lt;-</span> webchem<span class="sc">::</span><span class="fu">cts_convert</span>(contaminants_with_cas<span class="sc">$</span>casid, <span class="at">from =</span> <span class="st">"CAS"</span>, <span class="at">to =</span> <span class="st">"ChemSpider"</span>, <span class="at">match =</span> <span class="st">"first"</span>)</span>
 <span id="cb14-158"><a href="#cb14-158" aria-hidden="true" tabindex="-1"></a>csid <span class="ot">&lt;-</span> purrr<span class="sc">::</span><span class="fu">map2_df</span>(<span class="fu">names</span>(csid), csid, \(n, c){</span>
 <span id="cb14-159"><a href="#cb14-159" aria-hidden="true" tabindex="-1"></a>        <span class="fu">return</span>(<span class="fu">data.frame</span>(<span class="at">casid =</span> n, <span class="at">csid =</span> c))</span>
@@ -1232,7 +1232,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-180"><a href="#cb14-180" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-181"><a href="#cb14-181" aria-hidden="true" tabindex="-1"></a>Validation: Est-ce que tous les contaminants dans la table de référence sont présent dans la table des mesures?</span>
 <span id="cb14-182"><a href="#cb14-182" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-185"><a href="#cb14-185" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-186"><a href="#cb14-186" aria-hidden="true" tabindex="-1"></a>keys <span class="ot">&lt;-</span> measurements<span class="sc">$</span>key <span class="sc">|&gt;</span></span>
 <span id="cb14-187"><a href="#cb14-187" aria-hidden="true" tabindex="-1"></a>    <span class="fu">unique</span>()</span>
 <span id="cb14-188"><a href="#cb14-188" aria-hidden="true" tabindex="-1"></a></span>
@@ -1247,7 +1247,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-197"><a href="#cb14-197" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-198"><a href="#cb14-198" aria-hidden="true" tabindex="-1"></a>On écrit le fichier pour pouvoir repasser manuellement dessus.</span>
 <span id="cb14-199"><a href="#cb14-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-202"><a href="#cb14-202" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-203"><a href="#cb14-203" aria-hidden="true" tabindex="-1"></a>writexl<span class="sc">::</span><span class="fu">write_xlsx</span>(<span class="fu">list</span>(contaminants, sources), <span class="at">path =</span> <span class="st">"data/tbl_contaminants_ref.xlsx"</span>)</span>
 <span id="cb14-204"><a href="#cb14-204" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb14-205"><a href="#cb14-205" aria-hidden="true" tabindex="-1"></a></span>
@@ -1255,7 +1255,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-207"><a href="#cb14-207" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb14-208"><a href="#cb14-208" aria-hidden="true" tabindex="-1"></a>On utilise les données contenues dans le fichier <span class="in">`Z:/07-Données BD/intermediate_files/analytes_consolidation_27032024.xlsx`</span> et qui contient les unités pour un certains nombres de composées. Ce tableau est une fusion des informations documentés dans l'onglet "Analytes informations" des bases de données COEI, HERG et GBHE.</span>
 <span id="cb14-209"><a href="#cb14-209" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb14-212"><a href="#cb14-212" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb14-213"><a href="#cb14-213" aria-hidden="true" tabindex="-1"></a>tbl_analytes <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_excel</span>(<span class="st">"data/tbl_contaminants_ref_manual.xlsx"</span>) <span class="sc">|&gt;</span></span>
 <span id="cb14-214"><a href="#cb14-214" aria-hidden="true" tabindex="-1"></a>    tidyr<span class="sc">::</span><span class="fu">separate_rows</span>(original_ids, <span class="at">sep =</span> <span class="st">";"</span>)</span>
 <span id="cb14-215"><a href="#cb14-215" aria-hidden="true" tabindex="-1"></a></span>
@@ -1270,7 +1270,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb14-224"><a href="#cb14-224" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">group_by_at</span>(dplyr<span class="sc">::</span><span class="fu">vars</span>(<span class="sc">-</span>original_ids, <span class="sc">-</span>Units)) <span class="sc">|&gt;</span></span>
 <span id="cb14-225"><a href="#cb14-225" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">summarize</span>(<span class="at">original_ids =</span> <span class="fu">paste</span>(original_ids, <span class="at">collapse =</span> <span class="st">";"</span>), <span class="at">Units =</span> <span class="fu">paste</span>(Units, <span class="at">collapse =</span> <span class="st">";"</span>))</span>
 <span id="cb14-226"><a href="#cb14-226" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>writexl<span class="sc">::</span><span class="fu">write_xlsx</span>(tbl_analytes, <span class="at">path =</span> <span class="st">"data/tbl_contaminants_ref2.xlsx"</span>)</span>
+<span id="cb14-227"><a href="#cb14-227" aria-hidden="true" tabindex="-1"></a>writexl<span class="sc">::</span><span class="fu">write_xlsx</span>(tbl_analytes, <span class="at">path =</span> <span class="st">"data/tbl_contaminants_ref.xlsx"</span>)</span>
 <span id="cb14-228"><a href="#cb14-228" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copier vers le presse-papier" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
