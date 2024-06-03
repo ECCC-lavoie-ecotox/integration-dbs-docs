@@ -90,7 +90,7 @@ samples <- toxbox::itgr_samples_info() |>
   ) |> dplyr::ungroup() |>
   dplyr::mutate(
     age = dplyr::na_if(age, ""),
-    tissue = dplyr::na_if(age, "")
+    tissue = dplyr::na_if(tissue, "")
   ) |> 
   # Nettoyage des sample IDs avec une dernière lettre
   dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "\\s\\w+$", "")) |>
@@ -163,18 +163,39 @@ DBI::dbWriteTable(con, "report", reports, append = TRUE)
 ### Table `lab_sample`
 
 ```{r}
-lab_samples <- samples |> 
+lab_sample <- toxbox::itgr_measurements() |>
+  dplyr::select(id_lab_sample = SampleID) |>
+  dplyr::mutate(note = NA) |>
+  dplyr::distinct() 
+```
+
+```{r}
+DBI::dbWriteTable(con, "lab_sample", lab_sample, append = TRUE)
+```
+
+### Table `lab_field_sample`
+
+```{r}
+lab_field_samples <- samples |> 
   dplyr::select(id_lab_sample, id_field_sample, id_report = id_source_report) |>
   dplyr::mutate(note = NA) |>
   dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
   tidyr::separate_longer_delim(id_lab_sample, delim = ";") |>
   tidyr::separate_longer_delim(id_report, delim = ";") |>
+  dplyr::distinct() 
+
+## Add missing lab_sample
+present_lab_sample_id <- DBI::dbGetQuery(con, "SELECT DISTINCT id_lab_sample FROM lab_sample;")
+
+missing_lab_sample <- dplyr::select(lab_field_samples, id_lab_sample) |>  
   dplyr::distinct() |>
-  dplyr::mutate()
+  dplyr::filter(!(id_lab_sample %in% present_lab_sample_id$id_lab_sample))
+
+DBI::dbWriteTable(con, "lab_sample", missing_lab_sample, append = TRUE)
 ```
 
 ```{r}
-DBI::dbWriteTable(con, "lab_sample", lab_samples, append = TRUE)
+DBI::dbWriteTable(con, "lab_field_sample", lab_field_samples, append = TRUE)
 ```
 
 ### Table `analytes`
@@ -238,22 +259,8 @@ measurements <- measurements |>
   dplyr::mutate(is_censored = toxbox::detect_cens(value)) |>
   dplyr::mutate(value = toxbox::remove_cens(value)) |>
   dplyr::filter(!is.na(value))
-
-## Add undocumented lab_sample_id in lab_sample tab
-undocumented_lab_sample_id <- measurements |> 
-  dplyr::filter(!id_lab_sample %in% lab_samples$id_lab_sample) |>
-  dplyr::pull(id_lab_sample) |> 
-  unique()
-
-undocumented_lab_sample <- data.frame(
-  id_lab_sample = undocumented_lab_sample_id, 
-  id_field_sample = NA,
-  id_report = NA,
-  note = NA
-)
-
-DBI::dbWriteTable(con, "lab_sample", undocumented_lab_sample, append = TRUE)
 ```
+
 
 ```{r}
 DBI::dbWriteTable(con, "lab_measurement", measurements, append = TRUE)

@@ -1,8 +1,10 @@
 PRAGMA foreign_keys = ON;
 
-DROP TABLE IF EXISTS lab_sample;
+DROP TABLE IF EXISTS lab_field_sample;
 
 DROP TABLE IF EXISTS lab_measurement;
+
+DROP TABLE IF EXISTS lab_sample;
 
 DROP TABLE IF EXISTS field_sample;
 
@@ -77,12 +79,20 @@ CREATE TABLE report -- Create table which contains project metadata description 
 CREATE TABLE lab_sample -- Create a new table which document all lab sample
 -- Lab sample could be one or multiple field sample pooled
 (
+    id_lab_sample TEXT NOT NULL PRIMARY KEY,
+    note TEXT
+);
+
+CREATE TABLE lab_field_sample -- Create a new table which document all lab sample
+-- Lab sample could be one or multiple field sample pooled
+(
     id_lab_sample TEXT NOT NULL,
     id_field_sample TEXT,
     id_report TEXT,
     note TEXT,
-    PRIMARY KEY (id_lab_sample, id_field_sample, id_report),
+    UNIQUE(id_lab_sample, id_field_sample, id_report) ON CONFLICT ROLLBACK,
     FOREIGN KEY(id_field_sample) REFERENCES field_sample(id_field_sample) ON UPDATE CASCADE,
+    FOREIGN KEY(id_lab_sample) REFERENCES lab_sample(id_lab_sample) ON UPDATE CASCADE,
     FOREIGN KEY(id_report) REFERENCES report(id_report) ON UPDATE CASCADE
 );
 
@@ -119,7 +129,7 @@ CREATE TABLE lab_measurement -- Create a new table which contains lab measuremen
     percent_lipid FLOAT,
     percent_moisture FLOAT,
     note TEXT,
-    PRIMARY KEY (id_lab_sample, id_analyte),
+    UNIQUE (id_lab_sample, id_analyte) ON CONFLICT ROLLBACK,
     FOREIGN KEY(id_lab_sample) REFERENCES lab_sample(id_lab_sample) ON UPDATE CASCADE,
     FOREIGN KEY(id_analyte) REFERENCES analyte(id_analyte) ON UPDATE CASCADE
 );
