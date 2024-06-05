@@ -10,7 +10,7 @@ execute:
  
 
 ```{r}
-con <- DBI::dbConnect(RSQLite::SQLite(), "C:/Users/VissaultS/Documents/git/integration-dbs-docs/contaminants-rlavoie-eccc.sqlite")
+con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
 db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
 purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
 ```
