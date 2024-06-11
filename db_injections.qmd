@@ -70,7 +70,7 @@ map_sites <- readRDS("data/tbl_sites.rds") |>
 
 options(dplyr.summarise.inform = FALSE)
 
-samples <- toxbox::itgr_samples_info() |>
+samples <- itgr_samples_info() |>
   dplyr::select(-received_date, -id_project, -source) |>
   dplyr::mutate(collection_date = as.character(collection_date)) |>
   # Ajout des identifiants de site consolidé
@@ -126,7 +126,7 @@ DBI::dbWriteTable(con, "field_sample", dplyr::select(samples, -id_lab_sample, -i
 ### Table `project`
 
 ```{r}
-project_samples <- toxbox::itgr_samples_info()[,c("id_project", "id_source_report")] |> dplyr::distinct()
+project_samples <- itgr_samples_info()[,c("id_project", "id_source_report")] |> dplyr::distinct()
 projects_reports <- readRDS("data/tbl_projects_reports.rds") 
 
 projects <- dplyr::select(projects_reports, id_project = project_id, 
@@ -163,7 +163,7 @@ DBI::dbWriteTable(con, "report", reports, append = TRUE)
 ### Table `lab_sample`
 
 ```{r}
-lab_sample <- toxbox::itgr_measurements() |>
+lab_sample <- itgr_measurements() |>
   dplyr::select(id_lab_sample = SampleID) |>
   dplyr::mutate(note = NA) |>
   dplyr::distinct() 
@@ -230,7 +230,7 @@ analytes_ref <- readRDS("data/tbl_analytes.rds") |>
   dplyr::select(original_ids, final_id) |>
   dplyr::distinct()
 
-measurements <- toxbox::itgr_measurements() |>
+measurements <- itgr_measurements() |>
     dplyr::mutate(
         key = stringr::str_replace(variable, "PCB-|PCB ", "PCB") |>
             janitor::make_clean_names(allow_dupes = TRUE, case = "none") |> tolower()

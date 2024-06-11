@@ -7,7 +7,7 @@ date: "2024-01-05"
 On compte le nombre de mesures pour chaque combinaison.
 
 ```{R, results = "asis"}
-contaminants <- toxbox::itgr_measurements()
+contaminants <- itgr_measurements()
 
 data_count <- contaminants |> 
     dplyr::mutate(Year = as.integer(Year)) |>
