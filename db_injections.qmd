@@ -6,11 +6,17 @@ execute:
   eval: false
 ---
 
-## Création de la base de données
- 
+## Chargements des scripts
 
 ```{r}
-con <- DBI::dbConnect(RSQLite::SQLite(), "Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite")
+source("src/itgr_measurements.R")
+source("src/itgr_samples_info.R")
+```
+
+## Création de la base de données 
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "./contaminants-rlavoie-eccc.sqlite")
 db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
 purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
 ```
@@ -147,16 +153,6 @@ reports <- projects_reports |>
   dplyr::select(id_project = project_id, id_report = report_id, report_date, report_access_path) |>
   dplyr::distinct() 
 
-undocumented_reports <- samples |> 
-  dplyr::select(id_report = id_source_report) |>
-  tidyr::separate_longer_delim(id_report, delim = ";") |>
-  dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
-  dplyr::filter(!id_report %in% reports$id_report) |>
-  dplyr::filter(!is.na(id_report)) |>
-  dplyr::distinct()
-
-reports <- reports |> dplyr::bind_rows(undocumented_reports)
-
 DBI::dbWriteTable(con, "report", reports, append = TRUE)
 ```
 
@@ -165,7 +161,6 @@ DBI::dbWriteTable(con, "report", reports, append = TRUE)
 ```{r}
 lab_sample <- itgr_measurements() |>
   dplyr::select(id_lab_sample = SampleID) |>
-  dplyr::mutate(note = NA) |>
   dplyr::distinct() 
 ```
 
@@ -177,11 +172,8 @@ DBI::dbWriteTable(con, "lab_sample", lab_sample, append = TRUE)
 
 ```{r}
 lab_field_samples <- samples |> 
-  dplyr::select(id_lab_sample, id_field_sample, id_report = id_source_report) |>
-  dplyr::mutate(note = NA) |>
-  dplyr::mutate(id_report = dplyr::na_if(id_report, "")) |>
+  dplyr::select(id_lab_sample, id_field_sample, -id_source_report) |>
   tidyr::separate_longer_delim(id_lab_sample, delim = ";") |>
-  tidyr::separate_longer_delim(id_report, delim = ";") |>
   dplyr::distinct() 
 
 ## Add missing lab_sample
@@ -212,9 +204,8 @@ analytes <- readRDS("data/tbl_analytes.rds") |>
     casid,
     pubcid,
     is_dry_weight,
-    isotope_on_amino_acid,
     on_isolated_lipid,
-    note = notes
+    note_analyte = notes
   )
 ```
 
