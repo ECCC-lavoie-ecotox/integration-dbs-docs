@@ -80,7 +80,7 @@ CREATE TABLE lab_sample -- Create a new table which document all lab sample
 -- Lab sample could be one or multiple field sample pooled
 (
     id_lab_sample TEXT NOT NULL PRIMARY KEY,
-    note TEXT
+    note_lab_sample TEXT
 );
 
 CREATE TABLE lab_field_sample -- Create a new table which document all lab sample
@@ -88,12 +88,10 @@ CREATE TABLE lab_field_sample -- Create a new table which document all lab sampl
 (
     id_lab_sample TEXT NOT NULL,
     id_field_sample TEXT,
-    id_report TEXT,
-    note TEXT,
-    UNIQUE(id_lab_sample, id_field_sample, id_report) ON CONFLICT ROLLBACK,
+    note_lab_field_sample TEXT,
+    UNIQUE(id_lab_sample, id_field_sample) ON CONFLICT ROLLBACK,
     FOREIGN KEY(id_field_sample) REFERENCES field_sample(id_field_sample) ON UPDATE CASCADE,
-    FOREIGN KEY(id_lab_sample) REFERENCES lab_sample(id_lab_sample) ON UPDATE CASCADE,
-    FOREIGN KEY(id_report) REFERENCES report(id_report) ON UPDATE CASCADE
+    FOREIGN KEY(id_lab_sample) REFERENCES lab_sample(id_lab_sample) ON UPDATE CASCADE
 );
 
 CREATE TABLE analyte -- Create table which contains analyte description provided by the lab
@@ -106,9 +104,8 @@ CREATE TABLE analyte -- Create table which contains analyte description provided
     family TEXT,
     casid TEXT,
     pubcid INTEGER,
-    note TEXT,
+    note_analyte TEXT,
     is_dry_weight BOOLEAN CHECK (is_dry_weight IN (0, 1)),
-    isotope_on_amino_acid BOOLEAN CHECK (isotope_on_amino_acid IN (0, 1)),
     on_isolated_lipid BOOLEAN CHECK (on_isolated_lipid IN (0, 1))
 );
 
@@ -116,7 +113,7 @@ CREATE TABLE itgr_analyte_source -- Create a new table which contains lab measur
 (
     id_analyte INTEGER PRIMARY KEY,
     source_file TEXT NOT NULL,
-    note TEXT,
+    note_itgr_analyte_source TEXT,
     FOREIGN KEY(id_analyte) REFERENCES analyte(id_analyte)
 );
 
@@ -128,7 +125,7 @@ CREATE TABLE lab_measurement -- Create a new table which contains lab measuremen
     is_censored BOOLEAN CHECK (is_censored IN (0, 1)) DEFAULT 0,
     percent_lipid FLOAT,
     percent_moisture FLOAT,
-    note TEXT,
+    note_lab_measurement TEXT,
     UNIQUE (id_lab_sample, id_analyte) ON CONFLICT ROLLBACK,
     FOREIGN KEY(id_lab_sample) REFERENCES lab_sample(id_lab_sample) ON UPDATE CASCADE,
     FOREIGN KEY(id_analyte) REFERENCES analyte(id_analyte) ON UPDATE CASCADE
@@ -139,7 +136,7 @@ CREATE TABLE itgr_measurement_source -- Create a new table which contains lab me
     id_analyte TEXT NOT NULL,
     id_lab_sample TEXT NOT NULL,
     source_file TEXT NOT NULL,
-    note TEXT,
+    note_itgr_measurement_source TEXT,
     PRIMARY KEY (id_lab_sample, id_analyte),
     FOREIGN KEY(id_lab_sample, id_analyte) REFERENCES lab_measurement(id_lab_sample, id_analyte) ON UPDATE CASCADE
 );
