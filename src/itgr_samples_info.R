@@ -12,7 +12,7 @@ itgr_samples_info <- function(){
     file.copy(path, tmp_file, overwrite = TRUE)
 
     GBHE_field_lab_sample <- readxl::read_excel(tmp_file, "Sample Info") |>
-        tidyr::pivot_longer(`Pooled from`:"...35", values_to = "id_field_sample", values_drop_na = TRUE) |>
+        tidyr::pivot_longer(`Pooled from`:"...35", values_to = "id_field_sample") |>
         dplyr::select(
             id_field_sample,
             id_site = Location,
@@ -51,7 +51,7 @@ itgr_samples_info <- function(){
     path <- "Z:/01-Projets et suivis/PASL/GoelandArgenté/Base de donnees HERG.xlsx"
     file.copy(path, tmp_file, overwrite = TRUE)
     HERG_field_lab_sample <- readxl::read_excel(tmp_file, "Sample Info") |>
-        tidyr::pivot_longer(`Pooled from`:"...19", values_to = "pool_sample", values_drop_na = TRUE) |>
+        tidyr::pivot_longer(`Pooled from`:"...20", values_to = "pool_sample") |>
         dplyr::mutate(ClientID = ifelse(stringr::str_detect(tolower(ClientID), "pool"), pool_sample, ClientID)) |>
         dplyr::select(
             id_field_sample = ClientID,
