@@ -12,7 +12,7 @@ Nous désirons consolider la nomenclature des analytes. On peut observer plusieu
 On charge les données intégrées depuis le package `toxbox`. Les données ne sont pas entreposées dans le package, la function `itgr_measurements()` permet de lire les fichiers Excels entreposées sur le disque réseau `Z:` et les fusionne dans un seul `data.frame`. Il faut pour cela que le VPN soit ouvert, si vous n'êtes pas directement sur le réseau d'environnement canada.
 
 ```{r}
-devtools::install_github("ECCC-lavoie-ecotox/toxbox")
+source("src/itgr_measurements.R")
 ```
 
 ```{r}

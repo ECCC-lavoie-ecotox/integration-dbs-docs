@@ -9,6 +9,7 @@ date: "2024-01-05"
 On cherche à obtenir une liste exhaustive des contaminants mesurés chez quatre espèces impliquées dans le PASL.
 
 ```{r}
+source("src/itgr_measurements.R")
 contaminants <- itgr_measurements()
 ```
 

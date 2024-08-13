@@ -15,6 +15,7 @@ sites_tp20_dbs <- readxl::read_excel("Z:/07-Données BD/intermediate_files/sites
 On commence par extraire la liste des sites identifiés dans toutes les bases de données.
 
 ```{r}
+source("src/itgr_measurements.R")
 sites <- itgr_measurements() |>
     dplyr::select(location = Location, source) |>
     dplyr::distinct()
