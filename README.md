@@ -1,6 +1,6 @@
 # Contaminants integration docs
 
-[FR - Access this documentation](https://eccc-lavoie-ecotox.github.io/integration-dbs-docs/)
+[Access this documentation](https://eccc-lavoie-ecotox.github.io/integration-dbs-docs/)
 
 This documentation has been build with Quarto. If you're not familiar with this framework, have a look at this tutorial with RStudio: https://quarto.org/docs/get-started/hello/rstudio.html.
 
