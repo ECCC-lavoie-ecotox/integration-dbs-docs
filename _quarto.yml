@@ -18,9 +18,8 @@ website:
         contents:
           - db_schema.qmd
           - db_injections_example.qmd
-          - db_feed.qmd
           - db_query.qmd
-      - section: "RLavoie - Data integration"
+      - section: "Data integration [FR]"
         contents:
           - itgr_tbl_projects.qmd
           - itgr_tbl_sites.qmd

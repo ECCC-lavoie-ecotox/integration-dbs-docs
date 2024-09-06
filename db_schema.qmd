@@ -1,5 +1,5 @@
 ---
-title: "Structure"
+title: "Database structure"
 author: "Steve Vissault"
 date: "2024-03-28"
 ---
