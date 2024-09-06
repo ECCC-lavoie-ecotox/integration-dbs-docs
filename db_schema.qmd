@@ -10,15 +10,28 @@ date: "2024-03-28"
 
 ## Database creation
 
+Install the following dependancies. Packages `DBI` and `RSQlite` are R packages proving functions to connect and execute SQL instructions such as table creation. 
+
+```{R}
+install.packages(c("RSQLite", "DBI"))
+```
+
+We first create or connect to an existing sqlite database. 
+
 ```{r}
 con <- DBI::dbConnect(RSQLite::SQLite(), "./contaminants-rlavoie-eccc.sqlite")
+```
+
+We then send all the SQL instructions stored in `sql/db_create_ddl.sql` file with `DBI::dbExecute()`.
+
+```{R}
 db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
 purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
 ```
 
 ## SQL script
 
-Voici la déclaration SQL de la base de données:
+Here is the content of the SQL instructions file:
 
 ```sql
 {{< include sql/db_create_ddl.sql >}}
