@@ -24,7 +24,7 @@ All the data intended to populate the tables was consolidated during the previou
 
 This document allows the import of laboratory measurements for the MET-Thg-23-19 report.
 
-# Database backup
+## Database backup
 
 The first step is to ensure that we can restore the database if the import introduces errors into the database.
 
@@ -40,14 +40,14 @@ db_bak <- stringr::str_replace(
 file.copy(db_path, db_bak)
 ```
 
-# Loading library dependancy
+## Loading library dependancy
 
 ```{r}
 if(!require(devtools)) install.packages("devtools")
 if(!require(toxbox)) devtools::install_github("ECCC-lavoie-ecotox/toxbox.git")
 ```
 
-# Loading the data report within the R environment
+## Loading the data report within the R environment
 
 ```{r}
 target_path_lab_results <- "Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"
@@ -59,15 +59,15 @@ sampleInfoLab <- readxl::read_xlsx(target_path_lab_results, "SampleInfo")
 measurementsLab <- readxl::read_xlsx(target_path_lab_results, "SampleData") 
 ```
 
-# Initialize the database connection
+## Initialize the database connection
 
 ```{r}
 con <- toxbox::init_con()
 ```
 
-# Data injection
+## Data injection
 
-## Report and project metadata importation
+### Report and project metadata importation
 
 ```{r}
 report <- data.frame(
@@ -89,9 +89,9 @@ It already exists in the database. Therefore, we can import the report metadata 
 DBI::dbWriteTable(con, "report", report, append = TRUE)
 ```
 
-## Data preparation
+### Data preparation
 
-### Gather field sample informations
+#### Gather field sample informations
 
 ```{r}
 field_sample <- sampleInfoLab |> dplyr::select(
@@ -105,7 +105,7 @@ field_sample <- sampleInfoLab |> dplyr::select(
 )
 ```
 
-### Gather lab meaurements
+#### Gather lab meaurements
 
 ```{r}
 measurements <- measurementsLab |> dplyr::select(
@@ -118,7 +118,7 @@ measurements <- measurementsLab |> dplyr::select(
 )
 ```
 
-## Site importation
+### Site importation
 
 We must establish correspondance with existing sites in database and create the ones that are not already present in the database.
 
@@ -169,7 +169,7 @@ field_sample <- field_sample |>
     )
 ``` 
 
-# Species importation 
+## Species importation 
 
 We list the species, starting with those present in the laboratory results.
 
@@ -222,13 +222,13 @@ field_sample <- field_sample |> dplyr::mutate(
 ) |> dplyr::filter(!is.na(id_species))
 ```
 
-# Lab measurements injection
+## Lab measurements injection
 
 The previous steps have updated the reference tables for sites and species.
 
 We can now proceed to import the data on samples and measurements.
 
-## Field samples 
+### Field samples 
 
 ```{r}
 dplyr::select(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) |> 
@@ -236,7 +236,7 @@ dplyr::select(field_sample, id_field_sample, collection_date, id_site, id_specie
     (\(data) DBI::dbWriteTable(con, "field_sample", data, append = TRUE))()
 ```
 
-## Lab samples
+### Lab samples
 
 ```{R}
 dplyr::select(field_sample, id_lab_sample) |> 
@@ -244,7 +244,7 @@ dplyr::select(field_sample, id_lab_sample) |>
     (\(data) DBI::dbWriteTable(con, "lab_sample", data, append = TRUE))()
 ```
 
-## Lab field samples
+### Lab field samples
 
 This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).
 
@@ -254,7 +254,7 @@ dplyr::select(field_sample, id_lab_sample, id_field_sample) |>
     (\(data) DBI::dbWriteTable(con, "lab_field_sample", data, append = TRUE))()
 ```
 
-## Lab measurements
+### Lab measurements
 
 Finaly, all the parent table (`field_sample`, `lab_sample`, `lab_field_sample`) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.
 
