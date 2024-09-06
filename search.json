@@ -59,7 +59,7 @@
     "href": "db_schema.html#database-creation",
     "title": "Database structure",
     "section": "Database creation",
-    "text": "Database creation\nInstall the following dependancies. Packages DBI and RSQlite are R packages proving functions to connect and execute SQL instructions such as table creation.\n\ninstall.packages(c(\"RSQLite\", \"DBI\"))\n\npackage 'RSQLite' successfully unpacked and MD5 sums checked\n\n\nWarning: cannot remove prior installation of package 'RSQLite'\n\n\nWarning in file.copy(savedcopy, lib, recursive = TRUE): problem copying\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\00LOCK\\RSQLite\\libs\\x64\\RSQLite.dll\nto\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\RSQLite\\libs\\x64\\RSQLite.dll:\nPermission denied\n\n\nWarning: restored 'RSQLite'\n\n\npackage 'DBI' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\VissaultS\\AppData\\Local\\Temp\\Rtmpqqu3oc\\downloaded_packages\n\n\nWe first create or connect to an existing sqlite database.\n\ncon &lt;- DBI::dbConnect(RSQLite::SQLite(), \"./contaminants-rlavoie-eccc.sqlite\")\n\nWe then send all the SQL instructions stored in sql/db_create_ddl.sql file with DBI::dbExecute().\n\ndb_ddl_sql &lt;- strsplit(paste(readLines(\"sql/db_create_ddl.sql\"), collapse = \"\\n\"), \";\\n\")[[1]]\npurrr::walk(db_ddl_sql, \\(x) DBI::dbExecute(con, x))",
+    "text": "Database creation\nInstall the following dependancies. Packages DBI and RSQlite are R packages proving functions to connect and execute SQL instructions such as table creation.\n\ninstall.packages(c(\"RSQLite\", \"DBI\"))\n\nWe first create or connect to an existing sqlite database.\n\ncon &lt;- DBI::dbConnect(RSQLite::SQLite(), \"./contaminants-rlavoie-eccc.sqlite\")\n\nWe then send all the SQL instructions stored in sql/db_create_ddl.sql file with DBI::dbExecute().\n\ndb_ddl_sql &lt;- strsplit(paste(readLines(\"sql/db_create_ddl.sql\"), collapse = \"\\n\"), \";\\n\")[[1]]\npurrr::walk(db_ddl_sql, \\(x) DBI::dbExecute(con, x))",
     "crumbs": [
       "Database",
       "Database structure"
@@ -99,77 +99,77 @@
     ]
   },
   {
-    "objectID": "db_injections_example.html#report-and-project-metadata-importation",
-    "href": "db_injections_example.html#report-and-project-metadata-importation",
+    "objectID": "db_injections_example.html#database-backup",
+    "href": "db_injections_example.html#database-backup",
     "title": "Lab results importation example",
-    "section": "Report and project metadata importation",
-    "text": "Report and project metadata importation\n\nreport &lt;- data.frame(\n    id_report = \"MET-Thg-23-19\",\n    id_project = \"RALA01-2023\",\n    report_date = \"2024-07-31\",\n    report_access_path = stringr::str_replace(\"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx\", \"À entrer dans la BD\", \"Saisie dans la BD\")\n)\n\nWe first validate if the project ID already exists in the database.\n\ntoxbox::search_tbl(con, \"project\", id_project = \"RALA01-2023\")\n\nIt already exists in the database. Therefore, we can import the report metadata that will be attached to this project.\n\nDBI::dbWriteTable(con, \"report\", report, append = TRUE)",
+    "section": "Database backup",
+    "text": "Database backup\nThe first step is to ensure that we can restore the database if the import introduces errors into the database.\n\ndb_path &lt;- \"Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite\"\n\ndb_bak &lt;- stringr::str_replace(\n    db_path, \n    pattern = \".sqlite\", \n    replacement = glue::glue(\"-{format(Sys.Date(), '%Y%m%d')}.bak.sqlite\")\n)\n\nfile.copy(db_path, db_bak)",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#data-preparation",
-    "href": "db_injections_example.html#data-preparation",
+    "objectID": "db_injections_example.html#loading-library-dependancy",
+    "href": "db_injections_example.html#loading-library-dependancy",
     "title": "Lab results importation example",
-    "section": "Data preparation",
-    "text": "Data preparation\n\nGather field sample informations\n\nfield_sample &lt;- sampleInfoLab |&gt; dplyr::select(\n    id_lab_sample = SampleID,\n    id_field_sample = ClientID,\n    collection_date = CollectionDate,\n    id_site = Location,\n    id_species = Species,\n    tissue = Tissue,\n    age = Age\n)\n\n\n\nGather lab meaurements\n\nmeasurements &lt;- measurementsLab |&gt; dplyr::select(\n    id_lab_sample = SampleID,\n    id_field_sample = ClientID,\n    pmoisture = `% Moisture`,\n    value = `Total Mercury (µg/g (dry))`\n) |&gt; dplyr::mutate(\n    id_analyte = \"thg_dw\"\n)",
+    "section": "Loading library dependancy",
+    "text": "Loading library dependancy\n\nif(!require(devtools)) install.packages(\"devtools\")\nif(!require(toxbox)) devtools::install_github(\"ECCC-lavoie-ecotox/toxbox.git\")",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#site-importation",
-    "href": "db_injections_example.html#site-importation",
+    "objectID": "db_injections_example.html#loading-the-data-report-within-the-r-environment",
+    "href": "db_injections_example.html#loading-the-data-report-within-the-r-environment",
     "title": "Lab results importation example",
-    "section": "Site importation",
-    "text": "Site importation\nWe must establish correspondance with existing sites in database and create the ones that are not already present in the database.\nFirst, we isolate the sites present in the results sent by the laboratory.\n\n(sitesLab &lt;- dplyr::distinct(sampleInfoLab, Location, Latitude, Longitude))\n\nWe search the database for the existing sites using keywords.\n\nbetchouanes_site_db &lt;- toxbox::search_tbl(con, \"sites\", id_site = \"%betchouanes%\")\nmingan_site_db &lt;- toxbox::search_tbl(con, \"sites\", id_site = \"%mingan%\")\n\nAfter searching the database for sites, we can see that the Betchouanes site is already recorded in the database, but the Longue-Pointe-de-Mingan site is not. Therefore, we add this site.\n\nadd_site &lt;- sitesLab |&gt; \n    dplyr::filter(Location == \"Longue-Pointe-de-Mingan\") |&gt; \n    dplyr::select(\n        id_site = Location,\n        lat = Latitude,\n        lon = Longitude\n    ) |&gt;\n    dplyr::mutate(\n        province = 'Québec',\n        srid = 4326\n    )\n\nDBI::dbWriteTable(con, \"sites\", add_site, append = TRUE)\n\nWe verify that the site has indeed been added to the database.\n\ntoxbox::search_tbl(con, \"sites\", id_site = \"Longue-Pointe-de-Mingan\")\n\n\nfield_sample &lt;- field_sample |&gt;\n    dplyr::mutate(\n        id_site = dplyr::case_when(\n            stringr::str_detect(id_site, \"Ile a Calculot des Betchouanes\") == TRUE ~ betchouanes_site_db$id_site,\n            .default = id_site\n        )\n    )",
+    "section": "Loading the data report within the R environment",
+    "text": "Loading the data report within the R environment\n\ntarget_path_lab_results &lt;- \"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx\"\n\n# Informations sur les échantillons\nsampleInfoLab &lt;- readxl::read_xlsx(target_path_lab_results, \"SampleInfo\")\n\n# Informations sur les mesures\nmeasurementsLab &lt;- readxl::read_xlsx(target_path_lab_results, \"SampleData\")",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#field-samples",
-    "href": "db_injections_example.html#field-samples",
+    "objectID": "db_injections_example.html#initialize-the-database-connection",
+    "href": "db_injections_example.html#initialize-the-database-connection",
     "title": "Lab results importation example",
-    "section": "Field samples",
-    "text": "Field samples\n\ndplyr::select(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"field_sample\", data, append = TRUE))()",
+    "section": "Initialize the database connection",
+    "text": "Initialize the database connection\n\ncon &lt;- toxbox::init_con()",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#lab-samples",
-    "href": "db_injections_example.html#lab-samples",
+    "objectID": "db_injections_example.html#data-injection",
+    "href": "db_injections_example.html#data-injection",
     "title": "Lab results importation example",
-    "section": "Lab samples",
-    "text": "Lab samples\n\ndplyr::select(field_sample, id_lab_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_sample\", data, append = TRUE))()",
+    "section": "Data injection",
+    "text": "Data injection\n\nReport and project metadata importation\n\nreport &lt;- data.frame(\n    id_report = \"MET-Thg-23-19\",\n    id_project = \"RALA01-2023\",\n    report_date = \"2024-07-31\",\n    report_access_path = stringr::str_replace(\"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx\", \"À entrer dans la BD\", \"Saisie dans la BD\")\n)\n\nWe first validate if the project ID already exists in the database.\n\ntoxbox::search_tbl(con, \"project\", id_project = \"RALA01-2023\")\n\nIt already exists in the database. Therefore, we can import the report metadata that will be attached to this project.\n\nDBI::dbWriteTable(con, \"report\", report, append = TRUE)\n\n\n\nData preparation\n\nGather field sample informations\n\nfield_sample &lt;- sampleInfoLab |&gt; dplyr::select(\n    id_lab_sample = SampleID,\n    id_field_sample = ClientID,\n    collection_date = CollectionDate,\n    id_site = Location,\n    id_species = Species,\n    tissue = Tissue,\n    age = Age\n)\n\n\n\nGather lab meaurements\n\nmeasurements &lt;- measurementsLab |&gt; dplyr::select(\n    id_lab_sample = SampleID,\n    id_field_sample = ClientID,\n    pmoisture = `% Moisture`,\n    value = `Total Mercury (µg/g (dry))`\n) |&gt; dplyr::mutate(\n    id_analyte = \"thg_dw\"\n)\n\n\n\n\nSite importation\nWe must establish correspondance with existing sites in database and create the ones that are not already present in the database.\nFirst, we isolate the sites present in the results sent by the laboratory.\n\n(sitesLab &lt;- dplyr::distinct(sampleInfoLab, Location, Latitude, Longitude))\n\nWe search the database for the existing sites using keywords.\n\nbetchouanes_site_db &lt;- toxbox::search_tbl(con, \"sites\", id_site = \"%betchouanes%\")\nmingan_site_db &lt;- toxbox::search_tbl(con, \"sites\", id_site = \"%mingan%\")\n\nAfter searching the database for sites, we can see that the Betchouanes site is already recorded in the database, but the Longue-Pointe-de-Mingan site is not. Therefore, we add this site.\n\nadd_site &lt;- sitesLab |&gt; \n    dplyr::filter(Location == \"Longue-Pointe-de-Mingan\") |&gt; \n    dplyr::select(\n        id_site = Location,\n        lat = Latitude,\n        lon = Longitude\n    ) |&gt;\n    dplyr::mutate(\n        province = 'Québec',\n        srid = 4326\n    )\n\nDBI::dbWriteTable(con, \"sites\", add_site, append = TRUE)\n\nWe verify that the site has indeed been added to the database.\n\ntoxbox::search_tbl(con, \"sites\", id_site = \"Longue-Pointe-de-Mingan\")\n\n\nfield_sample &lt;- field_sample |&gt;\n    dplyr::mutate(\n        id_site = dplyr::case_when(\n            stringr::str_detect(id_site, \"Ile a Calculot des Betchouanes\") == TRUE ~ betchouanes_site_db$id_site,\n            .default = id_site\n        )\n    )",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#lab-field-samples",
-    "href": "db_injections_example.html#lab-field-samples",
+    "objectID": "db_injections_example.html#species-importation",
+    "href": "db_injections_example.html#species-importation",
     "title": "Lab results importation example",
-    "section": "Lab field samples",
-    "text": "Lab field samples\nThis table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).\n\ndplyr::select(field_sample, id_lab_sample, id_field_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_field_sample\", data, append = TRUE))()",
+    "section": "Species importation",
+    "text": "Species importation\nWe list the species, starting with those present in the laboratory results.\n\nunique(field_sample$id_species)\n\nWe compare it with the list of species present in the database.\n\nDBI::dbReadTable(con, \"species\")\n\nWe declare a data.frame with the missing species\n\nnew_species &lt;- tibble::tribble(\n   ~org_species, ~id_species, ~organism, ~genus, ~species, ~vernacular_fr, ~vernacular_en,\n  \"Alose sp.\", \"SHSP\", \"Fish\", \"Alosa\",   \"Alosa sp.\", \"Alose\", \"Shad\",\n  \"Gadidae sp.\", \"COSP\", \"Fish\", \"Gadidae\", \"Gadidae sp.\", \"Morue\", \"Cod\",\n  \"Lompenie tachete\", \"DASH\", \"Fish\", \"Gadidae\", \"Leptoclinus maculatus\", \"Lompénie tachetée\", \"Daubed shanny\"\n)\n\nWe add those missing species in the database\n\nDBI::dbWriteTable(con, \"species\", dplyr::select(new_species, -org_species)\n, append = TRUE)\n\nWe visually confirm that the new species are indeed present in the database.\n\nDBI::dbReadTable(con, \"species\")\n\nWe match the species codes from the laboratory report with those in the database.\n\nfield_sample &lt;- field_sample |&gt; dplyr::mutate(\n    id_species = dplyr::case_when(\n        id_species == \"Alose sp.\" ~ \"SHSP\",\n        id_species == \"Capelan\" ~ \"CAPE\",\n        id_species == \"Gadidae sp.\" ~ \"COSP\",\n        id_species == \"Lancon\" ~ \"SAND\",\n        id_species == \"Lompenie tachete\" ~ \"DASH\",\n        .default = NA\n    )\n) |&gt; dplyr::filter(!is.na(id_species))",
     "crumbs": [
       "Database",
       "Lab results importation example"
     ]
   },
   {
-    "objectID": "db_injections_example.html#lab-measurements",
-    "href": "db_injections_example.html#lab-measurements",
+    "objectID": "db_injections_example.html#lab-measurements-injection",
+    "href": "db_injections_example.html#lab-measurements-injection",
     "title": "Lab results importation example",
-    "section": "Lab measurements",
-    "text": "Lab measurements\nFinaly, all the parent table (field_sample, lab_sample, lab_field_sample) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.\n\n# Set method detection limit\nMDL &lt;- 0.0001\n\ndplyr::select(measurements, id_lab_sample, id_analyte, value, percent_moisture = pmoisture) |&gt; \n    # The line below assess if the value is censored or not\n    dplyr::mutate(is_censored = ifelse(value &gt; MDL, 0, 1)) |&gt;\n    dplyr::mutate(id_report = report$id_report) |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_measurement\", data, append = TRUE))()",
+    "section": "Lab measurements injection",
+    "text": "Lab measurements injection\nThe previous steps have updated the reference tables for sites and species.\nWe can now proceed to import the data on samples and measurements.\n\nField samples\n\ndplyr::select(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"field_sample\", data, append = TRUE))()\n\n\n\nLab samples\n\ndplyr::select(field_sample, id_lab_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_sample\", data, append = TRUE))()\n\n\n\nLab field samples\nThis table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).\n\ndplyr::select(field_sample, id_lab_sample, id_field_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_field_sample\", data, append = TRUE))()\n\n\n\nLab measurements\nFinaly, all the parent table (field_sample, lab_sample, lab_field_sample) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.\n\n# Set method detection limit\nMDL &lt;- 0.0001\n\ndplyr::select(measurements, id_lab_sample, id_analyte, value, percent_moisture = pmoisture) |&gt; \n    # The line below assess if the value is censored or not\n    dplyr::mutate(is_censored = ifelse(value &gt; MDL, 0, 1)) |&gt;\n    dplyr::mutate(id_report = report$id_report) |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_measurement\", data, append = TRUE))()",
     "crumbs": [
       "Database",
       "Lab results importation example"

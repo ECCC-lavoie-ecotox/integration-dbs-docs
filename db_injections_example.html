@@ -271,11 +271,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#data-injection" id="toc-data-injection" class="nav-link" data-scroll-target="#data-injection">Data injection</a>
   <ul class="collapse">
   <li><a href="#report-and-project-metadata-importation" id="toc-report-and-project-metadata-importation" class="nav-link" data-scroll-target="#report-and-project-metadata-importation">Report and project metadata importation</a></li>
-  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data preparation</a>
-  <ul class="collapse">
-  <li><a href="#gather-field-sample-informations" id="toc-gather-field-sample-informations" class="nav-link" data-scroll-target="#gather-field-sample-informations">Gather field sample informations</a></li>
-  <li><a href="#gather-lab-meaurements" id="toc-gather-lab-meaurements" class="nav-link" data-scroll-target="#gather-lab-meaurements">Gather lab meaurements</a></li>
-  </ul></li>
+  <li><a href="#data-preparation" id="toc-data-preparation" class="nav-link" data-scroll-target="#data-preparation">Data preparation</a></li>
   <li><a href="#site-importation" id="toc-site-importation" class="nav-link" data-scroll-target="#site-importation">Site importation</a></li>
   </ul></li>
   <li><a href="#species-importation" id="toc-species-importation" class="nav-link" data-scroll-target="#species-importation">Species importation</a></li>
@@ -339,8 +335,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>All the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.</p>
 <p>This document allows the import of laboratory measurements for the MET-Thg-23-19 report.</p>
 </section>
-<section id="database-backup" class="level1">
-<h1>Database backup</h1>
+<section id="database-backup" class="level2">
+<h2 class="anchored" data-anchor-id="database-backup">Database backup</h2>
 <p>The first step is to ensure that we can restore the database if the import introduces errors into the database.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>db_path <span class="ot">&lt;-</span> <span class="st">"Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite"</span></span>
@@ -354,15 +350,15 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(db_path, db_bak)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="loading-library-dependancy" class="level1">
-<h1>Loading library dependancy</h1>
+<section id="loading-library-dependancy" class="level2">
+<h2 class="anchored" data-anchor-id="loading-library-dependancy">Loading library dependancy</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(devtools)) <span class="fu">install.packages</span>(<span class="st">"devtools"</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(toxbox)) devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox.git"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="loading-the-data-report-within-the-r-environment" class="level1">
-<h1>Loading the data report within the R environment</h1>
+<section id="loading-the-data-report-within-the-r-environment" class="level2">
+<h2 class="anchored" data-anchor-id="loading-the-data-report-within-the-r-environment">Loading the data report within the R environment</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>target_path_lab_results <span class="ot">&lt;-</span> <span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span></span>
 <span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
@@ -373,16 +369,16 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>measurementsLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleData"</span>) </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="initialize-the-database-connection" class="level1">
-<h1>Initialize the database connection</h1>
+<section id="initialize-the-database-connection" class="level2">
+<h2 class="anchored" data-anchor-id="initialize-the-database-connection">Initialize the database connection</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">init_con</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="data-injection" class="level1">
-<h1>Data injection</h1>
-<section id="report-and-project-metadata-importation" class="level2">
-<h2 class="anchored" data-anchor-id="report-and-project-metadata-importation">Report and project metadata importation</h2>
+<section id="data-injection" class="level2">
+<h2 class="anchored" data-anchor-id="data-injection">Data injection</h2>
+<section id="report-and-project-metadata-importation" class="level3">
+<h3 class="anchored" data-anchor-id="report-and-project-metadata-importation">Report and project metadata importation</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
 <span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_report =</span> <span class="st">"MET-Thg-23-19"</span>,</span>
@@ -400,10 +396,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"report"</span>, report, <span class="at">append =</span> <span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="data-preparation" class="level2">
-<h2 class="anchored" data-anchor-id="data-preparation">Data preparation</h2>
-<section id="gather-field-sample-informations" class="level3">
-<h3 class="anchored" data-anchor-id="gather-field-sample-informations">Gather field sample informations</h3>
+<section id="data-preparation" class="level3">
+<h3 class="anchored" data-anchor-id="data-preparation">Data preparation</h3>
+<section id="gather-field-sample-informations" class="level4">
+<h4 class="anchored" data-anchor-id="gather-field-sample-informations">Gather field sample informations</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> sampleInfoLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
 <span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
@@ -416,8 +412,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="gather-lab-meaurements" class="level3">
-<h3 class="anchored" data-anchor-id="gather-lab-meaurements">Gather lab meaurements</h3>
+<section id="gather-lab-meaurements" class="level4">
+<h4 class="anchored" data-anchor-id="gather-lab-meaurements">Gather lab meaurements</h4>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurementsLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
 <span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
@@ -430,8 +426,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="site-importation" class="level2">
-<h2 class="anchored" data-anchor-id="site-importation">Site importation</h2>
+<section id="site-importation" class="level3">
+<h3 class="anchored" data-anchor-id="site-importation">Site importation</h3>
 <p>We must establish correspondance with existing sites in database and create the ones that are not already present in the database.</p>
 <p>First, we isolate the sites present in the results sent by the laboratory.</p>
 <div class="cell">
@@ -473,8 +469,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </section>
 </section>
-<section id="species-importation" class="level1">
-<h1>Species importation</h1>
+<section id="species-importation" class="level2">
+<h2 class="anchored" data-anchor-id="species-importation">Species importation</h2>
 <p>We list the species, starting with those present in the laboratory results.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(field_sample<span class="sc">$</span>id_species)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -515,28 +511,28 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(id_species))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="lab-measurements-injection" class="level1">
-<h1>Lab measurements injection</h1>
+<section id="lab-measurements-injection" class="level2">
+<h2 class="anchored" data-anchor-id="lab-measurements-injection">Lab measurements injection</h2>
 <p>The previous steps have updated the reference tables for sites and species.</p>
 <p>We can now proceed to import the data on samples and measurements.</p>
-<section id="field-samples" class="level2">
-<h2 class="anchored" data-anchor-id="field-samples">Field samples</h2>
+<section id="field-samples" class="level3">
+<h3 class="anchored" data-anchor-id="field-samples">Field samples</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) <span class="sc">|&gt;</span> </span>
 <span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="lab-samples" class="level2">
-<h2 class="anchored" data-anchor-id="lab-samples">Lab samples</h2>
+<section id="lab-samples" class="level3">
+<h3 class="anchored" data-anchor-id="lab-samples">Lab samples</h3>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample) <span class="sc">|&gt;</span> </span>
 <span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="lab-field-samples" class="level2">
-<h2 class="anchored" data-anchor-id="lab-field-samples">Lab field samples</h2>
+<section id="lab-field-samples" class="level3">
+<h3 class="anchored" data-anchor-id="lab-field-samples">Lab field samples</h3>
 <p>This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample, id_field_sample) <span class="sc">|&gt;</span> </span>
@@ -544,8 +540,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
-<section id="lab-measurements" class="level2">
-<h2 class="anchored" data-anchor-id="lab-measurements">Lab measurements</h2>
+<section id="lab-measurements" class="level3">
+<h3 class="anchored" data-anchor-id="lab-measurements">Lab measurements</h3>
 <p>Finaly, all the parent table (<code>field_sample</code>, <code>lab_sample</code>, <code>lab_field_sample</code>) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Set method detection limit</span></span>
@@ -1173,7 +1169,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>This document allows the import of laboratory measurements for the MET-Thg-23-19 report.</span>
 <span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu"># Database backup</span></span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu">## Database backup</span></span>
 <span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>The first step is to ensure that we can restore the database if the import introduces errors into the database.</span>
 <span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
@@ -1189,14 +1185,14 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(db_path, db_bak)</span>
 <span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading library dependancy</span></span>
+<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="fu">## Loading library dependancy</span></span>
 <span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(devtools)) <span class="fu">install.packages</span>(<span class="st">"devtools"</span>)</span>
 <span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(toxbox)) devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox.git"</span>)</span>
 <span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading the data report within the R environment</span></span>
+<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a><span class="fu">## Loading the data report within the R environment</span></span>
 <span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a>target_path_lab_results <span class="ot">&lt;-</span> <span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span></span>
@@ -1208,15 +1204,15 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a>measurementsLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleData"</span>) </span>
 <span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a><span class="fu"># Initialize the database connection</span></span>
+<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a><span class="fu">## Initialize the database connection</span></span>
 <span id="cb25-69"><a href="#cb25-69" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-72"><a href="#cb25-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-73"><a href="#cb25-73" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">init_con</span>()</span>
 <span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data injection</span></span>
+<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data injection</span></span>
 <span id="cb25-77"><a href="#cb25-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Report and project metadata importation</span></span>
+<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a><span class="fu">### Report and project metadata importation</span></span>
 <span id="cb25-79"><a href="#cb25-79" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-82"><a href="#cb25-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-83"><a href="#cb25-83" aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
@@ -1238,9 +1234,9 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-103"><a href="#cb25-103" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"report"</span>, report, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb25-104"><a href="#cb25-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-105"><a href="#cb25-105" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data preparation</span></span>
+<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="fu">### Data preparation</span></span>
 <span id="cb25-107"><a href="#cb25-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather field sample informations</span></span>
+<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Gather field sample informations</span></span>
 <span id="cb25-109"><a href="#cb25-109" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-112"><a href="#cb25-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-113"><a href="#cb25-113" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> sampleInfoLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
@@ -1254,7 +1250,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-121"><a href="#cb25-121" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb25-122"><a href="#cb25-122" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-123"><a href="#cb25-123" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather lab meaurements</span></span>
+<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a><span class="fu">#### Gather lab meaurements</span></span>
 <span id="cb25-125"><a href="#cb25-125" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-128"><a href="#cb25-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-129"><a href="#cb25-129" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurementsLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
@@ -1267,7 +1263,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-136"><a href="#cb25-136" aria-hidden="true" tabindex="-1"></a>)</span>
 <span id="cb25-137"><a href="#cb25-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-138"><a href="#cb25-138" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## Site importation</span></span>
+<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a><span class="fu">### Site importation</span></span>
 <span id="cb25-140"><a href="#cb25-140" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-141"><a href="#cb25-141" aria-hidden="true" tabindex="-1"></a>We must establish correspondance with existing sites in database and create the ones that are not already present in the database.</span>
 <span id="cb25-142"><a href="#cb25-142" aria-hidden="true" tabindex="-1"></a></span>
@@ -1318,7 +1314,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-197"><a href="#cb25-197" aria-hidden="true" tabindex="-1"></a>    )</span>
 <span id="cb25-198"><a href="#cb25-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span> </span>
 <span id="cb25-199"><a href="#cb25-199" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-200"><a href="#cb25-200" aria-hidden="true" tabindex="-1"></a><span class="fu"># Species importation </span></span>
+<span id="cb25-200"><a href="#cb25-200" aria-hidden="true" tabindex="-1"></a><span class="fu">## Species importation </span></span>
 <span id="cb25-201"><a href="#cb25-201" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-202"><a href="#cb25-202" aria-hidden="true" tabindex="-1"></a>We list the species, starting with those present in the laboratory results.</span>
 <span id="cb25-203"><a href="#cb25-203" aria-hidden="true" tabindex="-1"></a></span>
@@ -1371,13 +1367,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(id_species))</span>
 <span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lab measurements injection</span></span>
+<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab measurements injection</span></span>
 <span id="cb25-266"><a href="#cb25-266" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a>The previous steps have updated the reference tables for sites and species.</span>
 <span id="cb25-268"><a href="#cb25-268" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a>We can now proceed to import the data on samples and measurements.</span>
 <span id="cb25-270"><a href="#cb25-270" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Field samples </span></span>
+<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="fu">### Field samples </span></span>
 <span id="cb25-272"><a href="#cb25-272" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
 <span id="cb25-276"><a href="#cb25-276" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) <span class="sc">|&gt;</span> </span>
@@ -1385,7 +1381,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-278"><a href="#cb25-278" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
 <span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab samples</span></span>
+<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lab samples</span></span>
 <span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
 <span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample) <span class="sc">|&gt;</span> </span>
@@ -1393,7 +1389,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
 <span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab field samples</span></span>
+<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lab field samples</span></span>
 <span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a>This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).</span>
 <span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a></span>
@@ -1403,7 +1399,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
 <span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 <span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab measurements</span></span>
+<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="fu">### Lab measurements</span></span>
 <span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a>Finaly, all the parent table (<span class="in">`field_sample`</span>, <span class="in">`lab_sample`</span>, <span class="in">`lab_field_sample`</span>) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.</span>
 <span id="cb25-306"><a href="#cb25-306" aria-hidden="true" tabindex="-1"></a></span>
