@@ -16,11 +16,9 @@ Here is the expected injection order according to the database structure:
 2. Reports
 5. Sites
 6. Species
-
 7. Field samples
 8. Lab samples
-9. Analyte
-10. Lab measurement
+9. Lab measurement
 
 All the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.
 
@@ -248,7 +246,7 @@ dplyr::select(field_sample, id_lab_sample) |>
 
 ## Lab field samples
 
-This table links the laboratory samples with the field samples.
+This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).
 
 ```{R}
 dplyr::select(field_sample, id_lab_sample, id_field_sample) |> 
