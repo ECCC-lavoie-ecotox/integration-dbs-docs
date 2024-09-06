@@ -1,0 +1,34 @@
+---
+title: "Contribute to this documentation"
+author: "Steve Vissault"
+date: "2024-03-28"
+---
+
+To build this documentation locally, follow these steps.
+
+# Prerequisites
+
+Install the two R libraries using the following commands:
+
+``` r
+if(!require(devtools)) install.packages("devtools")
+
+# Install package database interface
+devtools::install_github("ECCC-lavoie-ecotox/toxbox")
+
+# Install documentation 
+install.packages("quarto")
+```
+
+## Get documentation source code
+
+Steve - I will give a training on how to clone a git repository and push new edits to the documentation. In the meatime, if you're already set to work with git and Rstudio, the repository URL is avaible at [https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs](https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs).
+
+## Build this website
+
+```r
+# Serve the website in your browser
+quarto::quarto_preview()
+```
+
+This approach allows you to work on the documentation files in parallel. Each time a file is modified, the website is rebuilt to include the latest changes.

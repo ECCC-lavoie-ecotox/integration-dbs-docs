@@ -1,0 +1,9 @@
+---
+title: "Purpose of this documentation"
+author: "Steve Vissault"
+date: "2024-03-28"
+---
+
+Raphael Lavoie’s laboratory is working on integrating data from contaminant measurements on biological matrices for a study area covering the Estuary and Gulf of St. Lawrence.
+
+The first section of this documentation focuses on the database structure and reviews the content of each field present in the database. The second section (in French) deals with the integration work, which requires several steps of data validation and consolidation. It also includes the code to generate some exploratory figures to better understand the data produced by this integration.

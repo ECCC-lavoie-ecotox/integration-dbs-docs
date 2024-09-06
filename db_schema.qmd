@@ -1,14 +1,22 @@
 ---
-title: "Diagramme d'entitées-relations"
+title: "Structure"
 author: "Steve Vissault"
 date: "2024-03-28"
 ---
 
-## Structure de la base de données
+## Entity-relationships diagram
 
 ![](img/entityRelationshipsDiagram.png)
 
-## Générer la base de données 
+## Database creation
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "./contaminants-rlavoie-eccc.sqlite")
+db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
+purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
+```
+
+## SQL script
 
 Voici la déclaration SQL de la base de données:
 

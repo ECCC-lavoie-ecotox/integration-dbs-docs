@@ -5,33 +5,34 @@ website:
   title: Documentation
   navbar:
     title: "<span class='fw-lighter text-uppercase'>Documentation</span><br>
-    <span class='fw-lighter fs-6'>Base de données de mesures de contaminants sur des oiseaux marins</span>"
+    <span class='fw-lighter fs-6'Database of contaminant measurements in the Gulf and Estuary of the Saint Lawrence></span>"
     logo: logo.png
   sidebar:
     search: true
     contents:
       - section: "Introduction"
         contents:
-          - index.qmd
-          - deploy.qmd
-      - section: "Consolider les données"
-        contents:
-          - tbl_projects.qmd
-          - tbl_sites.qmd
-          - tbl_analytes.qmd
-          - tbl_measurements.qmd
-          - n_measurements.qmd
-      - section: "Base de données"
+          - intro_index.qmd
+          - intro_deploy.qmd
+      - section: "Database"
         contents:
           - db_schema.qmd
-          - db_injections.qmd
+          - db_injections_example.qmd
           - db_feed.qmd
           - db_query.qmd
+      - section: "RLavoie - Data integration"
+        contents:
+          - itgr_tbl_projects.qmd
+          - itgr_tbl_sites.qmd
+          - itgr_tbl_analytes.qmd
+          - itgr_tbl_measurements.qmd
+          - itgr_n_measurements.qmd
+          - itgr_db_injections_rlavoie.qmd
   repo-url: https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs
 
 format:
   html:
-    lang: fr 
+    lang: en
     code-overflow: wrap
     page-layout: full
     highlight-style: monokai

@@ -1,0 +1,258 @@
+---
+title: "Injections des données"
+author: "Steve Vissault"
+date: "2024-04-29"
+execute: 
+  eval: false
+---
+
+## Chargements des scripts
+
+```{r}
+source("src/itgr_measurements.R")
+source("src/itgr_samples_info.R")
+```
+
+## Création de la base de données 
+
+```{r}
+con <- DBI::dbConnect(RSQLite::SQLite(), "./contaminants-rlavoie-eccc.sqlite")
+db_ddl_sql <- strsplit(paste(readLines("sql/db_create_ddl.sql"), collapse = "\n"), ";\n")[[1]]
+purrr::walk(db_ddl_sql, \(x) DBI::dbExecute(con, x))
+```
+
+## Étape d'injections des données
+
+Afin de respecter l'intégrité référentielle des données, l'injection des données doit se faire dans un certain ordre. Il faut par exemple renseigner en premier l'ensemble des sites avant de pouvoir déclarer les échantillons associés. 
+
+Voici l'ordre d'injection attendu au regard de la structure de la base de données.
+
+1. Sites
+2. Species 
+3. Projects
+4. Field samples
+5. Lab samples 
+6. Analyte
+7. Lab measurement
+
+L'ensemble des données destinés à populer les tables a été consolider lors des étapes précédentes. Nous allons maintenant procéder à leur importation dans la base de données.
+
+## Importation des données
+
+###  Table `sites`
+
+```{r}
+sites <- readRDS("data/tbl_sites.rds")
+```
+
+On tranforme les intitulées de colonnes du data.frame pour qu'ils correspondent à ceux de la table de données SQL.
+
+```{r}
+data_sites <- sites |>
+    dplyr::select(
+        id_site = final_id,
+        province, 
+        lat,
+        lon,
+        srid
+    )
+
+DBI::dbWriteTable(con, "sites", data_sites, append = TRUE)
+```
+
+###  Table `species`
+
+```{r}
+data_species <- readRDS("data/tbl_species.rds")
+DBI::dbWriteTable(con, "species", data_species, append = TRUE)
+```
+
+###  Table `field_sample`
+
+```{r}
+map_sites <- readRDS("data/tbl_sites.rds") |>
+    tidyr::separate_rows(original_ids, sep = ";") |>
+    dplyr::select(original_ids, final_id)
+
+options(dplyr.summarise.inform = FALSE)
+
+samples <- itgr_samples_info() |>
+  dplyr::select(-received_date, -id_project, -source) |>
+  dplyr::mutate(collection_date = as.character(collection_date)) |>
+  # Ajout des identifiants de site consolidé
+  dplyr::left_join(map_sites, by = c("id_site" = "original_ids")) |>
+  dplyr::select(-id_site) |>
+  dplyr::rename(id_site = final_id) |>
+  dplyr::mutate_if(is.character, stringr::str_trim) |>
+  dplyr::mutate_if(is.character, ~ifelse(.x == "N/A", NA, .x)) |>
+  dplyr::mutate_if(is.character, ~ifelse(.x == "NA", NA, .x)) |>  
+  dplyr::distinct() |>
+  # Nettoyage des duplicates pour les champs age et tissus
+  dplyr::group_by(
+    dplyr::across(c(-age, -tissue))
+  ) |> dplyr::summarise(
+    age = paste0(na.omit(age), collapse = ";"),
+    tissue = paste0(na.omit(tissue), collapse = ";")
+  ) |> dplyr::ungroup() |>
+  dplyr::mutate(
+    age = dplyr::na_if(age, ""),
+    tissue = dplyr::na_if(tissue, "")
+  ) |> 
+  # Nettoyage des sample IDs avec une dernière lettre
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "\\s\\w+$", "")) |>
+  dplyr::group_by(
+    dplyr::across(c(-id_lab_sample, -id_source_report))
+  ) |> dplyr::summarise(
+    id_lab_sample = paste0(na.omit(id_lab_sample), collapse = ";"),
+    id_source_report = paste0(na.omit(id_source_report), collapse = ";")
+  ) |> dplyr::ungroup() |> 
+  dplyr::distinct() |> 
+  dplyr::group_split(id_field_sample) |>
+  # Création d'un identifiant unique d'échantillonnage en se basant sur la date de collection
+  # L'identifiant de certains échantillons n'est pas unique
+  purrr::map(\(df){
+    if(nrow(df) > 1){
+      df <- df |>
+        dplyr::mutate(id_field_sample = paste0(
+          id_field_sample, "-",
+          stringr::str_replace_all(collection_date, "[-]", "")
+        ))
+    }
+    return(df)
+  }) |> dplyr::bind_rows() |> 
+  dplyr::group_by(id_field_sample) |>
+  dplyr::mutate(id_field_sample = paste0(id_field_sample, "-", dplyr::row_number())) |>
+  dplyr::ungroup()
+
+# Inject field samples
+DBI::dbWriteTable(con, "field_sample", dplyr::select(samples, -id_lab_sample, -id_source_report) |> 
+  dplyr::distinct(), append = TRUE)
+```
+
+### Table `project`
+
+```{r}
+project_samples <- itgr_samples_info()[,c("id_project", "id_source_report")] |> dplyr::distinct()
+projects_reports <- readRDS("data/tbl_projects_reports.rds") 
+
+projects <- dplyr::select(projects_reports, id_project = project_id, 
+  title = project_title, investigator = project_leader) |>
+  dplyr::mutate(organization = "ECCC", data_manager = NA, email_investigator = NA, email_data_manager = NA, description = NA) |> 
+  dplyr::group_by(id_project) |>
+  dplyr::summarise(title = paste0(na.omit(unique(title)), collapse = ";"), investigator = paste0(na.omit(unique(investigator)), collapse = ";")) |>
+  dplyr::mutate(title = dplyr::na_if(title, ""), investigator = dplyr::na_if(investigator, "")) |>
+  dplyr::distinct()
+ 
+DBI::dbWriteTable(con, "project", projects, append = TRUE)
+```
+
+### Table `report`
+
+```{r}
+reports <- projects_reports |> 
+  dplyr::select(id_project = project_id, id_report = report_id, report_date, report_access_path) |>
+  dplyr::distinct() 
+
+DBI::dbWriteTable(con, "report", reports, append = TRUE)
+```
+
+### Table `lab_sample`
+
+```{r}
+lab_sample <- itgr_measurements() |>
+  dplyr::select(id_lab_sample = SampleID) |>
+  dplyr::distinct() 
+```
+
+```{r}
+DBI::dbWriteTable(con, "lab_sample", lab_sample, append = TRUE)
+```
+
+### Table `lab_field_sample`
+
+```{r}
+lab_field_samples <- samples |> 
+  dplyr::select(id_lab_sample, id_field_sample, -id_source_report) |>
+  tidyr::separate_longer_delim(id_lab_sample, delim = ";") |>
+  dplyr::distinct() 
+
+## Add missing lab_sample
+present_lab_sample_id <- DBI::dbGetQuery(con, "SELECT DISTINCT id_lab_sample FROM lab_sample;")
+
+missing_lab_sample <- dplyr::select(lab_field_samples, id_lab_sample) |>  
+  dplyr::distinct() |>
+  dplyr::filter(!(id_lab_sample %in% present_lab_sample_id$id_lab_sample))
+
+DBI::dbWriteTable(con, "lab_sample", missing_lab_sample, append = TRUE)
+```
+
+```{r}
+DBI::dbWriteTable(con, "lab_field_sample", lab_field_samples, append = TRUE)
+```
+
+### Table `analytes`
+
+```{r}
+analytes <- readRDS("data/tbl_analytes.rds") |>
+  dplyr::select(
+    id_analyte = final_id,
+    name,
+    other_name,
+    short_name,
+    unit = Units,
+    family = conpound_family,
+    casid,
+    pubcid,
+    is_dry_weight,
+    on_isolated_lipid,
+    note_analyte = notes
+  )
+```
+
+```{r}
+DBI::dbWriteTable(con, "analyte", analytes, append = TRUE)
+```
+
+### Table `lab_measurements`
+
+```{r}
+analytes_ref <- readRDS("data/tbl_analytes.rds") |>
+  tidyr::separate_rows(original_ids, sep = ";") |>
+  dplyr::select(original_ids, final_id) |>
+  dplyr::distinct()
+
+measurements <- itgr_measurements() |>
+    dplyr::mutate(
+        key = stringr::str_replace(variable, "PCB-|PCB ", "PCB") |>
+            janitor::make_clean_names(allow_dupes = TRUE, case = "none") |> tolower()
+    ) |> dplyr::left_join(analytes_ref, by = c("key" = "original_ids")) |>
+    dplyr::filter(conpound_family != "SImean")
+
+percent_moisture_lipid <- dplyr::filter(measurements, final_id %in% c("plipid", "pmoisture")) |>
+  dplyr::select(-variable, -key) |>
+  tidyr::pivot_wider(names_from = "final_id", values_from = "value")
+
+measurements <- dplyr::filter(measurements, !final_id %in% c("plipid", "pmoisture")) |>
+  dplyr::left_join(percent_moisture_lipid) |>
+  dplyr::filter(!is.na(value) & value != "" & value != "NA" & value != "NDR")
+
+measurements <- measurements |> dplyr::select(
+    id_analyte = final_id,
+    id_lab_sample = SampleID,
+    value,
+    percent_lipid = plipid,
+    percent_moisture = pmoisture
+  ) |> 
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "\\s\\w+$", "")) |>
+  dplyr::mutate(id_lab_sample = stringr::str_replace(id_lab_sample, "[*]", "")) 
+
+measurements <- measurements |> 
+  dplyr::mutate(is_censored = toxbox::detect_cens(value)) |>
+  dplyr::mutate(value = toxbox::remove_cens(value)) |>
+  dplyr::filter(!is.na(value))
+```
+
+
+```{r}
+DBI::dbWriteTable(con, "lab_measurement", measurements, append = TRUE)
+```
