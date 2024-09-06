@@ -59,7 +59,7 @@
     "href": "db_schema.html#database-creation",
     "title": "Database structure",
     "section": "Database creation",
-    "text": "Database creation\nInstall the following dependancies. Packages DBI and RSQlite are R packages proving functions to connect and execute SQL instructions such as table creation.\n\ninstall.packages(c(\"RSQLite\", \"DBI\"))\n\npackage 'RSQLite' successfully unpacked and MD5 sums checked\n\n\nWarning: cannot remove prior installation of package 'RSQLite'\n\n\nWarning in file.copy(savedcopy, lib, recursive = TRUE): problem copying\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\00LOCK\\RSQLite\\libs\\x64\\RSQLite.dll\nto\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\RSQLite\\libs\\x64\\RSQLite.dll:\nPermission denied\n\n\nWarning: restored 'RSQLite'\n\n\npackage 'DBI' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\VissaultS\\AppData\\Local\\Temp\\RtmpOwAgRx\\downloaded_packages\n\n\nWe first create or connect to an existing sqlite database.\n\ncon &lt;- DBI::dbConnect(RSQLite::SQLite(), \"./contaminants-rlavoie-eccc.sqlite\")\n\nWe then send all the SQL instructions stored in sql/db_create_ddl.sql file with DBI::dbExecute().\n\ndb_ddl_sql &lt;- strsplit(paste(readLines(\"sql/db_create_ddl.sql\"), collapse = \"\\n\"), \";\\n\")[[1]]\npurrr::walk(db_ddl_sql, \\(x) DBI::dbExecute(con, x))",
+    "text": "Database creation\nInstall the following dependancies. Packages DBI and RSQlite are R packages proving functions to connect and execute SQL instructions such as table creation.\n\ninstall.packages(c(\"RSQLite\", \"DBI\"))\n\npackage 'RSQLite' successfully unpacked and MD5 sums checked\n\n\nWarning: cannot remove prior installation of package 'RSQLite'\n\n\nWarning in file.copy(savedcopy, lib, recursive = TRUE): problem copying\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\00LOCK\\RSQLite\\libs\\x64\\RSQLite.dll\nto\nC:\\Users\\VissaultS\\AppData\\Local\\Programs\\R\\R-4.3.2\\library\\RSQLite\\libs\\x64\\RSQLite.dll:\nPermission denied\n\n\nWarning: restored 'RSQLite'\n\n\npackage 'DBI' successfully unpacked and MD5 sums checked\n\nThe downloaded binary packages are in\n    C:\\Users\\VissaultS\\AppData\\Local\\Temp\\Rtmpqqu3oc\\downloaded_packages\n\n\nWe first create or connect to an existing sqlite database.\n\ncon &lt;- DBI::dbConnect(RSQLite::SQLite(), \"./contaminants-rlavoie-eccc.sqlite\")\n\nWe then send all the SQL instructions stored in sql/db_create_ddl.sql file with DBI::dbExecute().\n\ndb_ddl_sql &lt;- strsplit(paste(readLines(\"sql/db_create_ddl.sql\"), collapse = \"\\n\"), \";\\n\")[[1]]\npurrr::walk(db_ddl_sql, \\(x) DBI::dbExecute(con, x))",
     "crumbs": [
       "Database",
       "Database structure"
@@ -81,7 +81,7 @@
     "href": "db_injections_example.html",
     "title": "Lab results importation example",
     "section": "",
-    "text": "To maintain the referential integrity of the data, the data injection must be done in a certain order. For example, all sites must be entered first before the associated samples can be declared.\nHere is the expected injection order according to the database structure:\n\nProjects\nReports\nSites\nSpecies\nField samples\nLab samples\nAnalyte\nLab measurement\n\nAll the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.\nThis document allows the import of laboratory measurements for the MET-Thg-23-19 report.",
+    "text": "To maintain the referential integrity of the data, the data injection must be done in a certain order. For example, all sites must be entered first before the associated samples can be declared.\nHere is the expected injection order according to the database structure:\n\nProjects\nReports\nSites\nSpecies\nField samples\nLab samples\nLab measurement\n\nAll the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.\nThis document allows the import of laboratory measurements for the MET-Thg-23-19 report.",
     "crumbs": [
       "Database",
       "Lab results importation example"
@@ -92,7 +92,7 @@
     "href": "db_injections_example.html#data-importation-procedure",
     "title": "Lab results importation example",
     "section": "",
-    "text": "To maintain the referential integrity of the data, the data injection must be done in a certain order. For example, all sites must be entered first before the associated samples can be declared.\nHere is the expected injection order according to the database structure:\n\nProjects\nReports\nSites\nSpecies\nField samples\nLab samples\nAnalyte\nLab measurement\n\nAll the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.\nThis document allows the import of laboratory measurements for the MET-Thg-23-19 report.",
+    "text": "To maintain the referential integrity of the data, the data injection must be done in a certain order. For example, all sites must be entered first before the associated samples can be declared.\nHere is the expected injection order according to the database structure:\n\nProjects\nReports\nSites\nSpecies\nField samples\nLab samples\nLab measurement\n\nAll the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.\nThis document allows the import of laboratory measurements for the MET-Thg-23-19 report.",
     "crumbs": [
       "Database",
       "Lab results importation example"
@@ -158,7 +158,7 @@
     "href": "db_injections_example.html#lab-field-samples",
     "title": "Lab results importation example",
     "section": "Lab field samples",
-    "text": "Lab field samples\nThis table links the laboratory samples with the field samples.\n\ndplyr::select(field_sample, id_lab_sample, id_field_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_field_sample\", data, append = TRUE))()",
+    "text": "Lab field samples\nThis table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).\n\ndplyr::select(field_sample, id_lab_sample, id_field_sample) |&gt; \n    dplyr::distinct() |&gt; \n    (\\(data) DBI::dbWriteTable(con, \"lab_field_sample\", data, append = TRUE))()",
     "crumbs": [
       "Database",
       "Lab results importation example"

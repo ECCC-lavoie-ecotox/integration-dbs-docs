@@ -328,14 +328,13 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>To maintain the referential integrity of the data, the data injection must be done in a certain order. For example, all sites must be entered first before the associated samples can be declared.</p>
 <p>Here is the expected injection order according to the database structure:</p>
 <ol type="1">
-<li><p>Projects</p></li>
-<li><p>Reports</p></li>
-<li><p>Sites</p></li>
-<li><p>Species</p></li>
-<li><p>Field samples</p></li>
-<li><p>Lab samples</p></li>
-<li><p>Analyte</p></li>
-<li><p>Lab measurement</p></li>
+<li>Projects</li>
+<li>Reports</li>
+<li>Sites</li>
+<li>Species</li>
+<li>Field samples</li>
+<li>Lab samples</li>
+<li>Lab measurement</li>
 </ol>
 <p>All the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.</p>
 <p>This document allows the import of laboratory measurements for the MET-Thg-23-19 report.</p>
@@ -538,7 +537,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="lab-field-samples" class="level2">
 <h2 class="anchored" data-anchor-id="lab-field-samples">Lab field samples</h2>
-<p>This table links the laboratory samples with the field samples.</p>
+<p>This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample, id_field_sample) <span class="sc">|&gt;</span> </span>
 <span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
@@ -1166,260 +1165,258 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 <span id="cb25-16"><a href="#cb25-16" aria-hidden="true" tabindex="-1"></a><span class="ss">2. </span>Reports</span>
 <span id="cb25-17"><a href="#cb25-17" aria-hidden="true" tabindex="-1"></a><span class="ss">5. </span>Sites</span>
 <span id="cb25-18"><a href="#cb25-18" aria-hidden="true" tabindex="-1"></a><span class="ss">6. </span>Species</span>
-<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Field samples</span>
-<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Lab samples</span>
-<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Analyte</span>
-<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a><span class="ss">10. </span>Lab measurement</span>
+<span id="cb25-19"><a href="#cb25-19" aria-hidden="true" tabindex="-1"></a><span class="ss">7. </span>Field samples</span>
+<span id="cb25-20"><a href="#cb25-20" aria-hidden="true" tabindex="-1"></a><span class="ss">8. </span>Lab samples</span>
+<span id="cb25-21"><a href="#cb25-21" aria-hidden="true" tabindex="-1"></a><span class="ss">9. </span>Lab measurement</span>
+<span id="cb25-22"><a href="#cb25-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-23"><a href="#cb25-23" aria-hidden="true" tabindex="-1"></a>All the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.</span>
 <span id="cb25-24"><a href="#cb25-24" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>All the data intended to populate the tables was consolidated during the previous steps. We will now proceed with importing them into the database.</span>
+<span id="cb25-25"><a href="#cb25-25" aria-hidden="true" tabindex="-1"></a>This document allows the import of laboratory measurements for the MET-Thg-23-19 report.</span>
 <span id="cb25-26"><a href="#cb25-26" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a>This document allows the import of laboratory measurements for the MET-Thg-23-19 report.</span>
+<span id="cb25-27"><a href="#cb25-27" aria-hidden="true" tabindex="-1"></a><span class="fu"># Database backup</span></span>
 <span id="cb25-28"><a href="#cb25-28" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a><span class="fu"># Database backup</span></span>
+<span id="cb25-29"><a href="#cb25-29" aria-hidden="true" tabindex="-1"></a>The first step is to ensure that we can restore the database if the import introduces errors into the database.</span>
 <span id="cb25-30"><a href="#cb25-30" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-31"><a href="#cb25-31" aria-hidden="true" tabindex="-1"></a>The first step is to ensure that we can restore the database if the import introduces errors into the database.</span>
-<span id="cb25-32"><a href="#cb25-32" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>db_path <span class="ot">&lt;-</span> <span class="st">"Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite"</span></span>
-<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>db_bak <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(</span>
-<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    db_path, </span>
-<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">".sqlite"</span>, </span>
-<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"-{format(Sys.Date(), '%Y%m%d')}.bak.sqlite"</span>)</span>
-<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(db_path, db_bak)</span>
-<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-33"><a href="#cb25-33" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-34"><a href="#cb25-34" aria-hidden="true" tabindex="-1"></a>db_path <span class="ot">&lt;-</span> <span class="st">"Z:/07-Données BD/Database/contaminants-rlavoie-eccc.sqlite"</span></span>
+<span id="cb25-35"><a href="#cb25-35" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-36"><a href="#cb25-36" aria-hidden="true" tabindex="-1"></a>db_bak <span class="ot">&lt;-</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(</span>
+<span id="cb25-37"><a href="#cb25-37" aria-hidden="true" tabindex="-1"></a>    db_path, </span>
+<span id="cb25-38"><a href="#cb25-38" aria-hidden="true" tabindex="-1"></a>    <span class="at">pattern =</span> <span class="st">".sqlite"</span>, </span>
+<span id="cb25-39"><a href="#cb25-39" aria-hidden="true" tabindex="-1"></a>    <span class="at">replacement =</span> glue<span class="sc">::</span><span class="fu">glue</span>(<span class="st">"-{format(Sys.Date(), '%Y%m%d')}.bak.sqlite"</span>)</span>
+<span id="cb25-40"><a href="#cb25-40" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-41"><a href="#cb25-41" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-42"><a href="#cb25-42" aria-hidden="true" tabindex="-1"></a><span class="fu">file.copy</span>(db_path, db_bak)</span>
+<span id="cb25-43"><a href="#cb25-43" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-44"><a href="#cb25-44" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-45"><a href="#cb25-45" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading library dependancy</span></span>
 <span id="cb25-46"><a href="#cb25-46" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-47"><a href="#cb25-47" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading library dependancy</span></span>
-<span id="cb25-48"><a href="#cb25-48" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(devtools)) <span class="fu">install.packages</span>(<span class="st">"devtools"</span>)</span>
-<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(toxbox)) devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox.git"</span>)</span>
-<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-49"><a href="#cb25-49" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-50"><a href="#cb25-50" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(devtools)) <span class="fu">install.packages</span>(<span class="st">"devtools"</span>)</span>
+<span id="cb25-51"><a href="#cb25-51" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span>(<span class="sc">!</span><span class="fu">require</span>(toxbox)) devtools<span class="sc">::</span><span class="fu">install_github</span>(<span class="st">"ECCC-lavoie-ecotox/toxbox.git"</span>)</span>
+<span id="cb25-52"><a href="#cb25-52" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-53"><a href="#cb25-53" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-54"><a href="#cb25-54" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading the data report within the R environment</span></span>
 <span id="cb25-55"><a href="#cb25-55" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-56"><a href="#cb25-56" aria-hidden="true" tabindex="-1"></a><span class="fu"># Loading the data report within the R environment</span></span>
-<span id="cb25-57"><a href="#cb25-57" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a>target_path_lab_results <span class="ot">&lt;-</span> <span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span></span>
-<span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-63"><a href="#cb25-63" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations sur les échantillons</span></span>
-<span id="cb25-64"><a href="#cb25-64" aria-hidden="true" tabindex="-1"></a>sampleInfoLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleInfo"</span>)</span>
-<span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations sur les mesures</span></span>
-<span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a>measurementsLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleData"</span>) </span>
-<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-58"><a href="#cb25-58" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-59"><a href="#cb25-59" aria-hidden="true" tabindex="-1"></a>target_path_lab_results <span class="ot">&lt;-</span> <span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span></span>
+<span id="cb25-60"><a href="#cb25-60" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-61"><a href="#cb25-61" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations sur les échantillons</span></span>
+<span id="cb25-62"><a href="#cb25-62" aria-hidden="true" tabindex="-1"></a>sampleInfoLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleInfo"</span>)</span>
+<span id="cb25-63"><a href="#cb25-63" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-64"><a href="#cb25-64" aria-hidden="true" tabindex="-1"></a><span class="co"># Informations sur les mesures</span></span>
+<span id="cb25-65"><a href="#cb25-65" aria-hidden="true" tabindex="-1"></a>measurementsLab <span class="ot">&lt;-</span> readxl<span class="sc">::</span><span class="fu">read_xlsx</span>(target_path_lab_results, <span class="st">"SampleData"</span>) </span>
+<span id="cb25-66"><a href="#cb25-66" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-67"><a href="#cb25-67" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-68"><a href="#cb25-68" aria-hidden="true" tabindex="-1"></a><span class="fu"># Initialize the database connection</span></span>
 <span id="cb25-69"><a href="#cb25-69" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-70"><a href="#cb25-70" aria-hidden="true" tabindex="-1"></a><span class="fu"># Initialize the database connection</span></span>
-<span id="cb25-71"><a href="#cb25-71" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">init_con</span>()</span>
-<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-72"><a href="#cb25-72" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-73"><a href="#cb25-73" aria-hidden="true" tabindex="-1"></a>con <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">init_con</span>()</span>
+<span id="cb25-74"><a href="#cb25-74" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-75"><a href="#cb25-75" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-76"><a href="#cb25-76" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data injection</span></span>
 <span id="cb25-77"><a href="#cb25-77" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a><span class="fu"># Data injection</span></span>
+<span id="cb25-78"><a href="#cb25-78" aria-hidden="true" tabindex="-1"></a><span class="fu">## Report and project metadata importation</span></span>
 <span id="cb25-79"><a href="#cb25-79" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-80"><a href="#cb25-80" aria-hidden="true" tabindex="-1"></a><span class="fu">## Report and project metadata importation</span></span>
-<span id="cb25-81"><a href="#cb25-81" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-84"><a href="#cb25-84" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-85"><a href="#cb25-85" aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
-<span id="cb25-86"><a href="#cb25-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_report =</span> <span class="st">"MET-Thg-23-19"</span>,</span>
-<span id="cb25-87"><a href="#cb25-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_project =</span> <span class="st">"RALA01-2023"</span>,</span>
-<span id="cb25-88"><a href="#cb25-88" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_date =</span> <span class="st">"2024-07-31"</span>,</span>
-<span id="cb25-89"><a href="#cb25-89" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_access_path =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span>, <span class="st">"À entrer dans la BD"</span>, <span class="st">"Saisie dans la BD"</span>)</span>
-<span id="cb25-90"><a href="#cb25-90" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-91"><a href="#cb25-91" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-82"><a href="#cb25-82" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-83"><a href="#cb25-83" aria-hidden="true" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(</span>
+<span id="cb25-84"><a href="#cb25-84" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_report =</span> <span class="st">"MET-Thg-23-19"</span>,</span>
+<span id="cb25-85"><a href="#cb25-85" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_project =</span> <span class="st">"RALA01-2023"</span>,</span>
+<span id="cb25-86"><a href="#cb25-86" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_date =</span> <span class="st">"2024-07-31"</span>,</span>
+<span id="cb25-87"><a href="#cb25-87" aria-hidden="true" tabindex="-1"></a>    <span class="at">report_access_path =</span> stringr<span class="sc">::</span><span class="fu">str_replace</span>(<span class="st">"Z:/03-Labo/Results Reports/À entrer dans la BD/MET-THg-23-19 - RALA01-2023.xlsx"</span>, <span class="st">"À entrer dans la BD"</span>, <span class="st">"Saisie dans la BD"</span>)</span>
+<span id="cb25-88"><a href="#cb25-88" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-89"><a href="#cb25-89" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-90"><a href="#cb25-90" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-91"><a href="#cb25-91" aria-hidden="true" tabindex="-1"></a>We first validate if the project ID already exists in the database.  </span>
 <span id="cb25-92"><a href="#cb25-92" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-93"><a href="#cb25-93" aria-hidden="true" tabindex="-1"></a>We first validate if the project ID already exists in the database.  </span>
-<span id="cb25-94"><a href="#cb25-94" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-97"><a href="#cb25-97" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-98"><a href="#cb25-98" aria-hidden="true" tabindex="-1"></a>toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"project"</span>, <span class="at">id_project =</span> <span class="st">"RALA01-2023"</span>)</span>
-<span id="cb25-99"><a href="#cb25-99" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb25-100"><a href="#cb25-100" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-101"><a href="#cb25-101" aria-hidden="true" tabindex="-1"></a>It already exists in the database. Therefore, we can import the report metadata that will be attached to this project.</span>
-<span id="cb25-104"><a href="#cb25-104" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-105"><a href="#cb25-105" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"report"</span>, report, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-95"><a href="#cb25-95" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-96"><a href="#cb25-96" aria-hidden="true" tabindex="-1"></a>toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"project"</span>, <span class="at">id_project =</span> <span class="st">"RALA01-2023"</span>)</span>
+<span id="cb25-97"><a href="#cb25-97" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-98"><a href="#cb25-98" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-99"><a href="#cb25-99" aria-hidden="true" tabindex="-1"></a>It already exists in the database. Therefore, we can import the report metadata that will be attached to this project.</span>
+<span id="cb25-102"><a href="#cb25-102" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-103"><a href="#cb25-103" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"report"</span>, report, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-104"><a href="#cb25-104" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-105"><a href="#cb25-105" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-106"><a href="#cb25-106" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data preparation</span></span>
 <span id="cb25-107"><a href="#cb25-107" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a><span class="fu">## Data preparation</span></span>
+<span id="cb25-108"><a href="#cb25-108" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather field sample informations</span></span>
 <span id="cb25-109"><a href="#cb25-109" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-110"><a href="#cb25-110" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather field sample informations</span></span>
-<span id="cb25-111"><a href="#cb25-111" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-114"><a href="#cb25-114" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-115"><a href="#cb25-115" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> sampleInfoLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
-<span id="cb25-116"><a href="#cb25-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
-<span id="cb25-117"><a href="#cb25-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_field_sample =</span> ClientID,</span>
-<span id="cb25-118"><a href="#cb25-118" aria-hidden="true" tabindex="-1"></a>    <span class="at">collection_date =</span> CollectionDate,</span>
-<span id="cb25-119"><a href="#cb25-119" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_site =</span> Location,</span>
-<span id="cb25-120"><a href="#cb25-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_species =</span> Species,</span>
-<span id="cb25-121"><a href="#cb25-121" aria-hidden="true" tabindex="-1"></a>    <span class="at">tissue =</span> Tissue,</span>
-<span id="cb25-122"><a href="#cb25-122" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> Age</span>
-<span id="cb25-123"><a href="#cb25-123" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-112"><a href="#cb25-112" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-113"><a href="#cb25-113" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> sampleInfoLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb25-114"><a href="#cb25-114" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
+<span id="cb25-115"><a href="#cb25-115" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_field_sample =</span> ClientID,</span>
+<span id="cb25-116"><a href="#cb25-116" aria-hidden="true" tabindex="-1"></a>    <span class="at">collection_date =</span> CollectionDate,</span>
+<span id="cb25-117"><a href="#cb25-117" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_site =</span> Location,</span>
+<span id="cb25-118"><a href="#cb25-118" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_species =</span> Species,</span>
+<span id="cb25-119"><a href="#cb25-119" aria-hidden="true" tabindex="-1"></a>    <span class="at">tissue =</span> Tissue,</span>
+<span id="cb25-120"><a href="#cb25-120" aria-hidden="true" tabindex="-1"></a>    <span class="at">age =</span> Age</span>
+<span id="cb25-121"><a href="#cb25-121" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-122"><a href="#cb25-122" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-123"><a href="#cb25-123" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-124"><a href="#cb25-124" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather lab meaurements</span></span>
 <span id="cb25-125"><a href="#cb25-125" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-126"><a href="#cb25-126" aria-hidden="true" tabindex="-1"></a><span class="fu">### Gather lab meaurements</span></span>
-<span id="cb25-127"><a href="#cb25-127" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-130"><a href="#cb25-130" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-131"><a href="#cb25-131" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurementsLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
-<span id="cb25-132"><a href="#cb25-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
-<span id="cb25-133"><a href="#cb25-133" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_field_sample =</span> ClientID,</span>
-<span id="cb25-134"><a href="#cb25-134" aria-hidden="true" tabindex="-1"></a>    <span class="at">pmoisture =</span> <span class="st">`</span><span class="at">% Moisture</span><span class="st">`</span>,</span>
-<span id="cb25-135"><a href="#cb25-135" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="st">`</span><span class="at">Total Mercury (µg/g (dry))</span><span class="st">`</span></span>
-<span id="cb25-136"><a href="#cb25-136" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb25-137"><a href="#cb25-137" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_analyte =</span> <span class="st">"thg_dw"</span></span>
-<span id="cb25-138"><a href="#cb25-138" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-128"><a href="#cb25-128" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-129"><a href="#cb25-129" aria-hidden="true" tabindex="-1"></a>measurements <span class="ot">&lt;-</span> measurementsLab <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb25-130"><a href="#cb25-130" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_lab_sample =</span> SampleID,</span>
+<span id="cb25-131"><a href="#cb25-131" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_field_sample =</span> ClientID,</span>
+<span id="cb25-132"><a href="#cb25-132" aria-hidden="true" tabindex="-1"></a>    <span class="at">pmoisture =</span> <span class="st">`</span><span class="at">% Moisture</span><span class="st">`</span>,</span>
+<span id="cb25-133"><a href="#cb25-133" aria-hidden="true" tabindex="-1"></a>    <span class="at">value =</span> <span class="st">`</span><span class="at">Total Mercury (µg/g (dry))</span><span class="st">`</span></span>
+<span id="cb25-134"><a href="#cb25-134" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb25-135"><a href="#cb25-135" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_analyte =</span> <span class="st">"thg_dw"</span></span>
+<span id="cb25-136"><a href="#cb25-136" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-137"><a href="#cb25-137" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-138"><a href="#cb25-138" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-139"><a href="#cb25-139" aria-hidden="true" tabindex="-1"></a><span class="fu">## Site importation</span></span>
 <span id="cb25-140"><a href="#cb25-140" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-141"><a href="#cb25-141" aria-hidden="true" tabindex="-1"></a><span class="fu">## Site importation</span></span>
+<span id="cb25-141"><a href="#cb25-141" aria-hidden="true" tabindex="-1"></a>We must establish correspondance with existing sites in database and create the ones that are not already present in the database.</span>
 <span id="cb25-142"><a href="#cb25-142" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-143"><a href="#cb25-143" aria-hidden="true" tabindex="-1"></a>We must establish correspondance with existing sites in database and create the ones that are not already present in the database.</span>
+<span id="cb25-143"><a href="#cb25-143" aria-hidden="true" tabindex="-1"></a>First, we isolate the sites present in the results sent by the laboratory.</span>
 <span id="cb25-144"><a href="#cb25-144" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-145"><a href="#cb25-145" aria-hidden="true" tabindex="-1"></a>First, we isolate the sites present in the results sent by the laboratory.</span>
-<span id="cb25-146"><a href="#cb25-146" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-149"><a href="#cb25-149" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-150"><a href="#cb25-150" aria-hidden="true" tabindex="-1"></a>(sitesLab <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>(sampleInfoLab, Location, Latitude, Longitude))</span>
-<span id="cb25-151"><a href="#cb25-151" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-147"><a href="#cb25-147" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-148"><a href="#cb25-148" aria-hidden="true" tabindex="-1"></a>(sitesLab <span class="ot">&lt;-</span> dplyr<span class="sc">::</span><span class="fu">distinct</span>(sampleInfoLab, Location, Latitude, Longitude))</span>
+<span id="cb25-149"><a href="#cb25-149" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-150"><a href="#cb25-150" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-151"><a href="#cb25-151" aria-hidden="true" tabindex="-1"></a>We search the database for the existing sites using keywords.</span>
 <span id="cb25-152"><a href="#cb25-152" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-153"><a href="#cb25-153" aria-hidden="true" tabindex="-1"></a>We search the database for the existing sites using keywords.</span>
-<span id="cb25-154"><a href="#cb25-154" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-157"><a href="#cb25-157" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-158"><a href="#cb25-158" aria-hidden="true" tabindex="-1"></a>betchouanes_site_db <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"%betchouanes%"</span>)</span>
-<span id="cb25-159"><a href="#cb25-159" aria-hidden="true" tabindex="-1"></a>mingan_site_db <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"%mingan%"</span>)</span>
-<span id="cb25-160"><a href="#cb25-160" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-155"><a href="#cb25-155" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-156"><a href="#cb25-156" aria-hidden="true" tabindex="-1"></a>betchouanes_site_db <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"%betchouanes%"</span>)</span>
+<span id="cb25-157"><a href="#cb25-157" aria-hidden="true" tabindex="-1"></a>mingan_site_db <span class="ot">&lt;-</span> toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"%mingan%"</span>)</span>
+<span id="cb25-158"><a href="#cb25-158" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-159"><a href="#cb25-159" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-160"><a href="#cb25-160" aria-hidden="true" tabindex="-1"></a>After searching the database for sites, we can see that the Betchouanes site is already recorded in the database, but the Longue-Pointe-de-Mingan site is not. Therefore, we add this site.</span>
 <span id="cb25-161"><a href="#cb25-161" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-162"><a href="#cb25-162" aria-hidden="true" tabindex="-1"></a>After searching the database for sites, we can see that the Betchouanes site is already recorded in the database, but the Longue-Pointe-de-Mingan site is not. Therefore, we add this site.</span>
-<span id="cb25-163"><a href="#cb25-163" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-166"><a href="#cb25-166" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-167"><a href="#cb25-167" aria-hidden="true" tabindex="-1"></a>add_site <span class="ot">&lt;-</span> sitesLab <span class="sc">|&gt;</span> </span>
-<span id="cb25-168"><a href="#cb25-168" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(Location <span class="sc">==</span> <span class="st">"Longue-Pointe-de-Mingan"</span>) <span class="sc">|&gt;</span> </span>
-<span id="cb25-169"><a href="#cb25-169" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
-<span id="cb25-170"><a href="#cb25-170" aria-hidden="true" tabindex="-1"></a>        <span class="at">id_site =</span> Location,</span>
-<span id="cb25-171"><a href="#cb25-171" aria-hidden="true" tabindex="-1"></a>        <span class="at">lat =</span> Latitude,</span>
-<span id="cb25-172"><a href="#cb25-172" aria-hidden="true" tabindex="-1"></a>        <span class="at">lon =</span> Longitude</span>
-<span id="cb25-173"><a href="#cb25-173" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
-<span id="cb25-174"><a href="#cb25-174" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb25-175"><a href="#cb25-175" aria-hidden="true" tabindex="-1"></a>        <span class="at">province =</span> <span class="st">'Québec'</span>,</span>
-<span id="cb25-176"><a href="#cb25-176" aria-hidden="true" tabindex="-1"></a>        <span class="at">srid =</span> <span class="dv">4326</span></span>
-<span id="cb25-177"><a href="#cb25-177" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb25-178"><a href="#cb25-178" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-179"><a href="#cb25-179" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"sites"</span>, add_site, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-180"><a href="#cb25-180" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-164"><a href="#cb25-164" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-165"><a href="#cb25-165" aria-hidden="true" tabindex="-1"></a>add_site <span class="ot">&lt;-</span> sitesLab <span class="sc">|&gt;</span> </span>
+<span id="cb25-166"><a href="#cb25-166" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(Location <span class="sc">==</span> <span class="st">"Longue-Pointe-de-Mingan"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-167"><a href="#cb25-167" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(</span>
+<span id="cb25-168"><a href="#cb25-168" aria-hidden="true" tabindex="-1"></a>        <span class="at">id_site =</span> Location,</span>
+<span id="cb25-169"><a href="#cb25-169" aria-hidden="true" tabindex="-1"></a>        <span class="at">lat =</span> Latitude,</span>
+<span id="cb25-170"><a href="#cb25-170" aria-hidden="true" tabindex="-1"></a>        <span class="at">lon =</span> Longitude</span>
+<span id="cb25-171"><a href="#cb25-171" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|&gt;</span></span>
+<span id="cb25-172"><a href="#cb25-172" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb25-173"><a href="#cb25-173" aria-hidden="true" tabindex="-1"></a>        <span class="at">province =</span> <span class="st">'Québec'</span>,</span>
+<span id="cb25-174"><a href="#cb25-174" aria-hidden="true" tabindex="-1"></a>        <span class="at">srid =</span> <span class="dv">4326</span></span>
+<span id="cb25-175"><a href="#cb25-175" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-176"><a href="#cb25-176" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-177"><a href="#cb25-177" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"sites"</span>, add_site, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-178"><a href="#cb25-178" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-179"><a href="#cb25-179" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-180"><a href="#cb25-180" aria-hidden="true" tabindex="-1"></a>We verify that the site has indeed been added to the database.</span>
 <span id="cb25-181"><a href="#cb25-181" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-182"><a href="#cb25-182" aria-hidden="true" tabindex="-1"></a>We verify that the site has indeed been added to the database.</span>
-<span id="cb25-183"><a href="#cb25-183" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-186"><a href="#cb25-186" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-187"><a href="#cb25-187" aria-hidden="true" tabindex="-1"></a>toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"Longue-Pointe-de-Mingan"</span>)</span>
-<span id="cb25-188"><a href="#cb25-188" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
-<span id="cb25-189"><a href="#cb25-189" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-192"><a href="#cb25-192" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-193"><a href="#cb25-193" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> field_sample <span class="sc">|&gt;</span></span>
-<span id="cb25-194"><a href="#cb25-194" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb25-195"><a href="#cb25-195" aria-hidden="true" tabindex="-1"></a>        <span class="at">id_site =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb25-196"><a href="#cb25-196" aria-hidden="true" tabindex="-1"></a>            stringr<span class="sc">::</span><span class="fu">str_detect</span>(id_site, <span class="st">"Ile a Calculot des Betchouanes"</span>) <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">~</span> betchouanes_site_db<span class="sc">$</span>id_site,</span>
-<span id="cb25-197"><a href="#cb25-197" aria-hidden="true" tabindex="-1"></a>            <span class="at">.default =</span> id_site</span>
-<span id="cb25-198"><a href="#cb25-198" aria-hidden="true" tabindex="-1"></a>        )</span>
-<span id="cb25-199"><a href="#cb25-199" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb25-200"><a href="#cb25-200" aria-hidden="true" tabindex="-1"></a><span class="in">```</span> </span>
+<span id="cb25-184"><a href="#cb25-184" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-185"><a href="#cb25-185" aria-hidden="true" tabindex="-1"></a>toxbox<span class="sc">::</span><span class="fu">search_tbl</span>(con, <span class="st">"sites"</span>, <span class="at">id_site =</span> <span class="st">"Longue-Pointe-de-Mingan"</span>)</span>
+<span id="cb25-186"><a href="#cb25-186" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-187"><a href="#cb25-187" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-190"><a href="#cb25-190" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-191"><a href="#cb25-191" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> field_sample <span class="sc">|&gt;</span></span>
+<span id="cb25-192"><a href="#cb25-192" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb25-193"><a href="#cb25-193" aria-hidden="true" tabindex="-1"></a>        <span class="at">id_site =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb25-194"><a href="#cb25-194" aria-hidden="true" tabindex="-1"></a>            stringr<span class="sc">::</span><span class="fu">str_detect</span>(id_site, <span class="st">"Ile a Calculot des Betchouanes"</span>) <span class="sc">==</span> <span class="cn">TRUE</span> <span class="sc">~</span> betchouanes_site_db<span class="sc">$</span>id_site,</span>
+<span id="cb25-195"><a href="#cb25-195" aria-hidden="true" tabindex="-1"></a>            <span class="at">.default =</span> id_site</span>
+<span id="cb25-196"><a href="#cb25-196" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb25-197"><a href="#cb25-197" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-198"><a href="#cb25-198" aria-hidden="true" tabindex="-1"></a><span class="in">```</span> </span>
+<span id="cb25-199"><a href="#cb25-199" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-200"><a href="#cb25-200" aria-hidden="true" tabindex="-1"></a><span class="fu"># Species importation </span></span>
 <span id="cb25-201"><a href="#cb25-201" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-202"><a href="#cb25-202" aria-hidden="true" tabindex="-1"></a><span class="fu"># Species importation </span></span>
+<span id="cb25-202"><a href="#cb25-202" aria-hidden="true" tabindex="-1"></a>We list the species, starting with those present in the laboratory results.</span>
 <span id="cb25-203"><a href="#cb25-203" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-204"><a href="#cb25-204" aria-hidden="true" tabindex="-1"></a>We list the species, starting with those present in the laboratory results.</span>
-<span id="cb25-205"><a href="#cb25-205" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-208"><a href="#cb25-208" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-209"><a href="#cb25-209" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(field_sample<span class="sc">$</span>id_species)</span>
-<span id="cb25-210"><a href="#cb25-210" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-206"><a href="#cb25-206" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-207"><a href="#cb25-207" aria-hidden="true" tabindex="-1"></a><span class="fu">unique</span>(field_sample<span class="sc">$</span>id_species)</span>
+<span id="cb25-208"><a href="#cb25-208" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-209"><a href="#cb25-209" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-210"><a href="#cb25-210" aria-hidden="true" tabindex="-1"></a>We compare it with the list of species present in the database.</span>
 <span id="cb25-211"><a href="#cb25-211" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-212"><a href="#cb25-212" aria-hidden="true" tabindex="-1"></a>We compare it with the list of species present in the database.</span>
-<span id="cb25-213"><a href="#cb25-213" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-216"><a href="#cb25-216" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-217"><a href="#cb25-217" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbReadTable</span>(con, <span class="st">"species"</span>)</span>
-<span id="cb25-218"><a href="#cb25-218" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-214"><a href="#cb25-214" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-215"><a href="#cb25-215" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbReadTable</span>(con, <span class="st">"species"</span>)</span>
+<span id="cb25-216"><a href="#cb25-216" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-217"><a href="#cb25-217" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-218"><a href="#cb25-218" aria-hidden="true" tabindex="-1"></a>We declare a <span class="in">`data.frame`</span> with the missing species</span>
 <span id="cb25-219"><a href="#cb25-219" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-220"><a href="#cb25-220" aria-hidden="true" tabindex="-1"></a>We declare a <span class="in">`data.frame`</span> with the missing species</span>
-<span id="cb25-221"><a href="#cb25-221" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-224"><a href="#cb25-224" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-225"><a href="#cb25-225" aria-hidden="true" tabindex="-1"></a>new_species <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
-<span id="cb25-226"><a href="#cb25-226" aria-hidden="true" tabindex="-1"></a>   <span class="sc">~</span>org_species, <span class="sc">~</span>id_species, <span class="sc">~</span>organism, <span class="sc">~</span>genus, <span class="sc">~</span>species, <span class="sc">~</span>vernacular_fr, <span class="sc">~</span>vernacular_en,</span>
-<span id="cb25-227"><a href="#cb25-227" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Alose sp."</span>, <span class="st">"SHSP"</span>, <span class="st">"Fish"</span>, <span class="st">"Alosa"</span>,   <span class="st">"Alosa sp."</span>, <span class="st">"Alose"</span>, <span class="st">"Shad"</span>,</span>
-<span id="cb25-228"><a href="#cb25-228" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gadidae sp."</span>, <span class="st">"COSP"</span>, <span class="st">"Fish"</span>, <span class="st">"Gadidae"</span>, <span class="st">"Gadidae sp."</span>, <span class="st">"Morue"</span>, <span class="st">"Cod"</span>,</span>
-<span id="cb25-229"><a href="#cb25-229" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Lompenie tachete"</span>, <span class="st">"DASH"</span>, <span class="st">"Fish"</span>, <span class="st">"Gadidae"</span>, <span class="st">"Leptoclinus maculatus"</span>, <span class="st">"Lompénie tachetée"</span>, <span class="st">"Daubed shanny"</span></span>
-<span id="cb25-230"><a href="#cb25-230" aria-hidden="true" tabindex="-1"></a>)</span>
-<span id="cb25-231"><a href="#cb25-231" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-222"><a href="#cb25-222" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-223"><a href="#cb25-223" aria-hidden="true" tabindex="-1"></a>new_species <span class="ot">&lt;-</span> tibble<span class="sc">::</span><span class="fu">tribble</span>(</span>
+<span id="cb25-224"><a href="#cb25-224" aria-hidden="true" tabindex="-1"></a>   <span class="sc">~</span>org_species, <span class="sc">~</span>id_species, <span class="sc">~</span>organism, <span class="sc">~</span>genus, <span class="sc">~</span>species, <span class="sc">~</span>vernacular_fr, <span class="sc">~</span>vernacular_en,</span>
+<span id="cb25-225"><a href="#cb25-225" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Alose sp."</span>, <span class="st">"SHSP"</span>, <span class="st">"Fish"</span>, <span class="st">"Alosa"</span>,   <span class="st">"Alosa sp."</span>, <span class="st">"Alose"</span>, <span class="st">"Shad"</span>,</span>
+<span id="cb25-226"><a href="#cb25-226" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Gadidae sp."</span>, <span class="st">"COSP"</span>, <span class="st">"Fish"</span>, <span class="st">"Gadidae"</span>, <span class="st">"Gadidae sp."</span>, <span class="st">"Morue"</span>, <span class="st">"Cod"</span>,</span>
+<span id="cb25-227"><a href="#cb25-227" aria-hidden="true" tabindex="-1"></a>  <span class="st">"Lompenie tachete"</span>, <span class="st">"DASH"</span>, <span class="st">"Fish"</span>, <span class="st">"Gadidae"</span>, <span class="st">"Leptoclinus maculatus"</span>, <span class="st">"Lompénie tachetée"</span>, <span class="st">"Daubed shanny"</span></span>
+<span id="cb25-228"><a href="#cb25-228" aria-hidden="true" tabindex="-1"></a>)</span>
+<span id="cb25-229"><a href="#cb25-229" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-230"><a href="#cb25-230" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-231"><a href="#cb25-231" aria-hidden="true" tabindex="-1"></a>We add those missing species in the database</span>
 <span id="cb25-232"><a href="#cb25-232" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-233"><a href="#cb25-233" aria-hidden="true" tabindex="-1"></a>We add those missing species in the database</span>
-<span id="cb25-234"><a href="#cb25-234" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"species"</span>, dplyr<span class="sc">::</span><span class="fu">select</span>(new_species, <span class="sc">-</span>org_species)</span>
-<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a>, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-235"><a href="#cb25-235" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-236"><a href="#cb25-236" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"species"</span>, dplyr<span class="sc">::</span><span class="fu">select</span>(new_species, <span class="sc">-</span>org_species)</span>
+<span id="cb25-237"><a href="#cb25-237" aria-hidden="true" tabindex="-1"></a>, <span class="at">append =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb25-238"><a href="#cb25-238" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-239"><a href="#cb25-239" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-240"><a href="#cb25-240" aria-hidden="true" tabindex="-1"></a>We visually confirm that the new species are indeed present in the database.</span>
 <span id="cb25-241"><a href="#cb25-241" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-242"><a href="#cb25-242" aria-hidden="true" tabindex="-1"></a>We visually confirm that the new species are indeed present in the database.</span>
-<span id="cb25-243"><a href="#cb25-243" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-246"><a href="#cb25-246" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbReadTable</span>(con, <span class="st">"species"</span>)</span>
-<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-244"><a href="#cb25-244" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-245"><a href="#cb25-245" aria-hidden="true" tabindex="-1"></a>DBI<span class="sc">::</span><span class="fu">dbReadTable</span>(con, <span class="st">"species"</span>)</span>
+<span id="cb25-246"><a href="#cb25-246" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-247"><a href="#cb25-247" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-248"><a href="#cb25-248" aria-hidden="true" tabindex="-1"></a>We match the species codes from the laboratory report with those in the database. </span>
 <span id="cb25-249"><a href="#cb25-249" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-250"><a href="#cb25-250" aria-hidden="true" tabindex="-1"></a>We match the species codes from the laboratory report with those in the database. </span>
-<span id="cb25-251"><a href="#cb25-251" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> field_sample <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
-<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_species =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
-<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Alose sp."</span> <span class="sc">~</span> <span class="st">"SHSP"</span>,</span>
-<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Capelan"</span> <span class="sc">~</span> <span class="st">"CAPE"</span>,</span>
-<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Gadidae sp."</span> <span class="sc">~</span> <span class="st">"COSP"</span>,</span>
-<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Lancon"</span> <span class="sc">~</span> <span class="st">"SAND"</span>,</span>
-<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Lompenie tachete"</span> <span class="sc">~</span> <span class="st">"DASH"</span>,</span>
-<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>        <span class="at">.default =</span> <span class="cn">NA</span></span>
-<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a>    )</span>
-<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(id_species))</span>
-<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-252"><a href="#cb25-252" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-253"><a href="#cb25-253" aria-hidden="true" tabindex="-1"></a>field_sample <span class="ot">&lt;-</span> field_sample <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">mutate</span>(</span>
+<span id="cb25-254"><a href="#cb25-254" aria-hidden="true" tabindex="-1"></a>    <span class="at">id_species =</span> dplyr<span class="sc">::</span><span class="fu">case_when</span>(</span>
+<span id="cb25-255"><a href="#cb25-255" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Alose sp."</span> <span class="sc">~</span> <span class="st">"SHSP"</span>,</span>
+<span id="cb25-256"><a href="#cb25-256" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Capelan"</span> <span class="sc">~</span> <span class="st">"CAPE"</span>,</span>
+<span id="cb25-257"><a href="#cb25-257" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Gadidae sp."</span> <span class="sc">~</span> <span class="st">"COSP"</span>,</span>
+<span id="cb25-258"><a href="#cb25-258" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Lancon"</span> <span class="sc">~</span> <span class="st">"SAND"</span>,</span>
+<span id="cb25-259"><a href="#cb25-259" aria-hidden="true" tabindex="-1"></a>        id_species <span class="sc">==</span> <span class="st">"Lompenie tachete"</span> <span class="sc">~</span> <span class="st">"DASH"</span>,</span>
+<span id="cb25-260"><a href="#cb25-260" aria-hidden="true" tabindex="-1"></a>        <span class="at">.default =</span> <span class="cn">NA</span></span>
+<span id="cb25-261"><a href="#cb25-261" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb25-262"><a href="#cb25-262" aria-hidden="true" tabindex="-1"></a>) <span class="sc">|&gt;</span> dplyr<span class="sc">::</span><span class="fu">filter</span>(<span class="sc">!</span><span class="fu">is.na</span>(id_species))</span>
+<span id="cb25-263"><a href="#cb25-263" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-264"><a href="#cb25-264" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-265"><a href="#cb25-265" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lab measurements injection</span></span>
 <span id="cb25-266"><a href="#cb25-266" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a><span class="fu"># Lab measurements injection</span></span>
+<span id="cb25-267"><a href="#cb25-267" aria-hidden="true" tabindex="-1"></a>The previous steps have updated the reference tables for sites and species.</span>
 <span id="cb25-268"><a href="#cb25-268" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a>The previous steps have updated the reference tables for sites and species.</span>
+<span id="cb25-269"><a href="#cb25-269" aria-hidden="true" tabindex="-1"></a>We can now proceed to import the data on samples and measurements.</span>
 <span id="cb25-270"><a href="#cb25-270" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a>We can now proceed to import the data on samples and measurements.</span>
+<span id="cb25-271"><a href="#cb25-271" aria-hidden="true" tabindex="-1"></a><span class="fu">## Field samples </span></span>
 <span id="cb25-272"><a href="#cb25-272" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-273"><a href="#cb25-273" aria-hidden="true" tabindex="-1"></a><span class="fu">## Field samples </span></span>
-<span id="cb25-274"><a href="#cb25-274" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-277"><a href="#cb25-277" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
-<span id="cb25-278"><a href="#cb25-278" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) <span class="sc">|&gt;</span> </span>
-<span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
-<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-275"><a href="#cb25-275" aria-hidden="true" tabindex="-1"></a><span class="in">```{r}</span></span>
+<span id="cb25-276"><a href="#cb25-276" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_field_sample, collection_date, id_site, id_species, age, tissue) <span class="sc">|&gt;</span> </span>
+<span id="cb25-277"><a href="#cb25-277" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-278"><a href="#cb25-278" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
+<span id="cb25-279"><a href="#cb25-279" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-280"><a href="#cb25-280" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-281"><a href="#cb25-281" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab samples</span></span>
 <span id="cb25-282"><a href="#cb25-282" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-283"><a href="#cb25-283" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab samples</span></span>
-<span id="cb25-284"><a href="#cb25-284" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample) <span class="sc">|&gt;</span> </span>
-<span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
-<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-285"><a href="#cb25-285" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb25-286"><a href="#cb25-286" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample) <span class="sc">|&gt;</span> </span>
+<span id="cb25-287"><a href="#cb25-287" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-288"><a href="#cb25-288" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
+<span id="cb25-289"><a href="#cb25-289" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-290"><a href="#cb25-290" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-291"><a href="#cb25-291" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab field samples</span></span>
 <span id="cb25-292"><a href="#cb25-292" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab field samples</span></span>
+<span id="cb25-293"><a href="#cb25-293" aria-hidden="true" tabindex="-1"></a>This table links the laboratory samples with the field samples. This join table is necessary as lab samples can hold several field sample (often the case with eggs).</span>
 <span id="cb25-294"><a href="#cb25-294" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-295"><a href="#cb25-295" aria-hidden="true" tabindex="-1"></a>This table links the laboratory samples with the field samples.</span>
-<span id="cb25-296"><a href="#cb25-296" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample, id_field_sample) <span class="sc">|&gt;</span> </span>
-<span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
-<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-297"><a href="#cb25-297" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb25-298"><a href="#cb25-298" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(field_sample, id_lab_sample, id_field_sample) <span class="sc">|&gt;</span> </span>
+<span id="cb25-299"><a href="#cb25-299" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">distinct</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-300"><a href="#cb25-300" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_field_sample"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
+<span id="cb25-301"><a href="#cb25-301" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-302"><a href="#cb25-302" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-303"><a href="#cb25-303" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab measurements</span></span>
 <span id="cb25-304"><a href="#cb25-304" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a><span class="fu">## Lab measurements</span></span>
+<span id="cb25-305"><a href="#cb25-305" aria-hidden="true" tabindex="-1"></a>Finaly, all the parent table (<span class="in">`field_sample`</span>, <span class="in">`lab_sample`</span>, <span class="in">`lab_field_sample`</span>) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.</span>
 <span id="cb25-306"><a href="#cb25-306" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-307"><a href="#cb25-307" aria-hidden="true" tabindex="-1"></a>Finaly, all the parent table (<span class="in">`field_sample`</span>, <span class="in">`lab_sample`</span>, <span class="in">`lab_field_sample`</span>) have been recorded in the database. We can now import the lab measurements record. We have to manualy declare the MDL/LOD value in order to assess if the measurement value is cencored or not.</span>
-<span id="cb25-308"><a href="#cb25-308" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
-<span id="cb25-312"><a href="#cb25-312" aria-hidden="true" tabindex="-1"></a><span class="co"># Set method detection limit</span></span>
-<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a>MDL <span class="ot">&lt;-</span> <span class="fl">0.0001</span></span>
-<span id="cb25-314"><a href="#cb25-314" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, id_lab_sample, id_analyte, value, <span class="at">percent_moisture =</span> pmoisture) <span class="sc">|&gt;</span> </span>
-<span id="cb25-316"><a href="#cb25-316" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The line below assess if the value is censored or not</span></span>
-<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">is_censored =</span> <span class="fu">ifelse</span>(value <span class="sc">&gt;</span> MDL, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb25-318"><a href="#cb25-318" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">id_report =</span> report<span class="sc">$</span>id_report) <span class="sc">|&gt;</span> </span>
-<span id="cb25-319"><a href="#cb25-319" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_measurement"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
-<span id="cb25-320"><a href="#cb25-320" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
+<span id="cb25-309"><a href="#cb25-309" aria-hidden="true" tabindex="-1"></a><span class="in">```{R}</span></span>
+<span id="cb25-310"><a href="#cb25-310" aria-hidden="true" tabindex="-1"></a><span class="co"># Set method detection limit</span></span>
+<span id="cb25-311"><a href="#cb25-311" aria-hidden="true" tabindex="-1"></a>MDL <span class="ot">&lt;-</span> <span class="fl">0.0001</span></span>
+<span id="cb25-312"><a href="#cb25-312" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb25-313"><a href="#cb25-313" aria-hidden="true" tabindex="-1"></a>dplyr<span class="sc">::</span><span class="fu">select</span>(measurements, id_lab_sample, id_analyte, value, <span class="at">percent_moisture =</span> pmoisture) <span class="sc">|&gt;</span> </span>
+<span id="cb25-314"><a href="#cb25-314" aria-hidden="true" tabindex="-1"></a>    <span class="co"># The line below assess if the value is censored or not</span></span>
+<span id="cb25-315"><a href="#cb25-315" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">is_censored =</span> <span class="fu">ifelse</span>(value <span class="sc">&gt;</span> MDL, <span class="dv">0</span>, <span class="dv">1</span>)) <span class="sc">|&gt;</span></span>
+<span id="cb25-316"><a href="#cb25-316" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">mutate</span>(<span class="at">id_report =</span> report<span class="sc">$</span>id_report) <span class="sc">|&gt;</span> </span>
+<span id="cb25-317"><a href="#cb25-317" aria-hidden="true" tabindex="-1"></a>    (\(data) DBI<span class="sc">::</span><span class="fu">dbWriteTable</span>(con, <span class="st">"lab_measurement"</span>, data, <span class="at">append =</span> <span class="cn">TRUE</span>))()</span>
+<span id="cb25-318"><a href="#cb25-318" aria-hidden="true" tabindex="-1"></a><span class="in">```</span></span>
 </code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div></div></div></div></div>
 </div> <!-- /content -->
