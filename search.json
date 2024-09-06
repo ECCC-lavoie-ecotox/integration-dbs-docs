@@ -44,8 +44,8 @@
     ]
   },
   {
-    "objectID": "intro_index.html",
-    "href": "intro_index.html",
+    "objectID": "index.html",
+    "href": "index.html",
     "title": "Purpose of this documentation",
     "section": "",
     "text": "Raphael Lavoie’s laboratory is working on integrating data from contaminant measurements on biological matrices for a study area covering the Estuary and Gulf of St. Lawrence.\nThe first section of this documentation focuses on the database structure and reviews the content of each field present in the database. The second section (in French) deals with the integration work, which requires several steps of data validation and consolidation. It also includes the code to generate some exploratory figures to better understand the data produced by this integration.",
@@ -176,8 +176,8 @@
     ]
   },
   {
-    "objectID": "intro_deploy.html",
-    "href": "intro_deploy.html",
+    "objectID": "deploy.html",
+    "href": "deploy.html",
     "title": "Contribute to this documentation",
     "section": "",
     "text": "To build this documentation locally, follow these steps.",
@@ -187,8 +187,8 @@
     ]
   },
   {
-    "objectID": "intro_deploy.html#get-documentation-source-code",
-    "href": "intro_deploy.html#get-documentation-source-code",
+    "objectID": "deploy.html#get-documentation-source-code",
+    "href": "deploy.html#get-documentation-source-code",
     "title": "Contribute to this documentation",
     "section": "Get documentation source code",
     "text": "Get documentation source code\nSteve - I will give a training on how to clone a git repository and push new edits to the documentation. In the meatime, if you’re already set to work with git and Rstudio, the repository URL is avaible at https://github.com/ECCC-lavoie-ecotox/integration-dbs-docs.",
@@ -198,8 +198,8 @@
     ]
   },
   {
-    "objectID": "intro_deploy.html#build-this-website",
-    "href": "intro_deploy.html#build-this-website",
+    "objectID": "deploy.html#build-this-website",
+    "href": "deploy.html#build-this-website",
     "title": "Contribute to this documentation",
     "section": "Build this website",
     "text": "Build this website\n# Serve the website in your browser\nquarto::quarto_preview()\nThis approach allows you to work on the documentation files in parallel. Each time a file is modified, the website is rebuilt to include the latest changes.",
